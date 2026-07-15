@@ -1,5 +1,7 @@
 package name.lapidary;
 
+import name.lapidary.block.ModBlocks;
+import name.lapidary.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +24,8 @@ public class Lapidary implements ModInitializer {
 		// Proceed with mild caution.
 
 		LOGGER.info("Hello Fabric world!");
+		ModItems.initialize();
+		ModBlocks.initialize();
 	}
 
 	public static ResourceLocation id(String path) {
