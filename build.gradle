@@ -12,6 +12,45 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	mavenCentral()
+
+	maven {
+		name = "QuiltMC"
+		url = uri("https://maven.quiltmc.org/repository/release")
+	}
+
+	maven {
+		name = "Ladysnake"
+		url = uri("https://maven.ladysnake.org/releases")
+	}
+
+	maven {
+		name = "TerraformersMC"
+		url = uri("https://maven.terraformersmc.com/")
+	}
+
+	maven {
+		name = "Shedaniel"
+		url = uri("https://maven.shedaniel.me/")
+	}
+
+	maven {
+		name = "JitPack"
+		url = uri("https://jitpack.io")
+	}
+
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = uri("https://api.modrinth.com/maven")
+			}
+		}
+
+		filter {
+			includeGroup("maven.modrinth")
+		}
+	}
 }
 
 loom {
@@ -39,6 +78,20 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Required: entity scaling support
+	modApi("com.github.Virtuoel:Pehkui:${project.pehkui_version}") {
+		exclude group: "net.fabricmc.fabric-api"
+	}
+
+	// Required: wearable jewelry and accessory slots
+	modImplementation "dev.emi:trinkets:${project.trinkets_version}"
+
+	// Load Origins in the development client and server for compatibility testing.
+	// Carpet is an optional Origins compile-time integration that Lapidary does not need.
+	modRuntimeOnly("io.github.apace100:origins-fabric:${project.origins_version}") {
+		exclude group: "carpet", module: "fabric-carpet"
+	}
 }
 
 processResources {
