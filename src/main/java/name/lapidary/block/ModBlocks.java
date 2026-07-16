@@ -19,6 +19,7 @@ public final class ModBlocks {
                     BlockBehaviour.Properties.of()
                             .strength(0.3F)
                             .sound(SoundType.GLASS)
+                            .noOcclusion()
             )
     );
 

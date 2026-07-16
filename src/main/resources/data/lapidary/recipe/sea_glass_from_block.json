@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "lapidary:sea_glass_block"
+    }
+  ],
+  "result": {
+    "id": "lapidary:sea_glass",
+    "count": 9
+  }
+}
