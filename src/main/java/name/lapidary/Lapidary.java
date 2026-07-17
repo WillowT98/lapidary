@@ -1,5 +1,6 @@
 package name.lapidary;
 
+import name.lapidary.sifting.SieveProcessing;
 import name.lapidary.block.ModBlocks;
 import name.lapidary.item.ModItems;
 import name.lapidary.world.ModWorldGeneration;
@@ -28,6 +29,7 @@ public class Lapidary implements ModInitializer {
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModWorldGeneration.initialize();
+		SieveProcessing.initialize();
 	}
 
 	public static ResourceLocation id(String path) {
