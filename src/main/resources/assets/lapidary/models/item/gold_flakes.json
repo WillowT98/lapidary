@@ -1,3 +1,6 @@
 {
-  "parent": "lapidary:block/gold_flakes"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lapidary:item/gold_flakes"
+  }
 }

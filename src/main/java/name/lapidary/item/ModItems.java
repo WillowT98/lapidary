@@ -32,6 +32,13 @@ public final class ModItems {
                             .durability(128)
             )
     );
+    public static final Item GOLD_PAN = register(
+            "gold_pan",
+            new GoldPanItem(
+                    new Item.Properties()
+                            .durability(128)
+            )
+    );
     private ModItems() {
         // Prevent this utility class from being instantiated.
     }
@@ -50,6 +57,7 @@ public final class ModItems {
                     entries.accept(FULGURITE);
                     entries.accept(PURE_LAPIS);
                     entries.accept(SIEVE);
+                    entries.accept(GOLD_PAN);
                     entries.accept(GOLD_FLAKES);
                 });
     }
