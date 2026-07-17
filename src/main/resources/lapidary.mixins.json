@@ -3,7 +3,8 @@
 	"package": "name.lapidary.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"AbstractVillagerMixin"
+		"AbstractVillagerMixin",
+		"LightningRodBlockMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

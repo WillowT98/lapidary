@@ -25,6 +25,10 @@ public final class ModItems {
             "gold_flakes",
             new Item(new Item.Properties())
     );
+    public static final Item ELECTROSTATIC_MIX = register(
+            "electrostatic_mix",
+            new Item(new Item.Properties())
+    );
     public static final Item SIEVE = register(
             "sieve",
             new SieveItem(
@@ -59,6 +63,7 @@ public final class ModItems {
                     entries.accept(SIEVE);
                     entries.accept(GOLD_PAN);
                     entries.accept(GOLD_FLAKES);
+                    entries.accept(ELECTROSTATIC_MIX);
                 });
     }
 }
