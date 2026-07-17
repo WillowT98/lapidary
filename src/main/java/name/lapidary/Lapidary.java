@@ -6,7 +6,8 @@ import name.lapidary.block.ModBlocks;
 import name.lapidary.item.ModItems;
 import name.lapidary.world.ModWorldGeneration;
 import net.fabricmc.api.ModInitializer;
-
+import name.lapidary.command.LapidaryCommands;
+import name.lapidary.progression.ModAttachments;
 import net.minecraft.resources.ResourceLocation;
 
 import org.slf4j.Logger;
@@ -27,11 +28,13 @@ public class Lapidary implements ModInitializer {
 		// Proceed with mild caution.
 
 		LOGGER.info("Hello Fabric world!");
+		ModAttachments.initialize();
 		ModFluids.initialize();
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModWorldGeneration.initialize();
 		SieveProcessing.initialize();
+		LapidaryCommands.initialize();
 	}
 
 	public static ResourceLocation id(String path) {
