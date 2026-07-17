@@ -21,6 +21,10 @@ public final class ModItems {
             "pure_lapis",
             new Item(new Item.Properties())
     );
+    public static final Item GOLD_FLAKES = register(
+            "gold_flakes",
+            new Item(new Item.Properties())
+    );
     public static final Item SIEVE = register(
             "sieve",
             new SieveItem(
@@ -46,6 +50,7 @@ public final class ModItems {
                     entries.accept(FULGURITE);
                     entries.accept(PURE_LAPIS);
                     entries.accept(SIEVE);
+                    entries.accept(GOLD_FLAKES);
                 });
     }
 }
