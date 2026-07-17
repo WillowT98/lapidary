@@ -1,5 +1,7 @@
 package name.lapidary.client;
 
+import name.lapidary.client.hud.InsightHud;
+import name.lapidary.client.network.ClientNetworking;
 import name.lapidary.block.ModBlocks;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -12,6 +14,9 @@ import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 public class LapidaryClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		ClientNetworking.initialize();
+		InsightHud.initialize();
+
 		BlockRenderLayerMap.INSTANCE.putBlock(
 				ModBlocks.SEA_GLASS_BLOCK,
 				RenderType.translucent()

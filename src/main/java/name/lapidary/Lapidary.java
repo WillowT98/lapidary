@@ -7,6 +7,7 @@ import name.lapidary.item.ModItems;
 import name.lapidary.world.ModWorldGeneration;
 import net.fabricmc.api.ModInitializer;
 import name.lapidary.command.LapidaryCommands;
+import name.lapidary.network.ModNetworking;
 import name.lapidary.progression.ModAttachments;
 import net.minecraft.resources.ResourceLocation;
 
@@ -29,6 +30,7 @@ public class Lapidary implements ModInitializer {
 
 		LOGGER.info("Hello Fabric world!");
 		ModAttachments.initialize();
+		ModNetworking.initialize();
 		ModFluids.initialize();
 		ModItems.initialize();
 		ModBlocks.initialize();
