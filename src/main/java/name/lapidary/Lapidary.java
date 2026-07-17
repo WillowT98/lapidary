@@ -1,5 +1,6 @@
 package name.lapidary;
 
+import name.lapidary.fluid.ModFluids;
 import name.lapidary.sifting.SieveProcessing;
 import name.lapidary.block.ModBlocks;
 import name.lapidary.item.ModItems;
@@ -26,6 +27,7 @@ public class Lapidary implements ModInitializer {
 		// Proceed with mild caution.
 
 		LOGGER.info("Hello Fabric world!");
+		ModFluids.initialize();
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModWorldGeneration.initialize();

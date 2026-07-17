@@ -8,6 +8,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 
+import name.lapidary.fluid.ModFluids;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Items;
+
 public final class ModItems {
     public static final Item SEA_GLASS = register(
             "sea_glass",
@@ -29,6 +33,14 @@ public final class ModItems {
             "electrostatic_mix",
             new Item(new Item.Properties())
     );
+    public static final Item NECKLACE_EMPTY = register(
+            "necklace_empty",
+            new Item(new Item.Properties())
+    );
+    public static final Item RING_EMPTY = register(
+            "ring_empty",
+            new Item(new Item.Properties().stacksTo(1))
+    );
     public static final Item SIEVE = register(
             "sieve",
             new SieveItem(
@@ -41,6 +53,15 @@ public final class ModItems {
             new GoldPanItem(
                     new Item.Properties()
                             .durability(128)
+            )
+    );
+    public static final Item MANA_BUCKET = register(
+            "mana_bucket",
+            new BucketItem(
+                    ModFluids.MANA,
+                    new Item.Properties()
+                            .craftRemainder(Items.BUCKET)
+                            .stacksTo(1)
             )
     );
     private ModItems() {
@@ -64,6 +85,9 @@ public final class ModItems {
                     entries.accept(GOLD_PAN);
                     entries.accept(GOLD_FLAKES);
                     entries.accept(ELECTROSTATIC_MIX);
+                    entries.accept(MANA_BUCKET);
+                    entries.accept(NECKLACE_EMPTY);
+                    entries.accept(RING_EMPTY);
                 });
     }
 }

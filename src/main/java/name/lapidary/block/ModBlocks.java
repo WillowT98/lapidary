@@ -12,6 +12,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
+import name.lapidary.fluid.ModFluids;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+
 public final class ModBlocks {
     public static final Block SEA_GLASS_BLOCK = register(
             "sea_glass_block",
@@ -37,7 +41,28 @@ public final class ModBlocks {
                             .sound(SoundType.MUD)
             )
     );
+    public static final LiquidBlock MANA = registerWithoutItem(
+            "mana",
+            new ManaLiquidBlock(
+                    ModFluids.MANA,
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+            )
+    );
+    private static <T extends Block> T registerWithoutItem(
+            String name,
+            T block
+    ) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
+                Lapidary.MOD_ID,
+                name
+        );
 
+        return Registry.register(
+                BuiltInRegistries.BLOCK,
+                id,
+                block
+        );
+    }
     private ModBlocks() {
     }
 

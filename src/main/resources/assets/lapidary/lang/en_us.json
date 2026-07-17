@@ -8,5 +8,8 @@
   "item.lapidary.sieve": "Sieve",
   "item.lapidary.gold_pan": "Gold Pan",
   "item.lapidary.gold_flakes": "Gold Flakes",
-  "item.lapidary.electrostatic_mix": "Electrostatic Mix"
+  "item.lapidary.electrostatic_mix": "Electrostatic Mix",
+  "item.lapidary.mana_bucket": "Bucket of Mana",
+  "item.lapidary.necklace_empty": "Empty Necklace",
+  "item.lapidary.ring_empty": "Empty Ring"
 }
