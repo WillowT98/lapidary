@@ -3,7 +3,7 @@
 	"package": "name.lapidary.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"AbstractVillagerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
