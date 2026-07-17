@@ -13,7 +13,14 @@ public final class ModItems {
             "sea_glass",
             new Item(new Item.Properties())
     );
-
+    public static final Item FULGURITE = register(
+            "fulgurite",
+            new Item(new Item.Properties())
+    );
+    public static final Item PURE_LAPIS = register(
+            "pure_lapis",
+            new Item(new Item.Properties())
+    );
     private ModItems() {
         // Prevent this utility class from being instantiated.
     }
@@ -28,5 +35,9 @@ public final class ModItems {
     public static void initialize() {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
                 .register(entries -> entries.accept(SEA_GLASS));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
+                .register(entries -> entries.accept(FULGURITE));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
+                .register(entries -> entries.accept(PURE_LAPIS));
     }
 }

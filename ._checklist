@@ -1,0 +1,23 @@
+To add items:
+-Choose a consistent name for item! Must be
+ the same everywhere
+-Add to src/main/java/name/lapidary/item/ModItems.java
+  This is where you add unusual properties, like
+  stack sizes or durability
+-Add .png texture to src/main/resources/assets/lapidary/textures/item/
+-Add model to src/main/resources/assets/lapidary/models/item/
+  Normal items use "minecraft:item/generated" and "lapidary:item/polished_sea_glass"
+  Handheld items use "minecraft:item/handheld" and "lapidary:item/example_tool"
+-Add display name to src/main/resources/assets/lapidary/lang/en_us.json
+
+To add blocks:
+-Add to src/main/java/name/lapidary/block/ModBlocks.java
+-Add .png texture to src/main/resources/assets/lapidary/textures/block/
+-Add model to src/main/resources/assets/lapidary/models/block/
+-Add blockstate to src/main/resources/assets/lapidary/blockstates/
+-Add inventory model to src/main/resources/assets/lapidary/models/item/
+-Add display name to src/main/resources/assets/lapidary/lang/en_us.json
+-Add loot table to src/main/resources/data/lapidary/loot_table/blocks/
+
+To add recipes:
+-Add to src\main\resources\data\lapidary\recipe

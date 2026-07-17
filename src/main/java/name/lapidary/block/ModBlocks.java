@@ -22,6 +22,14 @@ public final class ModBlocks {
                             .noOcclusion()
             )
     );
+    public static final Block FINE_SAND = register(
+            "fine_sand",
+            new Block(
+                    BlockBehaviour.Properties.of()
+                            .strength(0.3F)
+                            .sound(SoundType.SAND)
+            )
+    );
 
     private ModBlocks() {
     }
@@ -44,5 +52,7 @@ public final class ModBlocks {
     public static void initialize() {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS)
                 .register(entries -> entries.accept(SEA_GLASS_BLOCK));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS)
+                .register(entries -> entries.accept(FINE_SAND));
     }
 }

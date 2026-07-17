@@ -1,4 +1,7 @@
 {
   "item.lapidary.sea_glass": "Sea Glass",
-  "block.lapidary.sea_glass_block": "Sea Glass Block"
+  "block.lapidary.sea_glass_block": "Sea Glass Block",
+  "item.lapidary.fulgurite": "Fulgurite",
+  "item.lapidary.pure_lapis": "Pure Lapis",
+  "block.lapidary.fine_sand": "Fine Sand"
 }
