@@ -30,6 +30,13 @@ public final class ModBlocks {
                             .sound(SoundType.SAND)
             )
     );
+    public static final Block LOAM = register(
+            "loam",
+            new Block(
+                    BlockBehaviour.Properties.of()
+                            .sound(SoundType.MUD)
+            )
+    );
 
     private ModBlocks() {
     }
@@ -51,8 +58,10 @@ public final class ModBlocks {
 
     public static void initialize() {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS)
-                .register(entries -> entries.accept(SEA_GLASS_BLOCK));
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS)
-                .register(entries -> entries.accept(FINE_SAND));
+                .register(entries -> {
+                    entries.accept(SEA_GLASS_BLOCK);
+                    entries.accept(FINE_SAND);
+                    entries.accept(LOAM);
+                });
     }
 }

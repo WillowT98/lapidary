@@ -105,6 +105,8 @@ public final class SieveProcessing {
         //this is where we can intercept anything else for sifting!
         if (input.is(Blocks.SAND)) {
             return ModBlocks.FINE_SAND.defaultBlockState();
+        } else if (input.is(Blocks.DIRT) || input.is(Blocks.GRASS_BLOCK)) {
+            return ModBlocks.LOAM.defaultBlockState();
         }
 
         return null;
