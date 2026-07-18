@@ -15,6 +15,8 @@ import name.lapidary.client.renderer.OreMimicRenderer;
 import name.lapidary.entity.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
+import net.minecraft.client.renderer.entity.FoxRenderer;
+
 public class LapidaryClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
@@ -39,6 +41,10 @@ public class LapidaryClient implements ClientModInitializer {
 		EntityRendererRegistry.register(
 				ModEntities.ORE_MIMIC,
 				OreMimicRenderer::new
+		);
+		EntityRendererRegistry.register(
+				ModEntities.SABLE,
+				FoxRenderer::new
 		);
 	}
 }

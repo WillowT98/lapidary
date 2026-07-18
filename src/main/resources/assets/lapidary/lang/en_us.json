@@ -12,5 +12,7 @@
   "item.lapidary.mana_bucket": "Bucket of Mana",
   "item.lapidary.necklace_empty": "Empty Necklace",
   "item.lapidary.ring_empty": "Empty Ring",
-  "entity.lapidary.ore_mimic": "Ore Mimic"
+  "entity.lapidary.ore_mimic": "Ore Mimic",
+  "item.lapidary.sable_fur": "Sable Fur",
+  "entity.lapidary.sable": "Sable"
 }

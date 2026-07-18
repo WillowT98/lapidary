@@ -64,6 +64,10 @@ public final class ModItems {
                             .stacksTo(1)
             )
     );
+    public static final Item SABLE_FUR = register(
+            "sable_fur",
+            new Item(new Item.Properties())
+    );
     private ModItems() {
         // Prevent this utility class from being instantiated.
     }
@@ -88,6 +92,7 @@ public final class ModItems {
                     entries.accept(MANA_BUCKET);
                     entries.accept(NECKLACE_EMPTY);
                     entries.accept(RING_EMPTY);
+                    entries.accept(SABLE_FUR);
                 });
     }
 }

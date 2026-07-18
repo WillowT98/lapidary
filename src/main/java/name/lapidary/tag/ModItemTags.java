@@ -16,7 +16,14 @@ public final class ModItemTags {
                             "shows_insight_bar"
                     )
             );
-
+    public static final TagKey<Item> SABLE_FOOD =
+            TagKey.create(
+                    Registries.ITEM,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Lapidary.MOD_ID,
+                            "sable_food"
+                    )
+            );
     private ModItemTags() {
     }
 }

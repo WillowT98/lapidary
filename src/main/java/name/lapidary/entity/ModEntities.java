@@ -29,6 +29,16 @@ public final class ModEntities {
                             .eyeHeight(1.62F)
                             .clientTrackingRange(8)
             );
+    public static final EntityType<SableEntity> SABLE =
+            register(
+                    "sable",
+                    EntityType.Builder.of(
+                                    SableEntity::new,
+                                    MobCategory.CREATURE
+                            )
+                            .sized(0.6F, 0.7F)
+                            .clientTrackingRange(8)
+            );
 
     private ModEntities() {
     }
@@ -63,6 +73,10 @@ public final class ModEntities {
         FabricDefaultAttributeRegistry.register(
                 ORE_MIMIC,
                 OreMimicEntity.createAttributes()
+        );
+        FabricDefaultAttributeRegistry.register(
+                SABLE,
+                SableEntity.createAttributes()
         );
     }
 }
