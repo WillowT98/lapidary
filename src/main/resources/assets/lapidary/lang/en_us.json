@@ -11,5 +11,6 @@
   "item.lapidary.electrostatic_mix": "Electrostatic Mix",
   "item.lapidary.mana_bucket": "Bucket of Mana",
   "item.lapidary.necklace_empty": "Empty Necklace",
-  "item.lapidary.ring_empty": "Empty Ring"
+  "item.lapidary.ring_empty": "Empty Ring",
+  "entity.lapidary.ore_mimic": "Ore Mimic"
 }

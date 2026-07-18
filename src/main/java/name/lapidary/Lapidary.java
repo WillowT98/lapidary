@@ -10,7 +10,7 @@ import name.lapidary.command.LapidaryCommands;
 import name.lapidary.network.ModNetworking;
 import name.lapidary.progression.ModAttachments;
 import net.minecraft.resources.ResourceLocation;
-
+import name.lapidary.entity.ModEntities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +34,7 @@ public class Lapidary implements ModInitializer {
 		ModFluids.initialize();
 		ModItems.initialize();
 		ModBlocks.initialize();
+		ModEntities.initialize();
 		ModWorldGeneration.initialize();
 		SieveProcessing.initialize();
 		LapidaryCommands.initialize();
