@@ -48,6 +48,27 @@ public final class ModBlocks {
                     BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
             )
     );
+    public static final Block SABLE_CACHE =
+            registerBlockOnly(
+                    "sable_cache",
+                    new SableCacheBlock(
+                            BlockBehaviour.Properties
+                                    .ofFullCopy(Blocks.CHEST)
+                    )
+            );
+    private static Block registerBlockOnly(
+            String name,
+            Block block
+    ) {
+        return Registry.register(
+                BuiltInRegistries.BLOCK,
+                ResourceLocation.fromNamespaceAndPath(
+                        Lapidary.MOD_ID,
+                        name
+                ),
+                block
+        );
+    }
     private static <T extends Block> T registerWithoutItem(
             String name,
             T block

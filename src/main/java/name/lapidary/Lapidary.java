@@ -1,5 +1,6 @@
 package name.lapidary;
 
+import name.lapidary.block.entity.ModBlockEntities;
 import name.lapidary.fluid.ModFluids;
 import name.lapidary.sifting.SieveProcessing;
 import name.lapidary.block.ModBlocks;
@@ -34,6 +35,7 @@ public class Lapidary implements ModInitializer {
 		ModFluids.initialize();
 		ModItems.initialize();
 		ModBlocks.initialize();
+		ModBlockEntities.initialize();
 		ModEntities.initialize();
 		ModWorldGeneration.initialize();
 		SieveProcessing.initialize();

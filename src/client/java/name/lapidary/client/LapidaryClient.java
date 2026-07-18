@@ -1,10 +1,12 @@
 package name.lapidary.client;
 
+import name.lapidary.block.entity.ModBlockEntities;
 import name.lapidary.client.hud.InsightHud;
 import name.lapidary.client.network.ClientNetworking;
 import name.lapidary.block.ModBlocks;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.renderer.RenderType;
 
 import name.lapidary.fluid.ModFluids;
@@ -16,6 +18,7 @@ import name.lapidary.entity.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 import net.minecraft.client.renderer.entity.FoxRenderer;
+import net.minecraft.client.renderer.blockentity.ChestRenderer;
 
 public class LapidaryClient implements ClientModInitializer {
 	@Override
@@ -45,6 +48,10 @@ public class LapidaryClient implements ClientModInitializer {
 		EntityRendererRegistry.register(
 				ModEntities.SABLE,
 				FoxRenderer::new
+		);
+		BlockEntityRendererRegistry.register(
+				ModBlockEntities.SABLE_CACHE,
+				ChestRenderer::new
 		);
 	}
 }

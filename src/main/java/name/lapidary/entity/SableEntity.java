@@ -1,5 +1,7 @@
 package name.lapidary.entity;
 
+import name.lapidary.block.ModBlocks;
+import name.lapidary.block.entity.SableCacheBlockEntity;
 import name.lapidary.entity.ai.SableCreateCacheGoal;
 import name.lapidary.entity.ai.SableReturnToCacheGoal;
 import name.lapidary.item.ModItems;
@@ -11,11 +13,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,15 +24,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.world.entity.ai.goal.BreedGoal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowParentGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.PanicGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.TemptGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.player.Player;
@@ -68,7 +59,14 @@ public final class SableEntity extends Fox {
     private static final int FUR_COOLDOWN_TICKS = 24_000;
 
     private static final int CACHE_SEARCH_RADIUS = 12;
+    private static final int CACHE_ANGER_DURATION =
+            1_200;
 
+    private static final double CACHE_DEFENSE_RANGE_SQUARED =
+            32.0D * 32.0D;
+
+    private UUID angryAtUuid;
+    private int cacheAngerTime;
     /*
      * Temporary data-driven replacement:
      * the sable chooses one of these forest objects as its gift.
@@ -157,9 +155,16 @@ public final class SableEntity extends Fox {
                         1.15D
                 )
         );
-
         this.goalSelector.addGoal(
                 2,
+                new MeleeAttackGoal(
+                        this,
+                        1.3D,
+                        true
+                )
+        );
+        this.goalSelector.addGoal(
+                3,
                 new PanicGoal(
                         this,
                         1.4D
@@ -167,7 +172,7 @@ public final class SableEntity extends Fox {
         );
 
         this.goalSelector.addGoal(
-                3,
+                4,
                 new BreedGoal(
                         this,
                         1.0D
@@ -175,7 +180,7 @@ public final class SableEntity extends Fox {
         );
 
         this.goalSelector.addGoal(
-                4,
+                5,
                 new TemptGoal(
                         this,
                         1.1D,
@@ -187,7 +192,7 @@ public final class SableEntity extends Fox {
         );
 
         this.goalSelector.addGoal(
-                5,
+                6,
                 new AvoidEntityGoal<>(
                         this,
                         Player.class,
@@ -198,11 +203,12 @@ public final class SableEntity extends Fox {
                                 livingEntity instanceof Player player
                                         && !this.isTamed()
                                         && !isHoldingSmoothStone(player)
+                                        && !this.isAngryAt(player)
                 )
         );
 
         this.goalSelector.addGoal(
-                6,
+                7,
                 new FollowParentGoal(
                         this,
                         1.1D
@@ -214,7 +220,7 @@ public final class SableEntity extends Fox {
          * toward it before creating the cache.
          */
         this.goalSelector.addGoal(
-                7,
+                8,
                 new SableCreateCacheGoal(
                         this,
                         1.0D,
@@ -223,7 +229,7 @@ public final class SableEntity extends Fox {
         );
 
         this.goalSelector.addGoal(
-                8,
+                9,
                 new WaterAvoidingRandomStrollGoal(
                         this,
                         1.0D
@@ -231,7 +237,7 @@ public final class SableEntity extends Fox {
         );
 
         this.goalSelector.addGoal(
-                9,
+                10,
                 new LookAtPlayerGoal(
                         this,
                         Player.class,
@@ -240,11 +246,106 @@ public final class SableEntity extends Fox {
         );
 
         this.goalSelector.addGoal(
-                10,
+                11,
                 new RandomLookAroundGoal(this)
         );
     }
+    public boolean isAngryAt(
+            Player player
+    ) {
+        return cacheAngerTime > 0
+                && angryAtUuid != null
+                && angryAtUuid.equals(
+                player.getUUID()
+        );
+    }
 
+    public void onCacheStolenFrom(
+            Player player
+    ) {
+        /*
+         * Once tamed, the sable accepts its owner accessing the old cache.
+         * Other players are still treated as thieves.
+         */
+        if (isTamed()
+                && ownerUuid != null
+                && ownerUuid.equals(
+                player.getUUID()
+        )) {
+            return;
+        }
+
+        angryAtUuid =
+                player.getUUID();
+
+        cacheAngerTime =
+                CACHE_ANGER_DURATION;
+
+        this.setTarget(player);
+        this.getNavigation().stop();
+    }
+
+    public void onCacheDestroyedBy(
+            Player player
+    ) {
+        onCacheStolenFrom(player);
+
+        /*
+         * The block is about to disappear, so allow the cache-creation goal
+         * to establish a replacement.
+         */
+        cachePos = null;
+    }
+
+    private void tickCacheAnger(
+            ServerLevel level
+    ) {
+        if (cacheAngerTime <= 0
+                || angryAtUuid == null) {
+            return;
+        }
+
+        cacheAngerTime--;
+
+        Player thief =
+                level.getPlayerByUUID(
+                        angryAtUuid
+                );
+
+        if (thief != null
+                && thief.isAlive()
+                && this.distanceToSqr(thief)
+                <= CACHE_DEFENSE_RANGE_SQUARED) {
+
+            this.setTarget(thief);
+        } else if (this.getTarget() != null
+                && angryAtUuid.equals(
+                this.getTarget()
+                        .getUUID()
+        )) {
+
+            this.setTarget(null);
+        }
+
+        if (cacheAngerTime <= 0) {
+            clearCacheAnger();
+        }
+    }
+
+    private void clearCacheAnger() {
+        if (this.getTarget() != null
+                && angryAtUuid != null
+                && angryAtUuid.equals(
+                this.getTarget()
+                        .getUUID()
+        )) {
+
+            this.setTarget(null);
+        }
+
+        angryAtUuid = null;
+        cacheAngerTime = 0;
+    }
     @Override
     protected void defineSynchedData(
             SynchedEntityData.Builder builder
@@ -257,28 +358,24 @@ public final class SableEntity extends Fox {
         );
     }
 
-    private void removeWildCache(ServerLevel level) {
+    private void removeWildCache(
+            ServerLevel level
+    ) {
         if (isTamed()
                 || cachePos == null
                 || !level.getBlockState(cachePos)
-                .is(Blocks.CHEST)) {
+                .is(ModBlocks.SABLE_CACHE)) {
             return;
         }
 
-        BlockEntity blockEntity =
-                level.getBlockEntity(cachePos);
-
-        if (blockEntity instanceof Container container) {
-            Containers.dropContents(
-                    level,
-                    cachePos,
-                    container
-            );
-        }
-
+        /*
+         * ChestBlock's removal behavior releases the inventory, so do not
+         * manually call Containers.dropContents here.
+         */
         level.setBlockAndUpdate(
                 cachePos,
-                Blocks.GRASS_BLOCK.defaultBlockState()
+                Blocks.GRASS_BLOCK
+                        .defaultBlockState()
         );
 
         cachePos = null;
@@ -326,10 +423,10 @@ public final class SableEntity extends Fox {
         return cachePos != null
                 && this.level()
                 .getBlockState(cachePos)
-                .is(Blocks.CHEST)
+                .is(ModBlocks.SABLE_CACHE)
                 && this.level()
                 .getBlockEntity(cachePos)
-                instanceof Container;
+                instanceof SableCacheBlockEntity;
     }
 
     public boolean isCarryingPebble() {
@@ -357,8 +454,7 @@ public final class SableEntity extends Fox {
         /*
          * Wild pebble exchange.
          */
-        if (!isTamed()
-                && heldStack.is(Items.SMOOTH_STONE)
+        if (heldStack.is(Items.SMOOTH_STONE)
                 && !isCarryingPebble()
                 && hasValidCache()) {
 
@@ -500,6 +596,11 @@ public final class SableEntity extends Fox {
     protected void customServerAiStep() {
         super.customServerAiStep();
 
+        if (this.level()
+                instanceof ServerLevel serverLevel) {
+
+            tickCacheAnger(serverLevel);
+        }
         if (furCooldown > 0) {
             furCooldown--;
         }
@@ -510,8 +611,21 @@ public final class SableEntity extends Fox {
         if (cachePos != null
                 && !this.level()
                 .getBlockState(cachePos)
-                .is(Blocks.CHEST)) {
+                .is(ModBlocks.SABLE_CACHE)) {
+
             cachePos = null;
+        }
+        if (cachePos != null
+                && this.level()
+                .getBlockEntity(cachePos)
+                instanceof SableCacheBlockEntity cache
+                && !this.getUUID().equals(
+                cache.getLinkedSableUuid()
+        )) {
+
+            cache.setLinkedSableUuid(
+                    this.getUUID()
+            );
         }
 
     }
@@ -652,9 +766,15 @@ public final class SableEntity extends Fox {
         for (Direction direction
                 : Direction.Plane.HORIZONTAL) {
 
-            if (level.getBlockState(
-                    candidate.relative(direction)
-            ).is(Blocks.CHEST)) {
+            BlockState neighboringState =
+                    level.getBlockState(
+                            candidate.relative(direction)
+                    );
+
+            if (neighboringState.is(Blocks.CHEST)
+                    || neighboringState.is(
+                    ModBlocks.SABLE_CACHE
+            )) {
                 return false;
             }
         }
@@ -675,10 +795,6 @@ public final class SableEntity extends Fox {
             ServerLevel level,
             BlockPos position
     ) {
-        /*
-         * Recheck immediately before changing the world. The terrain may
-         * have changed while the sable was walking.
-         */
         if (!canCreateCacheAt(
                 level,
                 position
@@ -688,10 +804,25 @@ public final class SableEntity extends Fox {
 
         level.setBlockAndUpdate(
                 position,
-                Blocks.CHEST.defaultBlockState()
+                ModBlocks.SABLE_CACHE
+                        .defaultBlockState()
         );
 
+        if (level.getBlockEntity(position)
+                instanceof SableCacheBlockEntity cache) {
+
+            cache.setLinkedSableUuid(
+                    this.getUUID()
+            );
+        }
+
         cachePos = position.immutable();
+
+        /*
+         * A sable with a world-altering cache should not naturally despawn
+         * and leave the cache permanently orphaned.
+         */
+        this.setPersistenceRequired();
 
         this.getNavigation().stop();
     }
@@ -1015,6 +1146,17 @@ public final class SableEntity extends Fox {
     ) {
         super.addAdditionalSaveData(tag);
 
+        tag.putInt(
+                "LapidaryCacheAngerTime",
+                cacheAngerTime
+        );
+
+        if (angryAtUuid != null) {
+            tag.putUUID(
+                    "LapidaryAngryAt",
+                    angryAtUuid
+            );
+        }
         tag.putBoolean(
                 "LapidaryTamed",
                 isTamed()
@@ -1072,6 +1214,22 @@ public final class SableEntity extends Fox {
             CompoundTag tag
     ) {
         super.readAdditionalSaveData(tag);
+
+        cacheAngerTime =
+                tag.getInt(
+                        "LapidaryCacheAngerTime"
+                );
+
+        if (tag.hasUUID(
+                "LapidaryAngryAt"
+        )) {
+            angryAtUuid =
+                    tag.getUUID(
+                            "LapidaryAngryAt"
+                    );
+        } else {
+            angryAtUuid = null;
+        }
 
         setTamed(
                 tag.getBoolean(
