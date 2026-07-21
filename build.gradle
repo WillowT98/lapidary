@@ -7,11 +7,6 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
 	mavenCentral()
 
 	maven {
@@ -25,11 +20,6 @@ repositories {
 	}
 
 	maven {
-		name = "TerraformersMC"
-		url = uri("https://maven.terraformersmc.com/")
-	}
-
-	maven {
 		name = "Shedaniel"
 		url = uri("https://maven.shedaniel.me/")
 	}
@@ -39,6 +29,34 @@ repositories {
 		url = uri("https://jitpack.io")
 	}
 
+	/*
+	 * LambDynamicLights, SpruceUI, and PrideLib.
+	 */
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Gegy"
+				url = uri("https://maven.gegy.dev")
+			}
+		}
+
+		filter {
+			/*
+			 * Matches both:
+			 * dev.lambdaurora
+			 * dev.lambdaurora.lambdynamiclights
+			 */
+			includeGroupByRegex("dev\\.lambdaurora(\\..*)?")
+
+			// PrideLib
+			includeGroup("io.github.queerbric")
+		}
+	}
+
+	/*
+	 * Trinkets is temporarily retrieved through Modrinth
+	 * because the TerraformersMC Maven is returning 502 errors.
+	 */
 	exclusiveContent {
 		forRepository {
 			maven {
@@ -52,6 +70,7 @@ repositories {
 		}
 	}
 }
+
 
 loom {
 	splitEnvironmentSourceSets()
@@ -70,13 +89,17 @@ fabricApi {
 	}
 }
 
+def lambDynamicLightsVersion = "4.8.10+1.21.1"
+
 dependencies {
-	// To change the versions see the gradle.properties file
+	// Minecraft and mappings
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
+
+	// Fabric Loader
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
+	// Fabric API
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	// Required: entity scaling support
@@ -84,11 +107,36 @@ dependencies {
 		exclude group: "net.fabricmc.fabric-api"
 	}
 
-	// Required: wearable jewelry and accessory slots
-	modImplementation "dev.emi:trinkets:${project.trinkets_version}"
+	/*
+ * Some development dependency requests Mod Menu through the unavailable
+ * TerraformersMC Maven. Mod Menu is optional, so remove that transitive
+ * dependency from every configuration.
+ */
+	configurations.configureEach {
+		exclude group: "com.terraformersmc", module: "modmenu"
+	}
 
-	// Load Origins in the development client and server for compatibility testing.
-	// Carpet is an optional Origins compile-time integration that Lapidary does not need.
+	// Compile against the dedicated LambDynamicLights API.
+// Disable transitives because Lapidary only needs the API classes here.
+	modCompileOnly(
+			"dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambDynamicLightsVersion}"
+	) {
+		transitive = false
+	}
+
+// Load the complete official LambDynamicLights release in the dev client.
+// Exact Modrinth coordinates for 4.8.10+1.21.1.
+	modLocalRuntime(
+			"dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${lambDynamicLightsVersion}"
+	)
+
+	// Required: wearable jewelry and accessory slots
+	modImplementation(
+			"maven.modrinth:trinkets:${project.trinkets_version}"
+	)
+
+	// Load Origins in the development environment for compatibility testing.
+	// Carpet is an optional Origins integration that Lapidary does not need.
 	modRuntimeOnly("io.github.apace100:origins-fabric:${project.origins_version}") {
 		exclude group: "carpet", module: "fabric-carpet"
 	}
@@ -108,9 +156,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_21
@@ -122,11 +167,10 @@ jar {
 	inputs.property "projectName", projectName
 
 	from("LICENSE") {
-		rename { "${it}_$projectName"}
+		rename { "${it}_$projectName" }
 	}
 }
 
-// configure the maven publication
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
@@ -134,11 +178,8 @@ publishing {
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		// Add publishing repositories here if Lapidary is later
+		// published through Maven.
 	}
 }
