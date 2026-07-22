@@ -17,6 +17,10 @@ public final class ModItems {
             "sea_glass",
             new Item(new Item.Properties())
     );
+    public static final Item SEA_GLASS_EMERALD = register(
+            "sea_glass_emerald",
+            new Item(new Item.Properties())
+    );
     public static final Item FULGURITE = register(
             "fulgurite",
             new Item(new Item.Properties())

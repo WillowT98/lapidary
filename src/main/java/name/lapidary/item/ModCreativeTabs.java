@@ -153,6 +153,9 @@ public final class ModCreativeTabs {
                                             add.accept(
                                                     ModBlocks.BISMUTH_BLOCK
                                             );
+                                            add.accept(
+                                                    ModItems.SEA_GLASS_EMERALD
+                                            );
 
 
                                         }
