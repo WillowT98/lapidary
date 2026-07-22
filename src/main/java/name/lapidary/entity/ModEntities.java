@@ -67,6 +67,16 @@ public final class ModEntities {
                             .clientTrackingRange(8)
             );
 
+    public static final EntityType<AmefyshEntity> AMEFYSH =
+            register(
+                    "amefysh",
+                    EntityType.Builder.of(
+                                    AmefyshEntity::new,
+                                    MobCategory.WATER_AMBIENT
+                            )
+                            .sized(0.5F, 0.4F)
+                            .clientTrackingRange(8)
+            );
     private ModEntities() {
     }
 
@@ -113,6 +123,10 @@ public final class ModEntities {
         FabricDefaultAttributeRegistry.register(
                 BRIGHT_SALMON,
                 BrightSalmonEntity.createAttributes()
+        );
+        FabricDefaultAttributeRegistry.register(
+                AMEFYSH,
+                AmefyshEntity.createAttributes()
         );
     }
 }

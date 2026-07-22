@@ -16,11 +16,12 @@ import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import name.lapidary.client.renderer.OreMimicRenderer;
 import name.lapidary.client.renderer.GlowTroutRenderer;
 import name.lapidary.client.renderer.BrightSalmonRenderer;
+import name.lapidary.client.renderer.AmefyshRenderer;
 import name.lapidary.entity.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 import net.minecraft.client.renderer.entity.FoxRenderer;
-import net.minecraft.client.renderer.blockentity.ChestRenderer;
+
 
 public class LapidaryClient implements ClientModInitializer {
 	@Override
@@ -63,6 +64,10 @@ public class LapidaryClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(
 				ModBlocks.SABLE_CACHE,
 				RenderType.cutout()
+		);
+		EntityRendererRegistry.register(
+				ModEntities.AMEFYSH,
+				AmefyshRenderer::new
 		);
 	}
 }

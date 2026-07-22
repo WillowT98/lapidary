@@ -2,7 +2,8 @@
   "match": {
     "type": [
       "lapidary:glow_trout",
-      "lapidary:bright_salmon"
+      "lapidary:bright_salmon",
+      "lapidary:amefysh"
     ]
   },
   "luminance": 15

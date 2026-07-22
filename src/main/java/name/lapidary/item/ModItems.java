@@ -92,6 +92,17 @@ public final class ModItems {
                                     .stacksTo(1)
                     )
             );
+    public static final Item AMEFYSH_BUCKET =
+            register(
+                    "amefysh_bucket",
+                    new MobBucketItem(
+                            ModEntities.AMEFYSH,
+                            Fluids.WATER,
+                            SoundEvents.BUCKET_EMPTY_FISH,
+                            new Item.Properties()
+                                    .stacksTo(1)
+                    )
+            );
 
     private ModItems() {
         // Prevent this utility class from being instantiated.
@@ -120,6 +131,7 @@ public final class ModItems {
                     entries.accept(SABLE_FUR);
                     entries.accept(GLOW_TROUT_BUCKET);
                     entries.accept(BRIGHT_SALMON_BUCKET);
+                    entries.accept(AMEFYSH_BUCKET);
                 });
     }
 }

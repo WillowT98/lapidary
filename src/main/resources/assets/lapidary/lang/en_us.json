@@ -20,5 +20,7 @@
   "entity.lapidary.glow_trout": "Glow Trout",
   "entity.lapidary.bright_salmon": "Bright Salmon",
   "item.lapidary.glow_trout_bucket": "Bucket of Glow Trout",
-  "item.lapidary.bright_salmon_bucket": "Bucket of Bright Salmon"
+  "item.lapidary.bright_salmon_bucket": "Bucket of Bright Salmon",
+  "item.lapidary.amefysh_bucket": "Bucket of Amefysh",
+  "entity.lapidary.amefysh": "Amefysh"
 }

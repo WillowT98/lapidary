@@ -52,6 +52,11 @@ public abstract class AbstractFishMixin {
                     fish,
                     ModEntities.BRIGHT_SALMON
             );
+        } else if (fish.getType() == EntityType.TROPICAL_FISH) {
+            lapidary$replaceFish(
+                    fish,
+                    ModEntities.AMEFYSH
+            );
         }
     }
 
