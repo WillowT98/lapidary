@@ -71,7 +71,7 @@ public abstract class ManaFluid extends WaterFluid {
     /**
      * Represents non-source mana at flow levels 1 through 7.
      */
-    public static final class Flowing extends ManaFluid {
+    public static final class Flowing extends MoltenBismuthFluid {
 
         public Flowing() {
             registerDefaultState(
@@ -104,7 +104,7 @@ public abstract class ManaFluid extends WaterFluid {
     /**
      * Represents a full mana source block.
      */
-    public static final class Source extends ManaFluid {
+    public static final class Source extends MoltenBismuthFluid {
 
         @Override
         public int getAmount(FluidState state) {

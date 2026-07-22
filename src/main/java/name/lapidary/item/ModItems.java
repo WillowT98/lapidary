@@ -103,6 +103,22 @@ public final class ModItems {
                                     .stacksTo(1)
                     )
             );
+    public static final Item MOLTEN_BISMUTH_BOTTLE =
+            register(
+                    "molten_bismuth_bottle",
+                    new MoltenBismuthBottleItem(
+                            new Item.Properties()
+                                    .stacksTo(16)
+                    )
+            );
+    public static final Item LAPIDARY_GUIDEBOOK =
+            register(
+                    "lapidary_guidebook",
+                    new Item(
+                            new Item.Properties()
+                                    .stacksTo(1)
+                    )
+            );
 
     private ModItems() {
         // Prevent this utility class from being instantiated.
@@ -116,7 +132,7 @@ public final class ModItems {
     }
 
     public static void initialize() {
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
+        /*ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
                 .register(entries -> {
                     entries.accept(SEA_GLASS);
                     entries.accept(FULGURITE);
@@ -132,6 +148,7 @@ public final class ModItems {
                     entries.accept(GLOW_TROUT_BUCKET);
                     entries.accept(BRIGHT_SALMON_BUCKET);
                     entries.accept(AMEFYSH_BUCKET);
-                });
+                    entries.accept(MOLTEN_BISMUTH_BOTTLE);
+                });*/
     }
 }

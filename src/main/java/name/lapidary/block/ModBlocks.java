@@ -41,6 +41,13 @@ public final class ModBlocks {
                             .sound(SoundType.MUD)
             )
     );
+    public static final Block BISMUTH_BLOCK = register(
+            "bismuth_block",
+            new BismuthBlock(
+                    BlockBehaviour.Properties.of()
+                            .sound(SoundType.COPPER)
+            )
+    );
     public static final LiquidBlock MANA = registerWithoutItem(
             "mana",
             new ManaLiquidBlock(
@@ -56,6 +63,16 @@ public final class ModBlocks {
                                     .strength(0.6F)
                                     .sound(SoundType.PACKED_MUD)
                                     .noOcclusion()
+                    )
+            );
+    public static final Block MOLTEN_BISMUTH =
+            registerBlockOnly(
+                    "molten_bismuth",
+                    new MoltenBismuthLiquidBlock(
+                            ModFluids.MOLTEN_BISMUTH,
+                            BlockBehaviour.Properties
+                                    .ofFullCopy(Blocks.LAVA)
+                                    .lightLevel(state -> 3)
                     )
             );
     private static Block registerBlockOnly(
@@ -105,11 +122,12 @@ public final class ModBlocks {
     }
 
     public static void initialize() {
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS)
+        /*ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS)
                 .register(entries -> {
                     entries.accept(SEA_GLASS_BLOCK);
                     entries.accept(FINE_SAND);
                     entries.accept(LOAM);
-                });
+                    entries.accept(BISMUTH_BLOCK);
+                });*/
     }
 }

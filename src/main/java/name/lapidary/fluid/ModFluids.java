@@ -16,13 +16,24 @@ public final class ModFluids {
      */
     public static final FlowingFluid MANA = register(
             "mana",
-            new ManaFluid.Source()
+            new MoltenBismuthFluid.Source()
     );
 
     public static final FlowingFluid FLOWING_MANA = register(
             "flowing_mana",
-            new ManaFluid.Flowing()
+            new MoltenBismuthFluid.Flowing()
     );
+    public static final FlowingFluid FLOWING_MOLTEN_BISMUTH =
+            register(
+                    "flowing_molten_bismuth",
+                    new MoltenBismuthFluid.Flowing()
+            );
+
+    public static final FlowingFluid MOLTEN_BISMUTH =
+            register(
+                    "molten_bismuth",
+                    new MoltenBismuthFluid.Source()
+            );
 
     private ModFluids() {
     }

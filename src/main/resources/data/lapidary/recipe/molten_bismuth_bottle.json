@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    {
+      "item": "lapidary:bismuth_block"
+    }
+  ],
+  "result": {
+    "id": "lapidary:molten_bismuth_bottle",
+    "count": 1
+  }
+}

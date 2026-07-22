@@ -1,6 +1,7 @@
 package name.lapidary.entity;
 
 import name.lapidary.Lapidary;
+import name.lapidary.entity.projectile.ThrownMoltenBismuthEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -76,6 +77,19 @@ public final class ModEntities {
                             )
                             .sized(0.5F, 0.4F)
                             .clientTrackingRange(8)
+            );
+    public static final EntityType<ThrownMoltenBismuthEntity>
+            THROWN_MOLTEN_BISMUTH =
+            register(
+                    "thrown_molten_bismuth",
+                    EntityType.Builder
+                            .<ThrownMoltenBismuthEntity>of(
+                                    ThrownMoltenBismuthEntity::new,
+                                    MobCategory.MISC
+                            )
+                            .sized(0.25F, 0.25F)
+                            .clientTrackingRange(4)
+                            .updateInterval(10)
             );
     private ModEntities() {
     }

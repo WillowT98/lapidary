@@ -2,6 +2,7 @@ package name.lapidary;
 
 import name.lapidary.block.entity.ModBlockEntities;
 import name.lapidary.fluid.ModFluids;
+import name.lapidary.item.ModCreativeTabs;
 import name.lapidary.sifting.SieveProcessing;
 import name.lapidary.block.ModBlocks;
 import name.lapidary.item.ModItems;
@@ -40,6 +41,7 @@ public class Lapidary implements ModInitializer {
 		ModWorldGeneration.initialize();
 		SieveProcessing.initialize();
 		LapidaryCommands.initialize();
+		ModCreativeTabs.initialize();
 	}
 
 	public static ResourceLocation id(String path) {

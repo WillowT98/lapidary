@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lapidary:item/molten_bismuth_liquid",
+    "layer1": "minecraft:item/glass_bottle"
+  }
+}

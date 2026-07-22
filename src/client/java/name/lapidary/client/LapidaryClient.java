@@ -21,6 +21,7 @@ import name.lapidary.entity.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 import net.minecraft.client.renderer.entity.FoxRenderer;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
 
 public class LapidaryClient implements ClientModInitializer {
@@ -38,11 +39,21 @@ public class LapidaryClient implements ClientModInitializer {
 				ModFluids.FLOWING_MANA,
 				SimpleFluidRenderHandler.coloredWater(0x0AFBEA)
 		);
+		FluidRenderHandlerRegistry.INSTANCE.register(
+				ModFluids.MOLTEN_BISMUTH,
+				ModFluids.FLOWING_MOLTEN_BISMUTH,
+				SimpleFluidRenderHandler.coloredWater(0x353535)
+		);
 
 		BlockRenderLayerMap.INSTANCE.putFluids(
 				RenderType.translucent(),
 				ModFluids.MANA,
 				ModFluids.FLOWING_MANA
+		);
+		BlockRenderLayerMap.INSTANCE.putFluids(
+				RenderType.translucent(),
+				ModFluids.MOLTEN_BISMUTH,
+				ModFluids.FLOWING_MOLTEN_BISMUTH
 		);
 		EntityRendererRegistry.register(
 				ModEntities.ORE_MIMIC,
@@ -68,6 +79,10 @@ public class LapidaryClient implements ClientModInitializer {
 		EntityRendererRegistry.register(
 				ModEntities.AMEFYSH,
 				AmefyshRenderer::new
+		);
+		EntityRendererRegistry.register(
+				ModEntities.THROWN_MOLTEN_BISMUTH,
+				ThrownItemRenderer::new
 		);
 	}
 }

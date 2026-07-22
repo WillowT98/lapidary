@@ -22,5 +22,9 @@
   "item.lapidary.glow_trout_bucket": "Bucket of Glow Trout",
   "item.lapidary.bright_salmon_bucket": "Bucket of Bright Salmon",
   "item.lapidary.amefysh_bucket": "Bucket of Amefysh",
-  "entity.lapidary.amefysh": "Amefysh"
+  "entity.lapidary.amefysh": "Amefysh",
+  "block.lapidary.bismuth_block": "Block of Bismuth",
+  "item.lapidary.molten_bismuth_bottle": "Bottle of Molten Bismuth",
+  "item.lapidary.lapidary_guidebook": "Lapidary Guidebook",
+  "itemGroup.lapidary": "Lapidary"
 }
