@@ -1,12 +1,15 @@
 package name.lapidary.client;
 
+import name.lapidary.client.screen.GemCutterScreen;
 import name.lapidary.block.entity.ModBlockEntities;
 import name.lapidary.client.hud.InsightHud;
 import name.lapidary.client.network.ClientNetworking;
 import name.lapidary.block.ModBlocks;
+import name.lapidary.screen.ModMenus;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 
 import name.lapidary.fluid.ModFluids;
@@ -83,6 +86,14 @@ public class LapidaryClient implements ClientModInitializer {
 		EntityRendererRegistry.register(
 				ModEntities.THROWN_MOLTEN_BISMUTH,
 				ThrownItemRenderer::new
+		);
+		MenuScreens.register(
+				ModMenus.GEM_CUTTER,
+				GemCutterScreen::new
+		);
+		BlockRenderLayerMap.INSTANCE.putBlock(
+				ModBlocks.GEM_CUTTER,
+				RenderType.cutout()
 		);
 	}
 }

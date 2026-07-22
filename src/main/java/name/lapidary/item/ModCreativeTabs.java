@@ -156,6 +156,9 @@ public final class ModCreativeTabs {
                                             add.accept(
                                                     ModItems.SEA_GLASS_EMERALD
                                             );
+                                            add.accept(
+                                                    ModBlocks.GEM_CUTTER
+                                            );
 
 
                                         }

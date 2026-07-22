@@ -48,6 +48,15 @@ public final class ModBlocks {
                             .sound(SoundType.COPPER)
             )
     );
+    public static final Block GEM_CUTTER =
+            register(
+                    "gem_cutter",
+                    new GemCutterBlock(
+                            BlockBehaviour.Properties
+                                    .ofFullCopy(Blocks.STONECUTTER)
+                                    .noOcclusion()
+                    )
+            );
     public static final LiquidBlock MANA = registerWithoutItem(
             "mana",
             new ManaLiquidBlock(
@@ -75,6 +84,7 @@ public final class ModBlocks {
                                     .lightLevel(state -> 3)
                     )
             );
+
     private static Block registerBlockOnly(
             String name,
             Block block

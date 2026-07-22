@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lapidary:block/gem_cutter"
+    },
+    "facing=east": {
+      "model": "lapidary:block/gem_cutter",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "lapidary:block/gem_cutter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lapidary:block/gem_cutter",
+      "y": 270
+    }
+  }
+}

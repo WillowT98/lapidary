@@ -27,5 +27,7 @@
   "item.lapidary.molten_bismuth_bottle": "Bottle of Molten Bismuth",
   "item.lapidary.lapidary_guidebook": "Lapidary Guidebook",
   "itemGroup.lapidary": "Lapidary",
-  "item.lapidary.sea_glass_emerald": "Emerald-Cut Sea Glass"
+  "item.lapidary.sea_glass_emerald": "Emerald-Cut Sea Glass",
+  "block.lapidary.gem_cutter": "Gem Cutter",
+  "container.lapidary.gem_cutter": "Gem Cutter"
 }
