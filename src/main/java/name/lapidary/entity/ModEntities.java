@@ -39,6 +39,33 @@ public final class ModEntities {
                             .sized(0.6F, 0.7F)
                             .clientTrackingRange(8)
             );
+    /*
+     * Uses the vanilla cod body size and behavior.
+     */
+    public static final EntityType<GlowTroutEntity> GLOW_TROUT =
+            register(
+                    "glow_trout",
+                    EntityType.Builder.of(
+                                    GlowTroutEntity::new,
+                                    MobCategory.WATER_AMBIENT
+                            )
+                            .sized(0.5F, 0.3F)
+                            .clientTrackingRange(8)
+            );
+
+    /*
+     * Uses the vanilla salmon body size and behavior.
+     */
+    public static final EntityType<BrightSalmonEntity> BRIGHT_SALMON =
+            register(
+                    "bright_salmon",
+                    EntityType.Builder.of(
+                                    BrightSalmonEntity::new,
+                                    MobCategory.WATER_AMBIENT
+                            )
+                            .sized(0.7F, 0.4F)
+                            .clientTrackingRange(8)
+            );
 
     private ModEntities() {
     }
@@ -77,6 +104,15 @@ public final class ModEntities {
         FabricDefaultAttributeRegistry.register(
                 SABLE,
                 SableEntity.createAttributes()
+        );
+        FabricDefaultAttributeRegistry.register(
+                GLOW_TROUT,
+                GlowTroutEntity.createAttributes()
+        );
+
+        FabricDefaultAttributeRegistry.register(
+                BRIGHT_SALMON,
+                BrightSalmonEntity.createAttributes()
         );
     }
 }

@@ -1,8 +1,38 @@
 {
   "multipart": [
     {
+      "when": {
+        "facing": "south"
+      },
       "apply": {
-        "model": "minecraft:block/chest"
+        "model": "lapidary:block/sable_cache"
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "lapidary:block/sable_cache",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "lapidary:block/sable_cache",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "lapidary:block/sable_cache",
+        "y": 270
       }
     }
   ]

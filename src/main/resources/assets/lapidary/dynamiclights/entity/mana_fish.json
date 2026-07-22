@@ -1,0 +1,9 @@
+{
+  "match": {
+    "type": [
+      "lapidary:glow_trout",
+      "lapidary:bright_salmon"
+    ]
+  },
+  "luminance": 15
+}

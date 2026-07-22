@@ -14,6 +14,8 @@ import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 
 import name.lapidary.client.renderer.OreMimicRenderer;
+import name.lapidary.client.renderer.GlowTroutRenderer;
+import name.lapidary.client.renderer.BrightSalmonRenderer;
 import name.lapidary.entity.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
@@ -49,9 +51,18 @@ public class LapidaryClient implements ClientModInitializer {
 				ModEntities.SABLE,
 				FoxRenderer::new
 		);
-		BlockEntityRendererRegistry.register(
-				ModBlockEntities.SABLE_CACHE,
-				ChestRenderer::new
+		EntityRendererRegistry.register(
+				ModEntities.GLOW_TROUT,
+				GlowTroutRenderer::new
+		);
+
+		EntityRendererRegistry.register(
+				ModEntities.BRIGHT_SALMON,
+				BrightSalmonRenderer::new
+		);
+		BlockRenderLayerMap.INSTANCE.putBlock(
+				ModBlocks.SABLE_CACHE,
+				RenderType.cutout()
 		);
 	}
 }

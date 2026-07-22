@@ -16,5 +16,9 @@
   "item.lapidary.sable_fur": "Sable Fur",
   "entity.lapidary.sable": "Sable",
   "block.lapidary.sable_cache": "Sable Cache",
-  "container.lapidary.sable_cache": "Sable Cache"
+  "container.lapidary.sable_cache": "Sable Cache",
+  "entity.lapidary.glow_trout": "Glow Trout",
+  "entity.lapidary.bright_salmon": "Bright Salmon",
+  "item.lapidary.glow_trout_bucket": "Bucket of Glow Trout",
+  "item.lapidary.bright_salmon_bucket": "Bucket of Bright Salmon"
 }

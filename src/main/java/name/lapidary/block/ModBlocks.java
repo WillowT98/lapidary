@@ -52,8 +52,10 @@ public final class ModBlocks {
             registerBlockOnly(
                     "sable_cache",
                     new SableCacheBlock(
-                            BlockBehaviour.Properties
-                                    .ofFullCopy(Blocks.CHEST)
+                            BlockBehaviour.Properties.of()
+                                    .strength(0.6F)
+                                    .sound(SoundType.PACKED_MUD)
+                                    .noOcclusion()
                     )
             );
     private static Block registerBlockOnly(

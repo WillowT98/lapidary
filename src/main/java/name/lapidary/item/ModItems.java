@@ -1,16 +1,16 @@
 package name.lapidary.item;
 
 import name.lapidary.Lapidary;
+import name.lapidary.entity.ModEntities;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.*;
 
 import name.lapidary.fluid.ModFluids;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluids;
 
 public final class ModItems {
     public static final Item SEA_GLASS = register(
@@ -68,6 +68,31 @@ public final class ModItems {
             "sable_fur",
             new Item(new Item.Properties())
     );
+
+    public static final Item GLOW_TROUT_BUCKET =
+            register(
+                    "glow_trout_bucket",
+                    new MobBucketItem(
+                            ModEntities.GLOW_TROUT,
+                            Fluids.WATER,
+                            SoundEvents.BUCKET_EMPTY_FISH,
+                            new Item.Properties()
+                                    .stacksTo(1)
+                    )
+            );
+
+    public static final Item BRIGHT_SALMON_BUCKET =
+            register(
+                    "bright_salmon_bucket",
+                    new MobBucketItem(
+                            ModEntities.BRIGHT_SALMON,
+                            Fluids.WATER,
+                            SoundEvents.BUCKET_EMPTY_FISH,
+                            new Item.Properties()
+                                    .stacksTo(1)
+                    )
+            );
+
     private ModItems() {
         // Prevent this utility class from being instantiated.
     }
@@ -93,6 +118,8 @@ public final class ModItems {
                     entries.accept(NECKLACE_EMPTY);
                     entries.accept(RING_EMPTY);
                     entries.accept(SABLE_FUR);
+                    entries.accept(GLOW_TROUT_BUCKET);
+                    entries.accept(BRIGHT_SALMON_BUCKET);
                 });
     }
 }
