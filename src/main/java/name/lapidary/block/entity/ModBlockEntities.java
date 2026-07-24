@@ -22,6 +22,21 @@ public final class ModBlockEntities {
                             ModBlocks.SABLE_CACHE
                     ).build(null)
             );
+    public static final BlockEntityType<CanisterBlockEntity>
+            CANISTER =
+            Registry.register(
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Lapidary.MOD_ID,
+                            "canister"
+                    ),
+                    BlockEntityType.Builder
+                            .of(
+                                    CanisterBlockEntity::new,
+                                    ModBlocks.CANISTER
+                            )
+                            .build(null)
+            );
 
     private ModBlockEntities() {
     }

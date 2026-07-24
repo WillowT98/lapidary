@@ -36,6 +36,16 @@
   "block.lapidary.tome_table": "Tome Table",
   "block.lapidary.canister": "Canister",
   "item.lapidary.canister": "Canister",
+  "liquid.lapidary.water": "Water",
+  "liquid.lapidary.lava": "Lava",
+  "liquid.lapidary.mana": "Mana",
+  "liquid.lapidary.milk": "Milk",
+
+  "message.lapidary.canister.empty": "The canister is empty.",
+  "message.lapidary.canister.full": "The canister is full.",
+  "message.lapidary.canister.different_liquid": "The canister contains a different liquid.",
+  "message.lapidary.canister.not_enough": "The canister does not contain a full bucket.",
+  "message.lapidary.canister.contents": "%1$s: %2$s / 8 buckets",
 
   "screen.lapidary.tome.title": "Tome of Insight",
   "screen.lapidary.tome.insight": "Insight: %s",

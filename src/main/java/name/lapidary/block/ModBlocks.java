@@ -105,14 +105,16 @@ public final class ModBlocks {
             );
     public static final Block CANISTER =
             register(
-            "canister",
-            new Block(
-                    BlockBehaviour.Properties.of()
-                            .strength(1.5F)
-                            .sound(SoundType.GLASS)
-                            .noOcclusion()
-            )
-    );
+                    "canister",
+                    new CanisterBlock(
+                            BlockBehaviour.Properties.of()
+                                    .strength(1.5F)
+                                    .sound(SoundType.GLASS)
+                                    .noOcclusion()
+                    ),
+                    new Item.Properties()
+                            .stacksTo(1)
+            );
 
     private static Block registerBlockOnly(
             String name,
@@ -145,21 +147,45 @@ public final class ModBlocks {
     private ModBlocks() {
     }
 
-    private static Block register(String name, Block block) {
-        ResourceLocation id =
-                ResourceLocation.fromNamespaceAndPath(Lapidary.MOD_ID, name);
+    private static Block register(
+            String name,
+            Block block
+    ) {
+        return register(
+                name,
+                block,
+                new Item.Properties()
+        );
+    }
 
-        Registry.register(BuiltInRegistries.BLOCK, id, block);
+    private static Block register(
+            String name,
+            Block block,
+            Item.Properties itemProperties
+    ) {
+        ResourceLocation id =
+                ResourceLocation.fromNamespaceAndPath(
+                        Lapidary.MOD_ID,
+                        name
+                );
+
+        Registry.register(
+                BuiltInRegistries.BLOCK,
+                id,
+                block
+        );
 
         Registry.register(
                 BuiltInRegistries.ITEM,
                 id,
-                new BlockItem(block, new Item.Properties())
+                new BlockItem(
+                        block,
+                        itemProperties
+                )
         );
 
         return block;
     }
-
     public static void initialize() {
         /*ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS)
                 .register(entries -> {

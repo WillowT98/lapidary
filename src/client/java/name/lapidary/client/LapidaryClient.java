@@ -1,5 +1,6 @@
 package name.lapidary.client;
 
+import name.lapidary.client.renderer.CanisterBlockEntityRenderer;
 import name.lapidary.client.screen.GemCutterScreen;
 import name.lapidary.block.entity.ModBlockEntities;
 import name.lapidary.client.hud.InsightHud;
@@ -103,6 +104,10 @@ public class LapidaryClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(
 				ModBlocks.CANISTER,
 				RenderType.translucent()
+		);
+		BlockEntityRendererRegistry.register(
+				ModBlockEntities.CANISTER,
+				CanisterBlockEntityRenderer::new
 		);
 	}
 }
