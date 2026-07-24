@@ -3,38 +3,40 @@ package name.lapidary.progression.tome;
 import java.util.List;
 
 /**
- * One purchasable node in the Tome progression tree.
- *
- * index:
- *     Stable numeric index used by saved bitmasks and networking.
+ * One node in a Tome page.
  *
  * id:
- *     Stable human-readable identifier for this node.
+ *     Stable save-data and network identifier.
  *
- * category:
- *     Future tree/category identifier, such as "nature" or "summoning".
+ * pageId:
+ *     The page on which this node appears.
  *
  * x/y:
- *     Position relative to the center of the progression screen.
+ *     Visual coordinates relative to the page's center.
  *
  * prerequisites:
- *     Node indices that must already be owned.
+ *     Stable IDs of nodes that must already be purchased.
  */
 public record TomeNode(
-        int index,
         String id,
-        String category,
+        String pageId,
         int x,
         int y,
         int cost,
-        List<Integer> prerequisites,
+        List<String> prerequisites,
         boolean root
 ) {
 
     public TomeNode {
-        if (index < 0 || index >= 63) {
+        if (id == null || id.isBlank()) {
             throw new IllegalArgumentException(
-                    "Tome node index must be between 0 and 62"
+                    "Tome node ID cannot be blank"
+            );
+        }
+
+        if (pageId == null || pageId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Tome page ID cannot be blank"
             );
         }
 
@@ -44,10 +46,13 @@ public record TomeNode(
             );
         }
 
-        prerequisites = List.copyOf(prerequisites);
+        prerequisites = List.copyOf(
+                prerequisites
+        );
     }
 
     public String translationKey() {
-        return "tome.lapidary.node." + id;
+        return "tome.lapidary.node."
+                + id.replace('/', '.');
     }
 }

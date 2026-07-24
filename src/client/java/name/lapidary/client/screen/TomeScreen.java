@@ -2,30 +2,29 @@ package name.lapidary.client.screen;
 
 import name.lapidary.network.TomePurchasePayload;
 import name.lapidary.progression.tome.TomeNode;
+import name.lapidary.progression.tome.TomePage;
 import name.lapidary.progression.tome.TomeTree;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 
-public final class TomeScreen extends Screen {
+import java.util.List;
 
-    /*
-     * These are maximum panel dimensions.
-     *
-     * The actual panel becomes smaller when the player's current
-     * GUI-scaled screen is smaller than these values.
-     */
+public final class TomeScreen
+        extends Screen {
+
     private static final int MAX_PANEL_WIDTH = 420;
     private static final int MAX_PANEL_HEIGHT = 250;
 
-    /*
-     * The panel will always attempt to leave this much room between
-     * itself and the edges of the screen.
-     */
     private static final int SCREEN_MARGIN = 8;
+
+    private static final int TAB_RAIL_WIDTH = 88;
+    private static final int TAB_GAP = 2;
 
     private static final int NODE_WIDTH = 46;
     private static final int NODE_HEIGHT = 24;
@@ -38,6 +37,15 @@ public final class TomeScreen extends Screen {
 
     private static final int BORDER_COLOR =
             0xFF735078;
+
+    private static final int TAB_COLOR =
+            0xFF312638;
+
+    private static final int TAB_HOVERED_COLOR =
+            0xFF5B4164;
+
+    private static final int TAB_SELECTED_COLOR =
+            0xFF84558F;
 
     private static final int LOCKED_COLOR =
             0xFF3D3740;
@@ -60,32 +68,24 @@ public final class TomeScreen extends Screen {
     private static final int MUTED_TEXT_COLOR =
             0xFFB9A8BD;
 
-    /*
-     * The table position is sent back with purchase requests so the
-     * server can verify that the player is still close to a real
-     * Tome Table.
-     */
     private final BlockPos tablePosition;
 
-    /*
-     * These values begin with the authoritative state sent by the
-     * server when the screen opens.
-     *
-     * They are refreshed whenever the server responds to a purchase
-     * request.
-     */
     private int insight;
-    private long purchasedMask;
+
+    private List<String> purchasedNodeIds;
+
+    private String selectedPageId =
+            TomeTree.SCHOOLS_PAGE_ID;
 
     private TomeNode selectedNode =
-            TomeTree.ROOT;
+            TomeTree.SCHOOLS_PAGE.root();
 
     private Button purchaseButton;
 
     public TomeScreen(
             BlockPos tablePosition,
             int insight,
-            long purchasedMask
+            List<String> purchasedNodeIds
     ) {
         super(
                 Component.translatable(
@@ -99,23 +99,21 @@ public final class TomeScreen extends Screen {
         this.insight =
                 insight;
 
-        this.purchasedMask =
-                purchasedMask;
+        this.purchasedNodeIds =
+                List.copyOf(
+                        purchasedNodeIds
+                );
     }
 
     @Override
     protected void init() {
-        int panelX =
-                getPanelX();
+        int buttonX =
+                getContentRight() - 104;
 
-        int panelY =
-                getPanelY();
-
-        int panelWidth =
-                getPanelWidth();
-
-        int panelHeight =
-                getPanelHeight();
+        int buttonY =
+                getPanelY()
+                        + getPanelHeight()
+                        - 28;
 
         this.purchaseButton =
                 Button.builder(
@@ -124,20 +122,17 @@ public final class TomeScreen extends Screen {
                                         requestPurchase()
                         )
                         .bounds(
-                                panelX
-                                        + panelWidth
-                                        - 112,
-                                panelY
-                                        + panelHeight
-                                        - 28,
+                                buttonX,
+                                buttonY,
                                 100,
                                 20
                         )
                         .build();
 
         /*
-         * Register the button for input and narration, but render it
-         * manually after the rest of the Tome interface.
+         * Register for input and narration, but render manually.
+         * This preserves the sharp rendering fix from the previous
+         * version of the screen.
          */
         this.addWidget(
                 purchaseButton
@@ -154,10 +149,7 @@ public final class TomeScreen extends Screen {
             float partialTick
     ) {
         /*
-         * Let Minecraft perform its normal screen rendering first.
-         *
-         * Previously, this was called after the custom Tome graphics,
-         * causing Minecraft's screen background pass to affect them.
+         * Minecraft completes its normal screen pass first.
          */
         super.render(
                 graphics,
@@ -167,9 +159,7 @@ public final class TomeScreen extends Screen {
         );
 
         /*
-         * Draw a simple dark overlay over the world.
-         *
-         * Everything drawn after this point remains crisp.
+         * Everything after this point remains sharp.
          */
         graphics.fill(
                 0,
@@ -180,15 +170,16 @@ public final class TomeScreen extends Screen {
         );
 
         renderPanel(graphics);
+        renderTabs(
+                graphics,
+                mouseX,
+                mouseY
+        );
+
         renderConnections(graphics);
         renderNodes(graphics);
         renderSelectedNodeDetails(graphics);
 
-        /*
-         * The button was registered with addWidget rather than
-         * addRenderableWidget, so we draw it manually at the end.
-         * This ensures it appears above the Tome panel.
-         */
         if (purchaseButton != null) {
             purchaseButton.render(
                     graphics,
@@ -214,9 +205,6 @@ public final class TomeScreen extends Screen {
         int panelHeight =
                 getPanelHeight();
 
-        /*
-         * Outer border.
-         */
         graphics.fill(
                 panelX,
                 panelY,
@@ -225,9 +213,6 @@ public final class TomeScreen extends Screen {
                 BORDER_COLOR
         );
 
-        /*
-         * Main panel.
-         */
         graphics.fill(
                 panelX + 2,
                 panelY + 2,
@@ -236,13 +221,10 @@ public final class TomeScreen extends Screen {
                 PANEL_COLOR
         );
 
-        /*
-         * Inner tree area.
-         */
         graphics.fill(
-                panelX + 8,
-                panelY + 28,
-                panelX + panelWidth - 8,
+                getContentLeft(),
+                panelY + 32,
+                getContentRight(),
                 panelY + panelHeight - 38,
                 INNER_COLOR
         );
@@ -250,9 +232,28 @@ public final class TomeScreen extends Screen {
         graphics.drawCenteredString(
                 this.font,
                 this.title,
-                panelX + panelWidth / 2,
-                panelY + 10,
+                (
+                        getContentLeft()
+                                + getContentRight()
+                ) / 2,
+                panelY + 7,
                 TEXT_COLOR
+        );
+
+        TomePage page =
+                getCurrentPage();
+
+        graphics.drawCenteredString(
+                this.font,
+                Component.translatable(
+                        page.translationKey()
+                ),
+                (
+                        getContentLeft()
+                                + getContentRight()
+                ) / 2,
+                panelY + 19,
+                MUTED_TEXT_COLOR
         );
 
         Component insightText =
@@ -261,67 +262,148 @@ public final class TomeScreen extends Screen {
                         insight
                 );
 
+        int insightX =
+                getContentRight()
+                        - this.font.width(
+                        insightText
+                )
+                        - 4;
+
         graphics.drawString(
                 this.font,
                 insightText,
-                panelX + 12,
-                panelY + 12,
+                insightX,
+                panelY + 7,
                 0xFFFFA3E8,
                 true
         );
+    }
 
-        graphics.drawCenteredString(
-                this.font,
-                Component.translatable(
-                        "screen.lapidary.tome.branch_a"
-                ),
-                panelX + panelWidth / 4,
-                panelY + 34,
-                MUTED_TEXT_COLOR
-        );
+    private void renderTabs(
+            GuiGraphics graphics,
+            int mouseX,
+            int mouseY
+    ) {
+        List<TomePage> unlockedPages =
+                getUnlockedPages();
 
-        graphics.drawCenteredString(
-                this.font,
-                Component.translatable(
-                        "screen.lapidary.tome.branch_b"
-                ),
-                panelX + panelWidth * 3 / 4,
-                panelY + 34,
-                MUTED_TEXT_COLOR
-        );
+        int tabHeight =
+                getTabHeight(
+                        unlockedPages.size()
+                );
+
+        for (int index = 0;
+             index < unlockedPages.size();
+             index++) {
+
+            TomePage page =
+                    unlockedPages.get(index);
+
+            int x =
+                    getTabX();
+
+            int y =
+                    getTabY(
+                            index,
+                            tabHeight
+                    );
+
+            boolean selected =
+                    page.id().equals(
+                            selectedPageId
+                    );
+
+            boolean hovered =
+                    mouseX >= x
+                            && mouseX < x
+                            + TAB_RAIL_WIDTH - 8
+                            && mouseY >= y
+                            && mouseY < y
+                            + tabHeight;
+
+            int color;
+
+            if (selected) {
+                color = TAB_SELECTED_COLOR;
+            } else if (hovered) {
+                color = TAB_HOVERED_COLOR;
+            } else {
+                color = TAB_COLOR;
+            }
+
+            graphics.fill(
+                    x,
+                    y,
+                    x + TAB_RAIL_WIDTH - 8,
+                    y + tabHeight,
+                    BORDER_COLOR
+            );
+
+            graphics.fill(
+                    x + 1,
+                    y + 1,
+                    x + TAB_RAIL_WIDTH - 9,
+                    y + tabHeight - 1,
+                    color
+            );
+
+            int textY =
+                    y + Math.max(
+                            2,
+                            (
+                                    tabHeight
+                                            - this.font.lineHeight
+                            ) / 2
+                    );
+
+            graphics.drawCenteredString(
+                    this.font,
+                    Component.translatable(
+                            page.translationKey()
+                    ),
+                    x + (
+                            TAB_RAIL_WIDTH - 8
+                    ) / 2,
+                    textY,
+                    TEXT_COLOR
+            );
+        }
     }
 
     private void renderConnections(
             GuiGraphics graphics
     ) {
-        for (TomeNode child :
-                TomeTree.NODES) {
+        TomePage page =
+                getCurrentPage();
 
-            for (int prerequisiteIndex :
+        for (TomeNode child :
+                page.nodes()) {
+
+            for (String prerequisiteId :
                     child.prerequisites()) {
 
                 TomeNode parent =
-                        TomeTree.getByIndex(
-                                prerequisiteIndex
+                        TomeTree.getNode(
+                                prerequisiteId
                         );
-
-                if (parent == null) {
-                    continue;
-                }
 
                 /*
-                 * The connector uses the state color of the child node.
+                 * Only draw prerequisites that belong to the current
+                 * page. Cross-page prerequisites control access but
+                 * should not create lines across tabs.
                  */
-                int color =
-                        getNodeColor(
-                                child
-                        );
+                if (parent == null
+                        || !parent.pageId()
+                        .equals(page.id())) {
+
+                    continue;
+                }
 
                 drawConnection(
                         graphics,
                         parent,
                         child,
-                        color
+                        getNodeColor(child)
                 );
             }
         }
@@ -334,35 +416,20 @@ public final class TomeScreen extends Screen {
             int color
     ) {
         int startX =
-                getNodeCenterX(
-                        parent
-                );
+                getNodeCenterX(parent);
 
         int startY =
-                getNodeTopY(
-                        parent
-                ) + NODE_HEIGHT;
+                getNodeCenterY(parent);
 
         int endX =
-                getNodeCenterX(
-                        child
-                );
+                getNodeCenterX(child);
 
         int endY =
-                getNodeTopY(
-                        child
-                );
+                getNodeCenterY(child);
 
         int middleY =
                 (startY + endY) / 2;
 
-        /*
-         * Draw an advancement-style elbow connector:
-         *
-         *      |
-         *      +-----
-         *            |
-         */
         fillLine(
                 graphics,
                 startX,
@@ -400,28 +467,16 @@ public final class TomeScreen extends Screen {
             int color
     ) {
         int minimumX =
-                Math.min(
-                        x1,
-                        x2
-                );
+                Math.min(x1, x2);
 
         int maximumX =
-                Math.max(
-                        x1,
-                        x2
-                );
+                Math.max(x1, x2);
 
         int minimumY =
-                Math.min(
-                        y1,
-                        y2
-                );
+                Math.min(y1, y2);
 
         int maximumY =
-                Math.max(
-                        y1,
-                        y2
-                );
+                Math.max(y1, y2);
 
         graphics.fill(
                 minimumX - 1,
@@ -436,30 +491,24 @@ public final class TomeScreen extends Screen {
             GuiGraphics graphics
     ) {
         for (TomeNode node :
-                TomeTree.NODES) {
+                getCurrentPage().nodes()) {
 
             int x =
-                    getNodeLeftX(
-                            node
-                    );
+                    getNodeLeftX(node);
 
             int y =
-                    getNodeTopY(
-                            node
-                    );
+                    getNodeTopY(node);
 
             boolean selected =
-                    node.index()
-                            == selectedNode.index();
+                    node.id().equals(
+                            selectedNode.id()
+                    );
 
             int borderColor =
                     selected
                             ? SELECTED_BORDER_COLOR
                             : BORDER_COLOR;
 
-            /*
-             * Node border.
-             */
             graphics.fill(
                     x - 2,
                     y - 2,
@@ -468,30 +517,20 @@ public final class TomeScreen extends Screen {
                     borderColor
             );
 
-            /*
-             * Node interior.
-             */
             graphics.fill(
                     x,
                     y,
                     x + NODE_WIDTH,
                     y + NODE_HEIGHT,
-                    getNodeColor(
-                            node
-                    )
+                    getNodeColor(node)
             );
 
             Component nodeText;
 
             if (node.root()) {
                 nodeText =
-                        Component.translatable(
-                                "screen.lapidary.tome.root"
-                        );
+                        Component.literal("◆");
             } else {
-                /*
-                 * Dummy nodes currently display only their Insight price.
-                 */
                 nodeText =
                         Component.literal(
                                 Integer.toString(
@@ -513,14 +552,13 @@ public final class TomeScreen extends Screen {
     private void renderSelectedNodeDetails(
             GuiGraphics graphics
     ) {
-        int panelX =
-                getPanelX();
-
         int panelY =
                 getPanelY();
 
-        int panelHeight =
-                getPanelHeight();
+        int detailY =
+                panelY
+                        + getPanelHeight()
+                        - 28;
 
         Component name =
                 Component.translatable(
@@ -531,20 +569,17 @@ public final class TomeScreen extends Screen {
         graphics.drawString(
                 this.font,
                 name,
-                panelX + 12,
-                panelY + panelHeight - 28,
+                getContentLeft() + 4,
+                detailY,
                 TEXT_COLOR,
                 true
         );
 
-        Component status =
-                getSelectedStatus();
-
         graphics.drawString(
                 this.font,
-                status,
-                panelX + 12,
-                panelY + panelHeight - 16,
+                getSelectedStatus(),
+                getContentLeft() + 4,
+                detailY + 12,
                 MUTED_TEXT_COLOR,
                 false
         );
@@ -558,7 +593,7 @@ public final class TomeScreen extends Screen {
         }
 
         if (TomeTree.isOwned(
-                purchasedMask,
+                purchasedNodeIds,
                 selectedNode
         )) {
             return Component.translatable(
@@ -567,7 +602,7 @@ public final class TomeScreen extends Screen {
         }
 
         if (!TomeTree.prerequisitesMet(
-                purchasedMask,
+                purchasedNodeIds,
                 selectedNode
         )) {
             return Component.translatable(
@@ -590,14 +625,14 @@ public final class TomeScreen extends Screen {
             TomeNode node
     ) {
         if (TomeTree.isOwned(
-                purchasedMask,
+                purchasedNodeIds,
                 node
         )) {
             return OWNED_COLOR;
         }
 
         if (!TomeTree.prerequisitesMet(
-                purchasedMask,
+                purchasedNodeIds,
                 node
         )) {
             return LOCKED_COLOR;
@@ -617,6 +652,17 @@ public final class TomeScreen extends Screen {
             int button
     ) {
         if (button == 0) {
+            TomePage clickedPage =
+                    findTabAt(
+                            mouseX,
+                            mouseY
+                    );
+
+            if (clickedPage != null) {
+                switchPage(clickedPage);
+                return true;
+            }
+
             TomeNode clickedNode =
                     findNodeAt(
                             mouseX,
@@ -624,11 +670,10 @@ public final class TomeScreen extends Screen {
                     );
 
             if (clickedNode != null) {
-                this.selectedNode =
+                selectedNode =
                         clickedNode;
 
                 updatePurchaseButton();
-
                 return true;
             }
         }
@@ -640,30 +685,63 @@ public final class TomeScreen extends Screen {
         );
     }
 
+    private TomePage findTabAt(
+            double mouseX,
+            double mouseY
+    ) {
+        List<TomePage> unlockedPages =
+                getUnlockedPages();
+
+        int tabHeight =
+                getTabHeight(
+                        unlockedPages.size()
+                );
+
+        for (int index = 0;
+             index < unlockedPages.size();
+             index++) {
+
+            int x =
+                    getTabX();
+
+            int y =
+                    getTabY(
+                            index,
+                            tabHeight
+                    );
+
+            if (mouseX >= x
+                    && mouseX < x
+                    + TAB_RAIL_WIDTH - 8
+                    && mouseY >= y
+                    && mouseY < y
+                    + tabHeight) {
+
+                return unlockedPages.get(index);
+            }
+        }
+
+        return null;
+    }
+
     private TomeNode findNodeAt(
             double mouseX,
             double mouseY
     ) {
         for (TomeNode node :
-                TomeTree.NODES) {
+                getCurrentPage().nodes()) {
 
             int x =
-                    getNodeLeftX(
-                            node
-                    );
+                    getNodeLeftX(node);
 
             int y =
-                    getNodeTopY(
-                            node
-                    );
+                    getNodeTopY(node);
 
-            boolean insideNode =
-                    mouseX >= x
-                            && mouseX < x + NODE_WIDTH
-                            && mouseY >= y
-                            && mouseY < y + NODE_HEIGHT;
+            if (mouseX >= x
+                    && mouseX < x + NODE_WIDTH
+                    && mouseY >= y
+                    && mouseY < y + NODE_HEIGHT) {
 
-            if (insideNode) {
                 return node;
             }
         }
@@ -671,22 +749,54 @@ public final class TomeScreen extends Screen {
         return null;
     }
 
+    private void switchPage(
+            TomePage page
+    ) {
+        if (page.id().equals(
+                selectedPageId
+        )) {
+            return;
+        }
+
+        if (!TomeTree.isPageUnlocked(
+                purchasedNodeIds,
+                page
+        )) {
+            return;
+        }
+
+        selectedPageId =
+                page.id();
+
+        selectedNode =
+                page.root();
+
+        updatePurchaseButton();
+
+        if (this.minecraft != null) {
+            this.minecraft
+                    .getSoundManager()
+                    .play(
+                            SimpleSoundInstance.forUI(
+                                    SoundEvents
+                                            .BOOK_PAGE_TURN,
+                                    1.0F
+                            )
+                    );
+        }
+    }
+
     private void requestPurchase() {
         if (!canPurchaseSelectedNode()) {
             return;
         }
 
-        /*
-         * Disable the button until the authoritative server response
-         * arrives. This also prevents rapid duplicate requests.
-         */
-        purchaseButton.active =
-                false;
+        purchaseButton.active = false;
 
         ClientPlayNetworking.send(
                 new TomePurchasePayload(
                         tablePosition,
-                        selectedNode.index()
+                        selectedNode.id()
                 )
         );
     }
@@ -698,22 +808,31 @@ public final class TomeScreen extends Screen {
             return false;
         }
 
+        TomePage page =
+                getCurrentPage();
+
+        if (!TomeTree.isPageUnlocked(
+                purchasedNodeIds,
+                page
+        )) {
+            return false;
+        }
+
         if (TomeTree.isOwned(
-                purchasedMask,
+                purchasedNodeIds,
                 selectedNode
         )) {
             return false;
         }
 
         if (!TomeTree.prerequisitesMet(
-                purchasedMask,
+                purchasedNodeIds,
                 selectedNode
         )) {
             return false;
         }
 
-        return insight
-                >= selectedNode.cost();
+        return insight >= selectedNode.cost();
     }
 
     private void updatePurchaseButton() {
@@ -730,14 +849,12 @@ public final class TomeScreen extends Screen {
                     )
             );
 
-            purchaseButton.active =
-                    false;
-
+            purchaseButton.active = false;
             return;
         }
 
         if (TomeTree.isOwned(
-                purchasedMask,
+                purchasedNodeIds,
                 selectedNode
         )) {
             purchaseButton.setMessage(
@@ -746,14 +863,12 @@ public final class TomeScreen extends Screen {
                     )
             );
 
-            purchaseButton.active =
-                    false;
-
+            purchaseButton.active = false;
             return;
         }
 
         if (!TomeTree.prerequisitesMet(
-                purchasedMask,
+                purchasedNodeIds,
                 selectedNode
         )) {
             purchaseButton.setMessage(
@@ -762,9 +877,7 @@ public final class TomeScreen extends Screen {
                     )
             );
 
-            purchaseButton.active =
-                    false;
-
+            purchaseButton.active = false;
             return;
         }
 
@@ -776,25 +889,63 @@ public final class TomeScreen extends Screen {
         );
 
         purchaseButton.active =
-                insight
-                        >= selectedNode.cost();
+                insight >= selectedNode.cost();
     }
 
     /**
-     * Called by the client networking handler when the server returns
-     * an authoritative Tome state.
+     * Applies authoritative state sent by the server.
      */
     public void updateState(
             int insight,
-            long purchasedMask
+            List<String> purchasedNodeIds
     ) {
         this.insight =
                 insight;
 
-        this.purchasedMask =
-                purchasedMask;
+        this.purchasedNodeIds =
+                List.copyOf(
+                        purchasedNodeIds
+                );
+
+        TomePage currentPage =
+                TomeTree.getPage(
+                        selectedPageId
+                );
+
+        /*
+         * A reset can remove the school that is currently open.
+         */
+        if (currentPage == null
+                || !TomeTree.isPageUnlocked(
+                this.purchasedNodeIds,
+                currentPage
+        )) {
+
+            selectedPageId =
+                    TomeTree.SCHOOLS_PAGE_ID;
+
+            selectedNode =
+                    TomeTree.SCHOOLS_PAGE.root();
+        }
 
         updatePurchaseButton();
+    }
+
+    private TomePage getCurrentPage() {
+        TomePage page =
+                TomeTree.getPage(
+                        selectedPageId
+                );
+
+        return page != null
+                ? page
+                : TomeTree.SCHOOLS_PAGE;
+    }
+
+    private List<TomePage> getUnlockedPages() {
+        return TomeTree.getUnlockedPages(
+                purchasedNodeIds
+        );
     }
 
     private int getPanelWidth() {
@@ -833,24 +984,115 @@ public final class TomeScreen extends Screen {
         ) / 2;
     }
 
-    private int getTreeOriginX() {
-        return getPanelX()
-                + getPanelWidth() / 2;
+    private int getTabX() {
+        return getPanelX() + 4;
     }
 
-    /*
-     * Compress horizontal distances between nodes when the GUI-scaled
-     * screen is narrow.
-     *
-     * The node rectangles and text remain at native size, which keeps
-     * them sharper than scaling the whole interface.
-     */
+    private int getTabHeight(
+            int tabCount
+    ) {
+        if (tabCount <= 0) {
+            return 16;
+        }
+
+        int availableHeight =
+                getPanelHeight() - 40;
+
+        int gaps =
+                Math.max(
+                        0,
+                        tabCount - 1
+                ) * TAB_GAP;
+
+        return Math.max(
+                12,
+                Math.min(
+                        17,
+                        (
+                                availableHeight
+                                        - gaps
+                        ) / tabCount
+                )
+        );
+    }
+
+    private int getTabY(
+            int index,
+            int tabHeight
+    ) {
+        return getPanelY()
+                + 30
+                + index
+                * (
+                tabHeight
+                        + TAB_GAP
+        );
+    }
+
+    private int getContentLeft() {
+        return getPanelX()
+                + TAB_RAIL_WIDTH;
+    }
+
+    private int getContentRight() {
+        return getPanelX()
+                + getPanelWidth()
+                - 6;
+    }
+
+    private int getTreeOriginX() {
+        return (
+                getContentLeft()
+                        + getContentRight()
+        ) / 2;
+    }
+
+    private int getTreeOriginY() {
+        int treeTop =
+                getPanelY() + 42;
+
+        int treeBottom =
+                getPanelY()
+                        + getPanelHeight()
+                        - 42;
+
+        return (
+                treeTop
+                        + treeBottom
+        ) / 2;
+    }
+
     private double getHorizontalTreeScale() {
+        int contentWidth =
+                getContentRight()
+                        - getContentLeft();
+
         double availableScale =
                 (
-                        getPanelWidth()
-                                - 70.0D
-                ) / 350.0D;
+                        contentWidth
+                                - NODE_WIDTH
+                                - 12.0D
+                ) / 220.0D;
+
+        return Math.max(
+                0.50D,
+                Math.min(
+                        1.0D,
+                        availableScale
+                )
+        );
+    }
+
+    private double getVerticalTreeScale() {
+        int treeHeight =
+                getPanelHeight() - 84;
+
+        double availableScale =
+                (
+                        treeHeight
+                                - NODE_HEIGHT
+                                - 8.0D
+                ) / 160.0D;
 
         return Math.max(
                 0.45D,
@@ -861,79 +1103,50 @@ public final class TomeScreen extends Screen {
         );
     }
 
-    /*
-     * Compress vertical distances when the screen is short.
-     *
-     * Even at the maximum panel height, the spacing is slightly
-     * compressed to leave room for the title and controls.
-     */
-    private double getVerticalTreeScale() {
-        double availableScale =
-                (
-                        getPanelHeight()
-                                - 114.0D
-                ) / 170.0D;
-
-        return Math.max(
-                0.35D,
-                Math.min(
-                        0.80D,
-                        availableScale
-                )
-        );
-    }
-
-    private int getTreeOriginY() {
-        double verticalScale =
-                getVerticalTreeScale();
-
-        /*
-         * The root's configured Y position is -90.
-         *
-         * This places the root near the top of the inner tree area
-         * regardless of how much the tree has been compressed.
-         */
-        return getPanelY()
-                + 45
-                + (int) Math.round(
-                90.0D
-                        * verticalScale
-        );
-    }
-
     private int getNodeLeftX(
             TomeNode node
     ) {
-        int scaledX =
-                (int) Math.round(
+        int centerX =
+                getTreeOriginX()
+                        + (
+                        int
+                        ) Math.round(
                         node.x()
                                 * getHorizontalTreeScale()
                 );
 
-        return getTreeOriginX()
-                + scaledX
+        return centerX
                 - NODE_WIDTH / 2;
     }
 
     private int getNodeTopY(
             TomeNode node
     ) {
-        int scaledY =
-                (int) Math.round(
+        int centerY =
+                getTreeOriginY()
+                        + (
+                        int
+                        ) Math.round(
                         node.y()
                                 * getVerticalTreeScale()
                 );
 
-        return getTreeOriginY()
-                + scaledY;
+        return centerY
+                - NODE_HEIGHT / 2;
     }
 
     private int getNodeCenterX(
             TomeNode node
     ) {
-        return getNodeLeftX(
-                node
-        ) + NODE_WIDTH / 2;
+        return getNodeLeftX(node)
+                + NODE_WIDTH / 2;
+    }
+
+    private int getNodeCenterY(
+            TomeNode node
+    ) {
+        return getNodeTopY(node)
+                + NODE_HEIGHT / 2;
     }
 
     @Override

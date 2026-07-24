@@ -6,9 +6,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public record TomeStatePayload(
         int insight,
-        long purchasedMask
+        List<String> purchasedNodeIds
 ) implements CustomPacketPayload {
 
     public static final Type<TomeStatePayload> TYPE =
@@ -32,7 +34,8 @@ public record TomeStatePayload(
                 ) {
                     return new TomeStatePayload(
                             buffer.readVarInt(),
-                            buffer.readLong()
+                            TomePayloadSerialization
+                                    .readNodeIds(buffer)
                     );
                 }
 
@@ -45,11 +48,20 @@ public record TomeStatePayload(
                             payload.insight()
                     );
 
-                    buffer.writeLong(
-                            payload.purchasedMask()
-                    );
+                    TomePayloadSerialization
+                            .writeNodeIds(
+                                    buffer,
+                                    payload.purchasedNodeIds()
+                            );
                 }
             };
+
+    public TomeStatePayload {
+        purchasedNodeIds =
+                List.copyOf(
+                        purchasedNodeIds
+                );
+    }
 
     @Override
     public Type<? extends CustomPacketPayload>

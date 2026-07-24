@@ -103,7 +103,7 @@ public final class ModNetworking {
 
                     TomeProgression.tryPurchase(
                             player,
-                            payload.nodeIndex()
+                            payload.nodeId()
                     );
 
                     /*

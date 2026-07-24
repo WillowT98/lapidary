@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public record TomePurchasePayload(
         BlockPos tablePosition,
-        int nodeIndex
+        String nodeId
 ) implements CustomPacketPayload {
 
     public static final Type<TomePurchasePayload> TYPE =
@@ -33,7 +33,10 @@ public record TomePurchasePayload(
                 ) {
                     return new TomePurchasePayload(
                             buffer.readBlockPos(),
-                            buffer.readVarInt()
+                            buffer.readUtf(
+                                    TomePayloadSerialization
+                                            .MAX_NODE_ID_LENGTH
+                            )
                     );
                 }
 
@@ -46,8 +49,10 @@ public record TomePurchasePayload(
                             payload.tablePosition()
                     );
 
-                    buffer.writeVarInt(
-                            payload.nodeIndex()
+                    buffer.writeUtf(
+                            payload.nodeId(),
+                            TomePayloadSerialization
+                                    .MAX_NODE_ID_LENGTH
                     );
                 }
             };

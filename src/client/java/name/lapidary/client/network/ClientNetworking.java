@@ -25,9 +25,6 @@ public final class ClientNetworking {
                         )
         );
 
-        /*
-         * Open a new Tome screen with authoritative server state.
-         */
         ClientPlayNetworking.registerGlobalReceiver(
                 TomeOpenPayload.TYPE,
                 (payload, context) ->
@@ -40,21 +37,16 @@ public final class ClientNetworking {
                                     context.client()
                                             .setScreen(
                                                     new TomeScreen(
+                                                            payload.tablePosition(),
+                                                            payload.insight(),
                                                             payload
-                                                                    .tablePosition(),
-                                                            payload
-                                                                    .insight(),
-                                                            payload
-                                                                    .purchasedMask()
+                                                                    .purchasedNodeIds()
                                                     )
                                             );
                                 }
                         )
         );
 
-        /*
-         * Refresh an already-open Tome after a purchase request.
-         */
         ClientPlayNetworking.registerGlobalReceiver(
                 TomeStatePayload.TYPE,
                 (payload, context) ->
@@ -64,15 +56,14 @@ public final class ClientNetworking {
                                             payload.insight()
                                     );
 
-                                    if (context.client()
-                                            .screen
+                                    if (context.client().screen
                                             instanceof TomeScreen
                                             tomeScreen) {
 
                                         tomeScreen.updateState(
                                                 payload.insight(),
                                                 payload
-                                                        .purchasedMask()
+                                                        .purchasedNodeIds()
                                         );
                                     }
                                 }

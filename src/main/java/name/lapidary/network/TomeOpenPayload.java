@@ -7,10 +7,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public record TomeOpenPayload(
         BlockPos tablePosition,
         int insight,
-        long purchasedMask
+        List<String> purchasedNodeIds
 ) implements CustomPacketPayload {
 
     public static final Type<TomeOpenPayload> TYPE =
@@ -35,7 +37,8 @@ public record TomeOpenPayload(
                     return new TomeOpenPayload(
                             buffer.readBlockPos(),
                             buffer.readVarInt(),
-                            buffer.readLong()
+                            TomePayloadSerialization
+                                    .readNodeIds(buffer)
                     );
                 }
 
@@ -52,11 +55,20 @@ public record TomeOpenPayload(
                             payload.insight()
                     );
 
-                    buffer.writeLong(
-                            payload.purchasedMask()
-                    );
+                    TomePayloadSerialization
+                            .writeNodeIds(
+                                    buffer,
+                                    payload.purchasedNodeIds()
+                            );
                 }
             };
+
+    public TomeOpenPayload {
+        purchasedNodeIds =
+                List.copyOf(
+                        purchasedNodeIds
+                );
+    }
 
     @Override
     public Type<? extends CustomPacketPayload>

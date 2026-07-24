@@ -8,16 +8,24 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class TomeProgression {
 
     private TomeProgression() {
     }
 
-    public static long getPurchasedMask(
+    public static List<String> getPurchasedNodeIds(
             ServerPlayer player
     ) {
-        return player.getAttachedOrCreate(
-                ModAttachments.TOME_PURCHASES
+        migrateLegacyPurchases(player);
+
+        return List.copyOf(
+                player.getAttachedOrCreate(
+                        ModAttachments
+                                .TOME_PURCHASED_NODES
+                )
         );
     }
 
@@ -26,14 +34,11 @@ public final class TomeProgression {
             TomeNode node
     ) {
         return TomeTree.isOwned(
-                getPurchasedMask(player),
+                getPurchasedNodeIds(player),
                 node
         );
     }
 
-    /**
-     * Sends the initial state and asks the client to open the Tome.
-     */
     public static void openScreen(
             ServerPlayer player,
             BlockPos tablePosition
@@ -45,19 +50,19 @@ public final class TomeProgression {
             return;
         }
 
+        List<String> purchasedNodeIds =
+                getPurchasedNodeIds(player);
+
         ServerPlayNetworking.send(
                 player,
                 new TomeOpenPayload(
                         tablePosition,
                         LapidaryInsight.get(player),
-                        getPurchasedMask(player)
+                        purchasedNodeIds
                 )
         );
     }
 
-    /**
-     * Sends refreshed values to an already-open Tome screen.
-     */
     public static void syncOpenScreen(
             ServerPlayer player
     ) {
@@ -68,47 +73,63 @@ public final class TomeProgression {
             return;
         }
 
+        List<String> purchasedNodeIds =
+                getPurchasedNodeIds(player);
+
         ServerPlayNetworking.send(
                 player,
                 new TomeStatePayload(
                         LapidaryInsight.get(player),
-                        getPurchasedMask(player)
+                        purchasedNodeIds
                 )
         );
     }
 
     /**
-     * Server-authoritative purchase attempt.
+     * Server-authoritative purchase operation.
      */
     public static boolean tryPurchase(
             ServerPlayer player,
-            int nodeIndex
+            String nodeId
     ) {
         TomeNode node =
-                TomeTree.getByIndex(nodeIndex);
+                TomeTree.getNode(nodeId);
 
         if (node == null || node.root()) {
             return false;
         }
 
-        long purchasedMask =
-                getPurchasedMask(player);
+        TomePage page =
+                TomeTree.getPage(
+                        node.pageId()
+                );
+
+        if (page == null) {
+            return false;
+        }
+
+        List<String> purchasedNodeIds =
+                getPurchasedNodeIds(player);
 
         /*
-         * A node cannot be bought more than once.
+         * Do not trust the client to access only visible pages.
          */
+        if (!TomeTree.isPageUnlocked(
+                purchasedNodeIds,
+                page
+        )) {
+            return false;
+        }
+
         if (TomeTree.isOwned(
-                purchasedMask,
+                purchasedNodeIds,
                 node
         )) {
             return false;
         }
 
-        /*
-         * All prerequisites must be owned.
-         */
         if (!TomeTree.prerequisitesMet(
-                purchasedMask,
+                purchasedNodeIds,
                 node
         )) {
             return false;
@@ -121,19 +142,20 @@ public final class TomeProgression {
             return false;
         }
 
-        long newMask =
-                TomeTree.addNode(
-                        purchasedMask,
-                        node
+        List<String> newPurchasedNodeIds =
+                new ArrayList<>(
+                        purchasedNodeIds
                 );
 
-        /*
-         * Save ownership first. The subsequent Insight update also
-         * synchronizes the new Insight total to the normal HUD.
-         */
+        newPurchasedNodeIds.add(
+                node.id()
+        );
+
         player.setAttached(
-                ModAttachments.TOME_PURCHASES,
-                newMask
+                ModAttachments.TOME_PURCHASED_NODES,
+                List.copyOf(
+                        newPurchasedNodeIds
+                )
         );
 
         LapidaryInsight.add(
@@ -145,52 +167,41 @@ public final class TomeProgression {
     }
 
     /**
-     * Clears every purchased Tome node and refunds the Insight spent
-     * on all currently defined purchased nodes.
-     *
-     * The refund is calculated from the node's current cost.
+     * Clears every purchase and refunds all currently defined nodes.
      */
     public static ResetResult resetAndRefund(
             ServerPlayer player
     ) {
-        long purchasedMask =
-                getPurchasedMask(player);
+        List<String> purchasedNodeIds =
+                getPurchasedNodeIds(player);
 
         int nodesReset = 0;
         int refundValue = 0;
 
-        for (TomeNode node : TomeTree.NODES) {
+        for (String nodeId : purchasedNodeIds) {
+            TomeNode node =
+                    TomeTree.getNode(nodeId);
+
             /*
-             * The root is always available and is never a purchase.
+             * Unknown IDs are still cleared, but cannot be assigned
+             * a refund because their definitions no longer exist.
              */
-            if (node.root()) {
+            if (node == null || node.root()) {
                 continue;
             }
 
-            if (TomeTree.isOwned(
-                    purchasedMask,
-                    node
-            )) {
-                nodesReset++;
-                refundValue += node.cost();
-            }
+            nodesReset++;
+            refundValue += node.cost();
         }
 
         int previousInsight =
                 LapidaryInsight.get(player);
 
-        /*
-         * Clear ownership before synchronizing the updated screen.
-         */
         player.setAttached(
-                ModAttachments.TOME_PURCHASES,
-                0L
+                ModAttachments.TOME_PURCHASED_NODES,
+                List.of()
         );
 
-        /*
-         * LapidaryInsight.add() applies the existing Insight limits
-         * and synchronizes the normal Insight HUD.
-         */
         int newInsightTotal =
                 LapidaryInsight.add(
                         player,
@@ -201,10 +212,6 @@ public final class TomeProgression {
                 newInsightTotal
                         - previousInsight;
 
-        /*
-         * Immediately refresh the Tome if the player currently has
-         * its screen open.
-         */
         syncOpenScreen(player);
 
         return new ResetResult(
@@ -215,8 +222,68 @@ public final class TomeProgression {
     }
 
     /**
-     * Information returned to commands or future respec interfaces.
+     * Refunds purchases from the old six-node prototype once, then
+     * clears its legacy bitmask.
      */
+    private static void migrateLegacyPurchases(
+            ServerPlayer player
+    ) {
+        long legacyMask =
+                player.getAttachedOrCreate(
+                        ModAttachments.TOME_PURCHASES
+                );
+
+        if (legacyMask == 0L) {
+            return;
+        }
+
+        int refund = 0;
+
+        /*
+         * Old prototype costs:
+         *
+         * index 1: 5
+         * index 2: 10
+         * index 3: 20
+         * index 4: 5
+         * index 5: 10
+         * index 6: 20
+         */
+        int[] legacyCosts = {
+                0,
+                5,
+                10,
+                20,
+                5,
+                10,
+                20
+        };
+
+        for (int index = 1;
+             index < legacyCosts.length;
+             index++) {
+
+            long bit =
+                    1L << index;
+
+            if ((legacyMask & bit) != 0L) {
+                refund += legacyCosts[index];
+            }
+        }
+
+        player.setAttached(
+                ModAttachments.TOME_PURCHASES,
+                0L
+        );
+
+        if (refund > 0) {
+            LapidaryInsight.add(
+                    player,
+                    refund
+            );
+        }
+    }
+
     public record ResetResult(
             int nodesReset,
             int insightRefunded,
