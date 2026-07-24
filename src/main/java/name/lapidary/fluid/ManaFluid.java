@@ -11,7 +11,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.WaterFluid;
 
-public abstract class ManaFluid extends WaterFluid {
+public abstract class ManaFluid
+        extends WaterFluid {
 
     /**
      * Returns the registered flowing form of mana.
@@ -30,7 +31,7 @@ public abstract class ManaFluid extends WaterFluid {
     }
 
     /**
-     * Determines what filled bucket is created when mana is collected.
+     * Item produced when a mana source is collected.
      */
     @Override
     public Item getBucket() {
@@ -38,11 +39,14 @@ public abstract class ManaFluid extends WaterFluid {
     }
 
     /**
-     * Converts a fluid state into the corresponding in-world block state.
+     * Converts mana fluid states into the mana liquid block.
      */
     @Override
-    public BlockState createLegacyBlock(FluidState state) {
-        return ModBlocks.MANA.defaultBlockState()
+    public BlockState createLegacyBlock(
+            FluidState state
+    ) {
+        return ModBlocks.MANA
+                .defaultBlockState()
                 .setValue(
                         LiquidBlock.LEVEL,
                         getLegacyLevel(state)
@@ -50,69 +54,94 @@ public abstract class ManaFluid extends WaterFluid {
     }
 
     /**
-     * Tells Minecraft that both registered forms belong to the same fluid.
+     * Treats the source and flowing variants as the same fluid.
      */
     @Override
-    public boolean isSame(Fluid fluid) {
+    public boolean isSame(
+            Fluid fluid
+    ) {
         return fluid == ModFluids.MANA
-                || fluid == ModFluids.FLOWING_MANA;
+                || fluid
+                == ModFluids.FLOWING_MANA;
     }
 
     /**
-     * Prevents the familiar two-source-block infinite-water behavior.
-     *
-     * This makes mana finite for now.
+     * Prevents infinite mana-source generation.
      */
     @Override
-    protected boolean canConvertToSource(Level level) {
+    protected boolean canConvertToSource(
+            Level level
+    ) {
         return false;
     }
 
     /**
-     * Represents non-source mana at flow levels 1 through 7.
+     * Flowing mana.
      */
-    public static final class Flowing extends MoltenBismuthFluid {
+    public static final class Flowing
+            extends ManaFluid {
 
         public Flowing() {
             registerDefaultState(
                     getStateDefinition()
                             .any()
-                            .setValue(LEVEL, 7)
-                            .setValue(FALLING, false)
+                            .setValue(
+                                    LEVEL,
+                                    7
+                            )
+                            .setValue(
+                                    FALLING,
+                                    false
+                            )
             );
         }
 
         @Override
         protected void createFluidStateDefinition(
-                StateDefinition.Builder<Fluid, FluidState> builder
+                StateDefinition.Builder<
+                        Fluid,
+                        FluidState
+                        > builder
         ) {
-            super.createFluidStateDefinition(builder);
+            super.createFluidStateDefinition(
+                    builder
+            );
+
             builder.add(LEVEL);
         }
 
         @Override
-        public int getAmount(FluidState state) {
+        public int getAmount(
+                FluidState state
+        ) {
             return state.getValue(LEVEL);
         }
 
         @Override
-        public boolean isSource(FluidState state) {
+        public boolean isSource(
+                FluidState state
+        ) {
             return false;
         }
     }
 
     /**
-     * Represents a full mana source block.
+     * Full mana source.
      */
-    public static final class Source extends MoltenBismuthFluid {
+    public static final class Source
+            extends ManaFluid {
 
         @Override
-        public int getAmount(FluidState state) {
+        public int getAmount(
+                FluidState state
+        ) {
             return 8;
         }
 
         @Override
-        public boolean isSource(FluidState state) {
+        public boolean isSource(
+                FluidState state
+        ) {
             return true;
         }
     }
