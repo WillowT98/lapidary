@@ -2,6 +2,7 @@ package name.lapidary.network;
 
 import name.lapidary.Lapidary;
 import name.lapidary.block.ModBlocks;
+import name.lapidary.item.MageBackpackAccess;
 import name.lapidary.progression.LapidaryInsight;
 import name.lapidary.progression.tome.TomeProgression;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -30,6 +31,19 @@ public final class ModNetworking {
         PayloadTypeRegistry.playS2C().register(
                 InsightSyncPayload.TYPE,
                 InsightSyncPayload.STREAM_CODEC
+        );
+
+        PayloadTypeRegistry.playC2S().register(
+                OpenMageBackpackPayload.TYPE,
+                OpenMageBackpackPayload.STREAM_CODEC
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                OpenMageBackpackPayload.TYPE,
+                (payload, context) ->
+                        MageBackpackAccess.openEquipped(
+                                context.player()
+                        )
         );
 
         /*

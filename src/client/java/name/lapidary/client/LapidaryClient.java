@@ -1,11 +1,14 @@
 package name.lapidary.client;
 
-import name.lapidary.client.renderer.CanisterBlockEntityRenderer;
+import dev.emi.trinkets.api.client.TrinketRendererRegistry;
+import name.lapidary.client.input.MageBackpackKeybinds;
+import name.lapidary.client.renderer.*;
 import name.lapidary.client.screen.GemCutterScreen;
 import name.lapidary.block.entity.ModBlockEntities;
 import name.lapidary.client.hud.InsightHud;
 import name.lapidary.client.network.ClientNetworking;
 import name.lapidary.block.ModBlocks;
+import name.lapidary.item.ModItems;
 import name.lapidary.screen.ModMenus;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -18,10 +21,6 @@ import name.lapidary.fluid.ModFluids;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 
-import name.lapidary.client.renderer.OreMimicRenderer;
-import name.lapidary.client.renderer.GlowTroutRenderer;
-import name.lapidary.client.renderer.BrightSalmonRenderer;
-import name.lapidary.client.renderer.AmefyshRenderer;
 import name.lapidary.entity.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
@@ -108,6 +107,12 @@ public class LapidaryClient implements ClientModInitializer {
 		BlockEntityRendererRegistry.register(
 				ModBlockEntities.CANISTER,
 				CanisterBlockEntityRenderer::new
+		);
+		MageBackpackKeybinds.initialize();
+
+		TrinketRendererRegistry.registerRenderer(
+				ModItems.MAGE_BACKPACK,
+				new MageBackpackRenderer()
 		);
 	}
 }

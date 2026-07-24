@@ -36,7 +36,8 @@
 		"fabricloader": ">=0.19.3",
 		"minecraft": "~1.21.1",
 		"java": ">=21",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"trinkets": ">=3.10.0"
 	},
 	"recommends": {
 		"lambdynlights": ">=4.8.10"

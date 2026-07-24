@@ -171,6 +171,9 @@ public final class ModCreativeTabs {
                                             add.accept(
                                                     ModBlocks.CANISTER
                                             );
+                                            add.accept(
+                                                    ModItems.MAGE_BACKPACK
+                                            );
 
 
 

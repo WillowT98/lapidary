@@ -47,6 +47,12 @@
   "message.lapidary.canister.not_enough": "The canister does not contain a full bucket.",
   "message.lapidary.canister.contents": "%1$s: %2$s / 8 buckets",
 
+  "item.lapidary.mage_backpack": "Mage Backpack",
+  "container.lapidary.mage_backpack": "Mage Backpack",
+  "key.lapidary.open_mage_backpack": "Open Mage Backpack",
+  "key.categories.lapidary": "Lapidary",
+  "message.lapidary.no_mage_backpack": "You do not have a Mage Backpack equipped.",
+
   "screen.lapidary.tome.title": "Tome of Insight",
   "screen.lapidary.tome.insight": "Insight: %s",
   "screen.lapidary.tome.branch_a": "Test Branch A",
