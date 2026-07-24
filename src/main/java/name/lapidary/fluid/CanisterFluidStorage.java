@@ -178,6 +178,87 @@ public final class CanisterFluidStorage {
     }
 
     /**
+     * Transfers liquid directly into another compatible storage.
+     *
+     * This operation is atomic: both storage objects are updated
+     * together before either change callback runs.
+     *
+     * The destination may be empty or contain the same liquid.
+     * A destination containing a different liquid rejects the transfer.
+     *
+     * @param destination storage receiving the liquid
+     * @param maxAmount   maximum amount to move
+     *
+     * @return the amount actually transferred
+     */
+    public long transferTo(
+            CanisterFluidStorage destination,
+            long maxAmount
+    ) {
+        if (destination == null
+                || destination == this
+                || maxAmount <= 0L
+                || isEmpty()) {
+
+            return 0L;
+        }
+
+        CanisterLiquid transferredLiquid =
+                this.liquid;
+
+        /*
+         * Never mix two different liquids.
+         */
+        if (!destination.isEmpty()
+                && destination.liquid
+                != transferredLiquid) {
+
+            return 0L;
+        }
+
+        long transferredAmount =
+                Math.min(
+                        maxAmount,
+                        Math.min(
+                                this.amount,
+                                destination
+                                        .getRemainingCapacity()
+                        )
+                );
+
+        if (transferredAmount <= 0L) {
+            return 0L;
+        }
+
+        /*
+         * Give an empty destination the source liquid identity.
+         */
+        if (destination.isEmpty()) {
+            destination.liquid =
+                    transferredLiquid;
+        }
+
+        this.amount -=
+                transferredAmount;
+
+        destination.amount +=
+                transferredAmount;
+
+        this.normalize();
+        destination.normalize();
+
+        /*
+         * Run the callbacks only after both sides contain their final
+         * values. This prevents observers from seeing a half-completed
+         * transfer.
+         */
+        this.changeCallback.run();
+        destination.changeCallback.run();
+
+        return transferredAmount;
+    }
+
+    /**
      * Used only when reading saved block-entity data.
      *
      * It intentionally does not invoke the change callback.

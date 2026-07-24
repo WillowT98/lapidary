@@ -11,6 +11,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.server.level.ServerLevel;
 
 public final class CanisterBlockEntity
         extends BlockEntity {
@@ -41,21 +42,76 @@ public final class CanisterBlockEntity
         return storage;
     }
 
+
     private void onStorageChanged() {
         setChanged();
 
-        if (level != null) {
-            /*
-             * Sends the new saved data to nearby clients so that the
-             * rendered liquid level updates immediately.
-             */
-            level.sendBlockUpdated(
-                    worldPosition,
-                    getBlockState(),
-                    getBlockState(),
-                    Block.UPDATE_CLIENTS
-            );
+        if (level == null) {
+            return;
         }
+
+        level.sendBlockUpdated(
+                worldPosition,
+                getBlockState(),
+                getBlockState(),
+                Block.UPDATE_CLIENTS
+        );
+
+        /*
+         * Liquid in this canister may now be able to move into the
+         * canister below it.
+         *
+         * This covers:
+         * - adding liquid with a bucket;
+         * - future machine insertion;
+         * - liquid arriving from a canister above.
+         */
+        scheduleTransferFor(
+                worldPosition
+        );
+
+        /*
+         * A change to this canister may also have created room for the
+         * canister immediately above it.
+         *
+         * This covers:
+         * - withdrawing a bucket;
+         * - future machine extraction;
+         * - this canister draining into one below it.
+         */
+        scheduleTransferFor(
+                worldPosition.above()
+        );
+    }
+
+    private void scheduleTransferFor(
+            BlockPos position
+    ) {
+        if (!(level instanceof ServerLevel
+                serverLevel)) {
+
+            return;
+        }
+
+        BlockState state =
+                serverLevel.getBlockState(
+                        position
+                );
+
+        /*
+         * Schedule only another block of the same canister type.
+         */
+        if (!state.is(
+                getBlockState().getBlock()
+        )) {
+            return;
+        }
+
+        serverLevel.scheduleTick(
+                position,
+                state.getBlock(),
+                1
+        );
     }
 
     @Override

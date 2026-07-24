@@ -8,9 +8,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -390,6 +392,128 @@ public final class CanisterBlock
                 level.isClientSide
         );
     }
+    @Override
+    protected void tick(
+            BlockState state,
+            ServerLevel level,
+            BlockPos position,
+            RandomSource random
+    ) {
+        transferDownward(
+                level,
+                position
+        );
+    }
+    /**
+     * Attempts to move as much liquid as possible from this canister
+     * into the canister immediately beneath it.
+     */
+    private static void transferDownward(
+            ServerLevel level,
+            BlockPos upperPosition
+    ) {
+        if (!(level.getBlockEntity(
+                upperPosition
+        ) instanceof CanisterBlockEntity
+                upperCanister)) {
+
+            return;
+        }
+
+        BlockPos lowerPosition =
+                upperPosition.below();
+
+        if (!(level.getBlockEntity(
+                lowerPosition
+        ) instanceof CanisterBlockEntity
+                lowerCanister)) {
+
+            return;
+        }
+
+        CanisterFluidStorage upperStorage =
+                upperCanister.getStorage();
+
+        CanisterFluidStorage lowerStorage =
+                lowerCanister.getStorage();
+
+        if (upperStorage.isEmpty()
+                || lowerStorage.isFull()) {
+
+            return;
+        }
+
+        CanisterLiquid upperLiquid =
+                upperStorage.getLiquid();
+
+        /*
+         * An empty lower canister can accept the upper liquid.
+         * A nonempty lower canister must contain the same liquid.
+         */
+        if (!lowerStorage.isEmpty()
+                && !lowerStorage.contains(
+                upperLiquid
+        )) {
+
+            return;
+        }
+
+        upperStorage.transferTo(
+                lowerStorage,
+                upperStorage.getAmount()
+        );
+    }
+
+    @Override
+    protected void onPlace(
+            BlockState state,
+            Level level,
+            BlockPos position,
+            BlockState oldState,
+            boolean movedByPiston
+    ) {
+        super.onPlace(
+                state,
+                level,
+                position,
+                oldState,
+                movedByPiston
+        );
+
+        if (level.isClientSide) {
+            return;
+        }
+
+        /*
+         * If this canister was placed above another, try draining this
+         * canister downward.
+         */
+        level.scheduleTick(
+                position,
+                this,
+                1
+        );
+
+        /*
+         * If this canister was placed beneath an existing canister,
+         * schedule that upper canister too.
+         */
+        BlockPos abovePosition =
+                position.above();
+
+        if (level.getBlockState(
+                abovePosition
+        ).is(this)) {
+
+            level.scheduleTick(
+                    abovePosition,
+                    this,
+                    1
+            );
+        }
+    }
+
+
 
     /**
      * Always creates the ordinary canister item, adding block-entity
