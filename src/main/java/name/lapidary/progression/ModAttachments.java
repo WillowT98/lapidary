@@ -9,33 +9,49 @@ import net.minecraft.resources.ResourceLocation;
 public final class ModAttachments {
 
     /**
-     * A persistent integer stored separately on each player.
-     *
-     * initializer(() -> 0):
-     * New players begin with 0 Insight.
-     *
-     * persistent(Codec.INT):
-     * The value is written to the player's save data.
-     *
-     * copyOnDeath():
-     * The value is copied to the player's new entity after respawning.
+     * Persistent Insight total.
      */
-    public static final AttachmentType<Integer> LAPIDARY_INSIGHT =
-            AttachmentRegistry.<Integer>builder()
+    public static final AttachmentType<Integer>
+            LAPIDARY_INSIGHT =
+            AttachmentRegistry
+                    .<Integer>builder()
                     .initializer(() -> 0)
                     .persistent(Codec.INT)
                     .copyOnDeath()
                     .buildAndRegister(
-                            ResourceLocation.fromNamespaceAndPath(
-                                    Lapidary.MOD_ID,
-                                    "lapidary_insight"
-                            )
+                            ResourceLocation
+                                    .fromNamespaceAndPath(
+                                            Lapidary.MOD_ID,
+                                            "lapidary_insight"
+                                    )
+                    );
+
+    /**
+     * Persistent Tome purchases.
+     *
+     * Each purchased node occupies one bit in this long.
+     */
+    public static final AttachmentType<Long>
+            TOME_PURCHASES =
+            AttachmentRegistry
+                    .<Long>builder()
+                    .initializer(() -> 0L)
+                    .persistent(Codec.LONG)
+                    .copyOnDeath()
+                    .buildAndRegister(
+                            ResourceLocation
+                                    .fromNamespaceAndPath(
+                                            Lapidary.MOD_ID,
+                                            "tome_purchases"
+                                    )
                     );
 
     private ModAttachments() {
     }
 
     public static void initialize() {
-        Lapidary.LOGGER.info("Registering Lapidary data attachments");
+        Lapidary.LOGGER.info(
+                "Registering Lapidary data attachments"
+        );
     }
 }

@@ -165,6 +165,10 @@ public final class ModCreativeTabs {
                                             add.accept(
                                                     ModBlocks.JEWELERS_TABLE
                                             );
+                                            add.accept(
+                                                    ModBlocks.TOME_TABLE
+                                            );
+
 
 
                                         }

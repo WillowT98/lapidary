@@ -93,6 +93,16 @@ public final class ModBlocks {
                                     .lightLevel(state -> 3)
                     )
             );
+    public static final Block TOME_TABLE =
+            register(
+                    "tome_table",
+                    new TomeTableBlock(
+                            BlockBehaviour.Properties
+                                    .ofFullCopy(
+                                            Blocks.CRAFTING_TABLE
+                                    )
+                    )
+            );
 
     private static Block registerBlockOnly(
             String name,

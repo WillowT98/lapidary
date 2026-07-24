@@ -32,5 +32,31 @@
   "container.lapidary.gem_cutter": "Gem Cutter",
   "item.lapidary.necklace_sea_glass": "Sea Glass Necklace",
   "block.lapidary.jewelers_table": "Jeweler's Table",
-  "container.lapidary.jewelers_table": "Jeweler's Table"
+  "container.lapidary.jewelers_table": "Jeweler's Table",
+  "block.lapidary.tome_table": "Tome Table",
+
+  "screen.lapidary.tome.title": "Tome of Insight",
+  "screen.lapidary.tome.insight": "Insight: %s",
+  "screen.lapidary.tome.branch_a": "Test Branch A",
+  "screen.lapidary.tome.branch_b": "Test Branch B",
+  "screen.lapidary.tome.root": "Root",
+
+  "screen.lapidary.tome.status.root": "The origin of the tree.",
+  "screen.lapidary.tome.status.purchased": "Purchased",
+  "screen.lapidary.tome.status.locked": "Purchase the preceding node first.",
+  "screen.lapidary.tome.status.expensive": "Not enough Insight.",
+  "screen.lapidary.tome.status.available": "Available for purchase.",
+
+  "screen.lapidary.tome.button.root": "Root",
+  "screen.lapidary.tome.button.purchased": "Purchased",
+  "screen.lapidary.tome.button.locked": "Locked",
+  "screen.lapidary.tome.button.purchase": "Purchase: %s",
+
+  "tome.lapidary.node.root": "Central Node",
+  "tome.lapidary.node.branch_a_1": "Dummy Node A1",
+  "tome.lapidary.node.branch_a_2": "Dummy Node A2",
+  "tome.lapidary.node.branch_a_3": "Dummy Node A3",
+  "tome.lapidary.node.branch_b_1": "Dummy Node B1",
+  "tome.lapidary.node.branch_b_2": "Dummy Node B2",
+  "tome.lapidary.node.branch_b_3": "Dummy Node B3"
 }
