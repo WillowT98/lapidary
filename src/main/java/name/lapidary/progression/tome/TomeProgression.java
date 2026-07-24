@@ -145,16 +145,82 @@ public final class TomeProgression {
     }
 
     /**
-     * Development helper for resetting dummy purchases.
+     * Clears every purchased Tome node and refunds the Insight spent
+     * on all currently defined purchased nodes.
+     *
+     * The refund is calculated from the node's current cost.
      */
-    public static void reset(
+    public static ResetResult resetAndRefund(
             ServerPlayer player
     ) {
+        long purchasedMask =
+                getPurchasedMask(player);
+
+        int nodesReset = 0;
+        int refundValue = 0;
+
+        for (TomeNode node : TomeTree.NODES) {
+            /*
+             * The root is always available and is never a purchase.
+             */
+            if (node.root()) {
+                continue;
+            }
+
+            if (TomeTree.isOwned(
+                    purchasedMask,
+                    node
+            )) {
+                nodesReset++;
+                refundValue += node.cost();
+            }
+        }
+
+        int previousInsight =
+                LapidaryInsight.get(player);
+
+        /*
+         * Clear ownership before synchronizing the updated screen.
+         */
         player.setAttached(
                 ModAttachments.TOME_PURCHASES,
                 0L
         );
 
+        /*
+         * LapidaryInsight.add() applies the existing Insight limits
+         * and synchronizes the normal Insight HUD.
+         */
+        int newInsightTotal =
+                LapidaryInsight.add(
+                        player,
+                        refundValue
+                );
+
+        int actualRefund =
+                newInsightTotal
+                        - previousInsight;
+
+        /*
+         * Immediately refresh the Tome if the player currently has
+         * its screen open.
+         */
         syncOpenScreen(player);
+
+        return new ResetResult(
+                nodesReset,
+                actualRefund,
+                newInsightTotal
+        );
+    }
+
+    /**
+     * Information returned to commands or future respec interfaces.
+     */
+    public record ResetResult(
+            int nodesReset,
+            int insightRefunded,
+            int newInsightTotal
+    ) {
     }
 }
