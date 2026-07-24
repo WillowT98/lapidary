@@ -103,6 +103,16 @@ public final class ModBlocks {
                                     )
                     )
             );
+    public static final Block CANISTER =
+            register(
+            "canister",
+            new Block(
+                    BlockBehaviour.Properties.of()
+                            .strength(1.5F)
+                            .sound(SoundType.GLASS)
+                            .noOcclusion()
+            )
+    );
 
     private static Block registerBlockOnly(
             String name,

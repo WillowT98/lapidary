@@ -100,5 +100,9 @@ public class LapidaryClient implements ClientModInitializer {
 				ModBlocks.GEM_CUTTER,
 				RenderType.cutout()
 		);
+		BlockRenderLayerMap.INSTANCE.putBlock(
+				ModBlocks.CANISTER,
+				RenderType.translucent()
+		);
 	}
 }

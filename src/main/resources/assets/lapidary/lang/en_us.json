@@ -34,6 +34,8 @@
   "block.lapidary.jewelers_table": "Jeweler's Table",
   "container.lapidary.jewelers_table": "Jeweler's Table",
   "block.lapidary.tome_table": "Tome Table",
+  "block.lapidary.canister": "Canister",
+  "item.lapidary.canister": "Canister",
 
   "screen.lapidary.tome.title": "Tome of Insight",
   "screen.lapidary.tome.insight": "Insight: %s",

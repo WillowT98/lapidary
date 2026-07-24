@@ -168,6 +168,9 @@ public final class ModCreativeTabs {
                                             add.accept(
                                                     ModBlocks.TOME_TABLE
                                             );
+                                            add.accept(
+                                                    ModBlocks.CANISTER
+                                            );
 
 
 
