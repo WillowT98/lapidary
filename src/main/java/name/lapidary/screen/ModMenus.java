@@ -8,7 +8,19 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 
 public final class ModMenus {
-
+    public static final MenuType<JewelersTableMenu>
+            JEWELERS_TABLE =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Lapidary.MOD_ID,
+                            "jewelers_table"
+                    ),
+                    new MenuType<>(
+                            JewelersTableMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
     public static final MenuType<GemCutterMenu> GEM_CUTTER =
             Registry.register(
                     BuiltInRegistries.MENU,

@@ -57,6 +57,15 @@ public final class ModBlocks {
                                     .noOcclusion()
                     )
             );
+    public static final Block JEWELERS_TABLE =
+            register(
+                    "jewelers_table",
+                    new JewelersTableBlock(
+                            BlockBehaviour.Properties
+                                    .ofFullCopy(Blocks.CRAFTING_TABLE)
+                                    .noOcclusion()
+                    )
+            );
     public static final LiquidBlock MANA = registerWithoutItem(
             "mana",
             new ManaLiquidBlock(

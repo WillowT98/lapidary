@@ -9,7 +9,7 @@ TODO: remove base enchanting mechanics
 To add items:
 -Choose a consistent name for item! Must be
  the same everywhere
--Add to src/main/java/name/lapidary/item/ModItems.java
+-Add to src/main/java/name/lapidary/item/ModItems.java and ModCreativeTabs.java
   This is where you add unusual properties, like
   stack sizes or durability
 -Add .png texture to src/main/resources/assets/lapidary/textures/item/

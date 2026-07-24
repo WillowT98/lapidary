@@ -29,5 +29,8 @@
   "itemGroup.lapidary": "Lapidary",
   "item.lapidary.sea_glass_emerald": "Emerald-Cut Sea Glass",
   "block.lapidary.gem_cutter": "Gem Cutter",
-  "container.lapidary.gem_cutter": "Gem Cutter"
+  "container.lapidary.gem_cutter": "Gem Cutter",
+  "item.lapidary.necklace_sea_glass": "Sea Glass Necklace",
+  "block.lapidary.jewelers_table": "Jeweler's Table",
+  "container.lapidary.jewelers_table": "Jeweler's Table"
 }

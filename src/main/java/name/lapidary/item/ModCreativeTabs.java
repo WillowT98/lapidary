@@ -159,6 +159,12 @@ public final class ModCreativeTabs {
                                             add.accept(
                                                     ModBlocks.GEM_CUTTER
                                             );
+                                            add.accept(
+                                                    ModItems.NECKLACE_SEA_GLASS
+                                            );
+                                            add.accept(
+                                                    ModBlocks.JEWELERS_TABLE
+                                            );
 
 
                                         }

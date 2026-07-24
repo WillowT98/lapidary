@@ -10,6 +10,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
+import name.lapidary.client.screen.JewelersTableScreen;
 import net.minecraft.client.renderer.RenderType;
 
 import name.lapidary.fluid.ModFluids;
@@ -90,6 +91,10 @@ public class LapidaryClient implements ClientModInitializer {
 		MenuScreens.register(
 				ModMenus.GEM_CUTTER,
 				GemCutterScreen::new
+		);
+		MenuScreens.register(
+				ModMenus.JEWELERS_TABLE,
+				JewelersTableScreen::new
 		);
 		BlockRenderLayerMap.INSTANCE.putBlock(
 				ModBlocks.GEM_CUTTER,

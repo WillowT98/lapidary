@@ -41,6 +41,10 @@ public final class ModItems {
             "necklace_empty",
             new Item(new Item.Properties())
     );
+    public static final Item NECKLACE_SEA_GLASS = register(
+            "necklace_sea_glass",
+            new Item(new Item.Properties())
+    );
     public static final Item RING_EMPTY = register(
             "ring_empty",
             new Item(new Item.Properties().stacksTo(1))
