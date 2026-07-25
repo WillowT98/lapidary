@@ -4,6 +4,7 @@ import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketInventory;
 import dev.emi.trinkets.api.TrinketsApi;
 import name.lapidary.inventory.MageBackpackContainer;
+import name.lapidary.inventory.MageBackpackMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -124,13 +125,10 @@ public final class MageBackpackAccess {
                                 playerInventory,
                                 menuPlayer
                         ) ->
-                                new ChestMenu(
-                                        MenuType.GENERIC_9x2,
+                                new MageBackpackMenu(
                                         containerId,
                                         playerInventory,
-                                        container,
-                                        MageBackpackItem
-                                                .INVENTORY_ROWS
+                                        container
                                 ),
                         Component.translatable(
                                 "container.lapidary.mage_backpack"
