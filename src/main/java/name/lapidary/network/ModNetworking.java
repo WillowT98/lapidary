@@ -13,6 +13,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import name.lapidary.magic.PlayerMagicData;
+import name.lapidary.magic.focus.SpellcastingFocusHelper;
+
 
 public final class ModNetworking {
 
@@ -49,6 +52,10 @@ public final class ModNetworking {
                 MagicStatePayload.TYPE,
                 MagicStatePayload.STREAM_CODEC
         );
+        PayloadTypeRegistry.playS2C().register(
+                OpenSpellRadialPayload.TYPE,
+                OpenSpellRadialPayload.STREAM_CODEC
+        );
 
         /*
          * Backpack interaction.
@@ -80,6 +87,65 @@ public final class ModNetworking {
                         SpellCasting.castSelected(
                                 context.player()
                         )
+        );
+
+        PayloadTypeRegistry.playC2S().register(
+                SelectPreparedSpellPayload.TYPE,
+                SelectPreparedSpellPayload.STREAM_CODEC
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                SelectPreparedSpellPayload.TYPE,
+                (payload, context) -> {
+                    ServerPlayer player =
+                            context.player();
+
+                    /*
+                     * A client cannot change its selected staff spell while
+                     * not actually holding a casting focus.
+                     */
+                    if (!SpellcastingFocusHelper
+                            .isHoldingFocus(player)) {
+
+                        return;
+                    }
+
+                    int slot =
+                            payload.slot();
+
+                    if (!PlayerMagicData.isValidSlot(
+                            slot
+                    )) {
+                        PlayerMagic.sync(player);
+                        return;
+                    }
+
+                    /*
+                     * Empty radial positions are not selectable.
+                     */
+                    if (PlayerMagic.get(player)
+                            .preparedSpell(slot)
+                            .isEmpty()) {
+
+                        PlayerMagic.sync(player);
+                        return;
+                    }
+
+                    boolean changed =
+                            PlayerMagic.selectSlot(
+                                    player,
+                                    slot
+                            );
+
+                    /*
+                     * Some versions of selectSlot return false when the same
+                     * slot was already selected. Send the state anyway so the
+                     * optimistic client remains authoritative.
+                     */
+                    if (!changed) {
+                        PlayerMagic.sync(player);
+                    }
+                }
         );
 
         /*

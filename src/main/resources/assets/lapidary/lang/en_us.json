@@ -77,6 +77,12 @@
   "message.lapidary.magic.no_canister": "Your Mage Backpack does not have a canister mounted.",
   "message.lapidary.magic.wrong_liquid": "The mounted canister does not contain mana.",
   "message.lapidary.magic.not_enough_mana": "The mounted canister does not contain enough mana.",
+  "screen.lapidary.spell_radial.title": "Prepared Spells",
+  "screen.lapidary.spell_radial.selected": "Selected: %s",
+  "screen.lapidary.spell_radial.none_selected": "No Spell Selected",
+  "screen.lapidary.spell_radial.empty": "Empty Slot",
+  "screen.lapidary.spell_radial.release": "Release right-click to select",
+  "screen.lapidary.spell_radial.cancel": "Move toward a spell, or release to cancel",
 
   "screen.lapidary.tome.status.root": "The origin of the tree.",
   "screen.lapidary.tome.status.purchased": "Purchased",

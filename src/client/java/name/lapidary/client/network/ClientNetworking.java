@@ -10,6 +10,9 @@ import name.lapidary.network.TomeOpenPayload;
 import name.lapidary.network.TomeStatePayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import name.lapidary.client.screen.SpellRadialScreen;
+import name.lapidary.magic.focus.SpellcastingFocusHelper;
+import name.lapidary.network.OpenSpellRadialPayload;
 
 public final class ClientNetworking {
 
@@ -45,6 +48,37 @@ public final class ClientNetworking {
                                                 data
                                         );
                                     }
+                                }
+                        )
+        );
+        ClientPlayNetworking.registerGlobalReceiver(
+                OpenSpellRadialPayload.TYPE,
+                (payload, context) ->
+                        context.client().execute(
+                                () -> {
+                                    if (context.client().player == null) {
+                                        return;
+                                    }
+
+                                    /*
+                                     * Do not unexpectedly replace an inventory,
+                                     * Tome screen, chat screen, or other GUI.
+                                     */
+                                    if (context.client().screen != null) {
+                                        return;
+                                    }
+
+                                    if (!SpellcastingFocusHelper
+                                            .isHoldingFocus(
+                                                    context.client().player
+                                            )) {
+
+                                        return;
+                                    }
+
+                                    context.client().setScreen(
+                                            new SpellRadialScreen()
+                                    );
                                 }
                         )
         );
