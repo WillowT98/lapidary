@@ -1,0 +1,18 @@
+{
+  "name": "Welcome to Lapidary",
+  "icon": "lapidary:sea_glass",
+  "category": "lapidary:getting_started",
+  "priority": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Lapidary is a cooperative fantasy survival overhaul centered upon discovery, gem cutting, mana, and magical insight.$(br2)This guidebook records what you learn about the world and the strange forms of magic hidden within it."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "lapidary:sea_glass",
+      "title": "A First Curiosity",
+      "text": "Sea glass is one of the simplest unusual materials found in Lapidary. For now, this page also serves as proof that Patchouli can display items from the mod correctly."
+    }
+  ]
+}

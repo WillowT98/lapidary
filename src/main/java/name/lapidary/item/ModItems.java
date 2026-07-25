@@ -119,14 +119,6 @@ public final class ModItems {
                                     .stacksTo(16)
                     )
             );
-    public static final Item LAPIDARY_GUIDEBOOK =
-            register(
-                    "lapidary_guidebook",
-                    new Item(
-                            new Item.Properties()
-                                    .stacksTo(1)
-                    )
-            );
     public static final Item MAGE_BACKPACK =
             register(
                     "mage_backpack",
@@ -135,6 +127,13 @@ public final class ModItems {
                                     .stacksTo(1)
                     )
             );
+    public static final Item LAPIDARY_GUIDEBOOK = register(
+            "lapidary_guidebook",
+            new LapidaryGuidebookItem(
+                    new Item.Properties()
+                            .stacksTo(1)
+            )
+    );
 
     private ModItems() {
         // Prevent this utility class from being instantiated.

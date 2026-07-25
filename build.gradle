@@ -25,6 +25,14 @@ repositories {
 	}
 
 	maven {
+		name = "BlameJared"
+		url = uri("https://maven.blamejared.com")
+		content {
+			includeGroup("vazkii.patchouli")
+		}
+	}
+
+	maven {
 		name = "JitPack"
 		url = uri("https://jitpack.io")
 	}
@@ -130,6 +138,8 @@ dependencies {
 			"dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${lambDynamicLightsVersion}"
 	)
 
+	// Required: in-game guidebook system
+	modImplementation "vazkii.patchouli:Patchouli:${project.patchouli_version}-FABRIC"
 	// Required: wearable jewelry and accessory slots
 	modImplementation(
 			"maven.modrinth:trinkets:${project.trinkets_version}"
