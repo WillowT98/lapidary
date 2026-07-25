@@ -44,10 +44,10 @@ public final class MageBackpackRenderer
             0.0D;
 
     private static final double CANISTER_OFFSET_Y =
-            1.02D;
+            0.285D;
 
     private static final double CANISTER_OFFSET_Z =
-            0.23D;
+            0.409D;
 
     private static final float CANISTER_SCALE =
             0.58F;
