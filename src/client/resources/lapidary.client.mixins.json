@@ -3,7 +3,7 @@
 	"package": "name.lapidary.client.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"MinecraftAttackMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

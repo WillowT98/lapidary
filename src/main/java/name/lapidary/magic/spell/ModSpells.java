@@ -1,6 +1,7 @@
 package name.lapidary.magic.spell;
 
 import name.lapidary.Lapidary;
+import name.lapidary.fluid.CanisterFluidStorage;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.LinkedHashMap;
@@ -16,24 +17,21 @@ public final class ModSpells {
             > SPELLS =
             new LinkedHashMap<>();
 
-    /*
-     * No spells are registered yet.
-     *
-     * Later, declarations will look like:
-     *
-     * public static final SpellDefinition LIGHT =
-     *         register("light");
+    /**
+     * Every Mage Light currently costs exactly one full bucket
+     * of mana.
      */
+    public static final SpellDefinition MAGE_LIGHT =
+            register(
+                    "mage_light",
+                    CanisterFluidStorage.BUCKET,
+                    MageLightSpell::cast
+            );
 
     private ModSpells() {
     }
 
     public static void initialize() {
-        /*
-         * Referencing this class causes future static spell fields
-         * to be initialized before networking or player data tries
-         * to resolve them.
-         */
         Lapidary.LOGGER.info(
                 "Registered {} Lapidary spells",
                 SPELLS.size()
@@ -41,15 +39,21 @@ public final class ModSpells {
     }
 
     public static SpellDefinition register(
-            String path
+            String path,
+            long manaCost,
+            SpellEffect effect
     ) {
         return register(
-                Lapidary.id(path)
+                Lapidary.id(path),
+                manaCost,
+                effect
         );
     }
 
     public static SpellDefinition register(
-            ResourceLocation id
+            ResourceLocation id,
+            long manaCost,
+            SpellEffect effect
     ) {
         if (SPELLS.containsKey(id)) {
             throw new IllegalArgumentException(
@@ -58,7 +62,11 @@ public final class ModSpells {
         }
 
         SpellDefinition definition =
-                new SpellDefinition(id);
+                new SpellDefinition(
+                        id,
+                        manaCost,
+                        effect
+                );
 
         SPELLS.put(
                 id,

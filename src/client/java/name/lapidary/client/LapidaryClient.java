@@ -89,6 +89,10 @@ public class LapidaryClient implements ClientModInitializer {
 				ModEntities.THROWN_MOLTEN_BISMUTH,
 				ThrownItemRenderer::new
 		);
+		EntityRendererRegistry.register(
+				ModEntities.MAGE_LIGHT,
+				ThrownItemRenderer::new
+		);
 		MenuScreens.register(
 				ModMenus.GEM_CUTTER,
 				GemCutterScreen::new

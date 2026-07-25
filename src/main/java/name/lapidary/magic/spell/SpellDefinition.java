@@ -6,13 +6,12 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Objects;
 
 /**
- * Metadata shared by every registered staff spell.
- *
- * Actual casting behavior will be added later. For now, a spell only
- * needs an ID and a translated display name.
+ * Registered metadata and behavior for a staff spell.
  */
 public record SpellDefinition(
-        ResourceLocation id
+        ResourceLocation id,
+        long manaCost,
+        SpellEffect effect
 ) {
 
     public SpellDefinition {
@@ -20,6 +19,18 @@ public record SpellDefinition(
                 id,
                 "Spell ID cannot be null"
         );
+
+        Objects.requireNonNull(
+                effect,
+                "Spell effect cannot be null"
+        );
+
+        if (manaCost < 0L) {
+            throw new IllegalArgumentException(
+                    "Spell mana cost cannot be negative: "
+                            + manaCost
+            );
+        }
     }
 
     public String translationKey() {

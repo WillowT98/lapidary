@@ -134,6 +134,14 @@ public final class ModItems {
                             .stacksTo(1)
             )
     );
+    public static final Item MAGE_LIGHT_ORB =
+            register(
+                    "mage_light_orb",
+                    new Item(
+                            new Item.Properties()
+                                    .stacksTo(1)
+                    )
+            );
     public static final Item STAFF =
             register(
                     "staff",

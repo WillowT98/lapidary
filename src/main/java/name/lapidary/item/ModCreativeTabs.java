@@ -85,7 +85,6 @@ public final class ModCreativeTabs {
                                             add.accept(ModItems.LAPIDARY_GUIDEBOOK);
                                             add.accept(ModItems.SEA_GLASS);
                                             add.accept(ModItems.FULGURITE);
-                                            add.accept(ModItems.FULGURITE);
                                             add.accept(ModItems.PURE_LAPIS);
                                             add.accept(ModItems.SIEVE);
                                             add.accept(ModItems.GOLD_PAN);

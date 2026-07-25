@@ -13,7 +13,9 @@ public final class PlayerMagic {
     private PlayerMagic() {
     }
 
-    public static PlayerMagicData get(Player player) {
+    public static PlayerMagicData get(
+            Player player
+    ) {
         return player.getAttachedOrCreate(
                 ModAttachments.PLAYER_MAGIC
         );
@@ -31,13 +33,67 @@ public final class PlayerMagic {
         sync(player);
     }
 
+    /**
+     * Ensures that the player has all magic that is universally
+     * available without Tome progression.
+     *
+     * Mage Light is prepared automatically only when it is first
+     * granted and the player currently has no prepared spells.
+     */
+    public static boolean ensureStartingSpells(
+            ServerPlayer player
+    ) {
+        PlayerMagicData current =
+                get(player);
+
+        ResourceLocation mageLightId =
+                ModSpells.MAGE_LIGHT.id();
+
+        if (current.knowsSpell(
+                mageLightId
+        )) {
+            return false;
+        }
+
+        PlayerMagicData updated =
+                current.withKnownSpell(
+                        mageLightId
+                );
+
+        boolean hasPreparedSpell =
+                updated.preparedSpells()
+                        .stream()
+                        .anyMatch(
+                                value ->
+                                        value != null
+                                                && !value.isBlank()
+                        );
+
+        if (!hasPreparedSpell) {
+            updated =
+                    updated.withPreparedSpell(
+                                    0,
+                                    mageLightId
+                            )
+                            .withSelectedSlot(0);
+        }
+
+        /*
+         * Do not call set() here, because set() calls sync(), and
+         * sync() invokes this reconciliation method.
+         */
+        player.setAttached(
+                ModAttachments.PLAYER_MAGIC,
+                updated
+        );
+
+        return true;
+    }
+
     public static boolean learnSpell(
             ServerPlayer player,
             ResourceLocation spellId
     ) {
-        /*
-         * Knowledge cannot contain arbitrary or misspelled IDs.
-         */
         if (!ModSpells.contains(spellId)) {
             return false;
         }
@@ -51,7 +107,9 @@ public final class PlayerMagic {
 
         set(
                 player,
-                current.withKnownSpell(spellId)
+                current.withKnownSpell(
+                        spellId
+                )
         );
 
         return true;
@@ -61,7 +119,8 @@ public final class PlayerMagic {
             ServerPlayer player,
             ResourceLocation ritualId
     ) {
-        PlayerMagicData current = get(player);
+        PlayerMagicData current =
+                get(player);
 
         if (current.knowsRitual(ritualId)) {
             return false;
@@ -69,7 +128,9 @@ public final class PlayerMagic {
 
         set(
                 player,
-                current.withKnownRitual(ritualId)
+                current.withKnownRitual(
+                        ritualId
+                )
         );
 
         return true;
@@ -84,12 +145,6 @@ public final class PlayerMagic {
             return false;
         }
 
-        /*
-         * Both conditions are required:
-         *
-         * 1. This spell still exists in the registry.
-         * 2. This player has actually learned it.
-         */
         if (!ModSpells.contains(spellId)) {
             return false;
         }
@@ -101,12 +156,19 @@ public final class PlayerMagic {
             return false;
         }
 
-        set(
-                player,
+        PlayerMagicData updated =
                 current.withPreparedSpell(
                         slot,
                         spellId
-                )
+                );
+
+        if (updated.equals(current)) {
+            return false;
+        }
+
+        set(
+                player,
+                updated
         );
 
         return true;
@@ -120,9 +182,21 @@ public final class PlayerMagic {
             return false;
         }
 
+        PlayerMagicData current =
+                get(player);
+
+        PlayerMagicData updated =
+                current.withoutPreparedSpell(
+                        slot
+                );
+
+        if (updated.equals(current)) {
+            return false;
+        }
+
         set(
                 player,
-                get(player).withoutPreparedSpell(slot)
+                updated
         );
 
         return true;
@@ -135,15 +209,26 @@ public final class PlayerMagic {
     ) {
         if (!PlayerMagicData.isValidSlot(firstSlot)
                 || !PlayerMagicData.isValidSlot(secondSlot)) {
+
+            return false;
+        }
+
+        PlayerMagicData current =
+                get(player);
+
+        PlayerMagicData updated =
+                current.withSwappedSlots(
+                        firstSlot,
+                        secondSlot
+                );
+
+        if (updated.equals(current)) {
             return false;
         }
 
         set(
                 player,
-                get(player).withSwappedSlots(
-                        firstSlot,
-                        secondSlot
-                )
+                updated
         );
 
         return true;
@@ -157,15 +242,29 @@ public final class PlayerMagic {
             return false;
         }
 
+        PlayerMagicData current =
+                get(player);
+
+        PlayerMagicData updated =
+                current.withSelectedSlot(slot);
+
+        if (updated.equals(current)) {
+            return false;
+        }
+
         set(
                 player,
-                get(player).withSelectedSlot(slot)
+                updated
         );
 
         return true;
     }
 
-    public static void sync(ServerPlayer player) {
+    public static void sync(
+            ServerPlayer player
+    ) {
+        ensureStartingSpells(player);
+
         if (!ServerPlayNetworking.canSend(
                 player,
                 MagicStatePayload.TYPE
@@ -175,7 +274,9 @@ public final class PlayerMagic {
 
         ServerPlayNetworking.send(
                 player,
-                new MagicStatePayload(get(player))
+                new MagicStatePayload(
+                        get(player)
+                )
         );
     }
 }

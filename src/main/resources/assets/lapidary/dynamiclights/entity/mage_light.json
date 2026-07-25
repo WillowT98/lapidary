@@ -1,0 +1,6 @@
+{
+  "match": {
+    "type": "lapidary:mage_light"
+  },
+  "luminance": 15
+}

@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import name.lapidary.entity.projectile.MageLightEntity;
 
 public final class ModEntities {
 
@@ -91,6 +92,23 @@ public final class ModEntities {
                             .clientTrackingRange(4)
                             .updateInterval(10)
             );
+    public static final EntityType<MageLightEntity>
+            MAGE_LIGHT =
+            register(
+                    "mage_light",
+                    EntityType.Builder
+                            .<MageLightEntity>of(
+                                    MageLightEntity::new,
+                                    MobCategory.MISC
+                            )
+                            .sized(
+                                    0.25F,
+                                    0.25F
+                            )
+                            .clientTrackingRange(8)
+                            .updateInterval(1)
+            );
+
     private ModEntities() {
     }
 

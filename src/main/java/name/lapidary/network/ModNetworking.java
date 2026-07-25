@@ -4,6 +4,7 @@ import name.lapidary.Lapidary;
 import name.lapidary.block.ModBlocks;
 import name.lapidary.item.MageBackpackAccess;
 import name.lapidary.magic.PlayerMagic;
+import name.lapidary.magic.SpellCasting;
 import name.lapidary.progression.LapidaryInsight;
 import name.lapidary.progression.tome.TomeProgression;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -61,6 +62,22 @@ public final class ModNetworking {
                 OpenMageBackpackPayload.TYPE,
                 (payload, context) ->
                         MageBackpackAccess.openEquipped(
+                                context.player()
+                        )
+        );
+
+        /*
+         * Staff spell casting.
+         */
+        PayloadTypeRegistry.playC2S().register(
+                CastSelectedSpellPayload.TYPE,
+                CastSelectedSpellPayload.STREAM_CODEC
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                CastSelectedSpellPayload.TYPE,
+                (payload, context) ->
+                        SpellCasting.castSelected(
                                 context.player()
                         )
         );

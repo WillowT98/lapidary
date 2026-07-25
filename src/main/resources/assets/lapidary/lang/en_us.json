@@ -66,6 +66,18 @@
   "screen.lapidary.tome.branch_b": "Test Branch B",
   "screen.lapidary.tome.root": "Root",
 
+  "item.lapidary.mage_light_orb": "Mage Light",
+  "entity.lapidary.mage_light": "Mage Light",
+  "spell.lapidary.mage_light": "Mage Light",
+
+  "message.lapidary.magic.no_selected_spell": "No spell is prepared in the selected slot.",
+  "message.lapidary.magic.unknown_spell": "That prepared spell is no longer available.",
+  "message.lapidary.magic.invalid_target": "That spell cannot be cast here.",
+  "message.lapidary.magic.no_backpack": "You need an equipped Mage Backpack to cast this spell.",
+  "message.lapidary.magic.no_canister": "Your Mage Backpack does not have a canister mounted.",
+  "message.lapidary.magic.wrong_liquid": "The mounted canister does not contain mana.",
+  "message.lapidary.magic.not_enough_mana": "The mounted canister does not contain enough mana.",
+
   "screen.lapidary.tome.status.root": "The origin of the tree.",
   "screen.lapidary.tome.status.purchased": "Purchased",
   "screen.lapidary.tome.status.locked": "Purchase the preceding node first.",

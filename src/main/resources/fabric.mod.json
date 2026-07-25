@@ -38,9 +38,7 @@
 		"java": ">=21",
 		"fabric-api": "*",
 		"trinkets": ">=3.10.0",
-		"patchouli": ">=1.21.1-93"
-	},
-	"recommends": {
+		"patchouli": ">=1.21.1-93",
 		"lambdynlights": ">=4.8.10"
 	}
 }
