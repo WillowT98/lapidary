@@ -1,5 +1,7 @@
 package name.lapidary.client.screen;
 
+import name.lapidary.client.magic.ClientMagicData;
+import name.lapidary.magic.PlayerMagicData;
 import name.lapidary.network.TomePurchasePayload;
 import name.lapidary.progression.tome.TomeNode;
 import name.lapidary.progression.tome.TomePage;
@@ -15,8 +17,10 @@ import net.minecraft.sounds.SoundEvents;
 
 import java.util.List;
 
-public final class TomeScreen
-        extends Screen {
+public final class TomeScreen extends Screen {
+
+    private static final String CALIBRATION_PAGE_ID =
+            "calibration";
 
     private static final int MAX_PANEL_WIDTH = 420;
     private static final int MAX_PANEL_HEIGHT = 250;
@@ -70,6 +74,8 @@ public final class TomeScreen
 
     private final BlockPos tablePosition;
 
+    private final TomeCalibrationPanel calibrationPanel;
+
     private int insight;
 
     private List<String> purchasedNodeIds;
@@ -94,7 +100,7 @@ public final class TomeScreen
         );
 
         this.tablePosition =
-                tablePosition;
+                tablePosition.immutable();
 
         this.insight =
                 insight;
@@ -102,6 +108,12 @@ public final class TomeScreen
         this.purchasedNodeIds =
                 List.copyOf(
                         purchasedNodeIds
+                );
+
+        this.calibrationPanel =
+                new TomeCalibrationPanel(
+                        this.tablePosition,
+                        ClientMagicData.get()
                 );
     }
 
@@ -130,9 +142,8 @@ public final class TomeScreen
                         .build();
 
         /*
-         * Register for input and narration, but render manually.
-         * This preserves the sharp rendering fix from the previous
-         * version of the screen.
+         * Register the button for input and narration, but render it
+         * manually so it remains sharp with the rest of the screen.
          */
         this.addWidget(
                 purchaseButton
@@ -159,7 +170,7 @@ public final class TomeScreen
         );
 
         /*
-         * Everything after this point remains sharp.
+         * Everything drawn after this point remains sharp.
          */
         graphics.fill(
                 0,
@@ -169,24 +180,48 @@ public final class TomeScreen
                 0xC0100D12
         );
 
-        renderPanel(graphics);
+        renderPanel(
+                graphics
+        );
+
         renderTabs(
                 graphics,
                 mouseX,
                 mouseY
         );
 
-        renderConnections(graphics);
-        renderNodes(graphics);
-        renderSelectedNodeDetails(graphics);
-
-        if (purchaseButton != null) {
-            purchaseButton.render(
+        if (isCalibrationPage()) {
+            calibrationPanel.render(
                     graphics,
+                    this.font,
+                    getCalibrationLeft(),
+                    getCalibrationTop(),
+                    getCalibrationRight(),
+                    getCalibrationBottom(),
                     mouseX,
-                    mouseY,
-                    partialTick
+                    mouseY
             );
+        } else {
+            renderConnections(
+                    graphics
+            );
+
+            renderNodes(
+                    graphics
+            );
+
+            renderSelectedNodeDetails(
+                    graphics
+            );
+
+            if (purchaseButton != null) {
+                purchaseButton.render(
+                        graphics,
+                        mouseX,
+                        mouseY,
+                        partialTick
+                );
+            }
         }
     }
 
@@ -240,14 +275,22 @@ public final class TomeScreen
                 TEXT_COLOR
         );
 
-        TomePage page =
-                getCurrentPage();
+        Component subtitle;
+
+        if (isCalibrationPage()) {
+            subtitle =
+                    Component.translatable("tome.lapidary.page.calibration");
+        } else {
+            subtitle =
+                    Component.translatable(
+                            getCurrentPage()
+                                    .translationKey()
+                    );
+        }
 
         graphics.drawCenteredString(
                 this.font,
-                Component.translatable(
-                        page.translationKey()
-                ),
+                subtitle,
                 (
                         getContentLeft()
                                 + getContentRight()
@@ -287,9 +330,15 @@ public final class TomeScreen
         List<TomePage> unlockedPages =
                 getUnlockedPages();
 
+        /*
+         * The final tab is always Staff Calibration.
+         */
+        int tabCount =
+                unlockedPages.size() + 1;
+
         int tabHeight =
                 getTabHeight(
-                        unlockedPages.size()
+                        tabCount
                 );
 
         for (int index = 0;
@@ -299,75 +348,113 @@ public final class TomeScreen
             TomePage page =
                     unlockedPages.get(index);
 
-            int x =
-                    getTabX();
-
-            int y =
-                    getTabY(
-                            index,
-                            tabHeight
-                    );
-
-            boolean selected =
-                    page.id().equals(
-                            selectedPageId
-                    );
-
-            boolean hovered =
-                    mouseX >= x
-                            && mouseX < x
-                            + TAB_RAIL_WIDTH - 8
-                            && mouseY >= y
-                            && mouseY < y
-                            + tabHeight;
-
-            int color;
-
-            if (selected) {
-                color = TAB_SELECTED_COLOR;
-            } else if (hovered) {
-                color = TAB_HOVERED_COLOR;
-            } else {
-                color = TAB_COLOR;
-            }
-
-            graphics.fill(
-                    x,
-                    y,
-                    x + TAB_RAIL_WIDTH - 8,
-                    y + tabHeight,
-                    BORDER_COLOR
-            );
-
-            graphics.fill(
-                    x + 1,
-                    y + 1,
-                    x + TAB_RAIL_WIDTH - 9,
-                    y + tabHeight - 1,
-                    color
-            );
-
-            int textY =
-                    y + Math.max(
-                            2,
-                            (
-                                    tabHeight
-                                            - this.font.lineHeight
-                            ) / 2
-                    );
-
-            graphics.drawCenteredString(
-                    this.font,
+            renderTab(
+                    graphics,
+                    page.id(),
                     Component.translatable(
                             page.translationKey()
                     ),
-                    x + (
-                            TAB_RAIL_WIDTH - 8
-                    ) / 2,
-                    textY,
-                    TEXT_COLOR
+                    index,
+                    tabHeight,
+                    mouseX,
+                    mouseY
             );
         }
+
+        renderTab(
+                graphics,
+                CALIBRATION_PAGE_ID,
+                Component.translatable(
+                        "tome.lapidary.page.calibration"
+                ),
+                unlockedPages.size(),
+                tabHeight,
+                mouseX,
+                mouseY
+        );
+    }
+
+    private void renderTab(
+            GuiGraphics graphics,
+            String pageId,
+            Component label,
+            int index,
+            int tabHeight,
+            int mouseX,
+            int mouseY
+    ) {
+        int x =
+                getTabX();
+
+        int y =
+                getTabY(
+                        index,
+                        tabHeight
+                );
+
+        boolean selected =
+                pageId.equals(
+                        selectedPageId
+                );
+
+        boolean hovered =
+                mouseX >= x
+                        && mouseX
+                        < x
+                        + TAB_RAIL_WIDTH
+                        - 8
+                        && mouseY >= y
+                        && mouseY
+                        < y
+                        + tabHeight;
+
+        int color;
+
+        if (selected) {
+            color =
+                    TAB_SELECTED_COLOR;
+        } else if (hovered) {
+            color =
+                    TAB_HOVERED_COLOR;
+        } else {
+            color =
+                    TAB_COLOR;
+        }
+
+        graphics.fill(
+                x,
+                y,
+                x + TAB_RAIL_WIDTH - 8,
+                y + tabHeight,
+                BORDER_COLOR
+        );
+
+        graphics.fill(
+                x + 1,
+                y + 1,
+                x + TAB_RAIL_WIDTH - 9,
+                y + tabHeight - 1,
+                color
+        );
+
+        int textY =
+                y + Math.max(
+                        2,
+                        (
+                                tabHeight
+                                        - this.font.lineHeight
+                        ) / 2
+                );
+
+        graphics.drawCenteredString(
+                this.font,
+                label,
+                x + (
+                        TAB_RAIL_WIDTH - 8
+                ) / 2,
+                textY,
+                TEXT_COLOR
+        );
     }
 
     private void renderConnections(
@@ -388,9 +475,9 @@ public final class TomeScreen
                         );
 
                 /*
-                 * Only draw prerequisites that belong to the current
-                 * page. Cross-page prerequisites control access but
-                 * should not create lines across tabs.
+                 * Only draw prerequisites belonging to this page.
+                 * Cross-page prerequisites control access but should
+                 * not draw lines between different tabs.
                  */
                 if (parent == null
                         || !parent.pageId()
@@ -403,7 +490,9 @@ public final class TomeScreen
                         graphics,
                         parent,
                         child,
-                        getNodeColor(child)
+                        getNodeColor(
+                                child
+                        )
                 );
             }
         }
@@ -416,19 +505,30 @@ public final class TomeScreen
             int color
     ) {
         int startX =
-                getNodeCenterX(parent);
+                getNodeCenterX(
+                        parent
+                );
 
         int startY =
-                getNodeCenterY(parent);
+                getNodeCenterY(
+                        parent
+                );
 
         int endX =
-                getNodeCenterX(child);
+                getNodeCenterX(
+                        child
+                );
 
         int endY =
-                getNodeCenterY(child);
+                getNodeCenterY(
+                        child
+                );
 
         int middleY =
-                (startY + endY) / 2;
+                (
+                        startY
+                                + endY
+                ) / 2;
 
         fillLine(
                 graphics,
@@ -467,16 +567,28 @@ public final class TomeScreen
             int color
     ) {
         int minimumX =
-                Math.min(x1, x2);
+                Math.min(
+                        x1,
+                        x2
+                );
 
         int maximumX =
-                Math.max(x1, x2);
+                Math.max(
+                        x1,
+                        x2
+                );
 
         int minimumY =
-                Math.min(y1, y2);
+                Math.min(
+                        y1,
+                        y2
+                );
 
         int maximumY =
-                Math.max(y1, y2);
+                Math.max(
+                        y1,
+                        y2
+                );
 
         graphics.fill(
                 minimumX - 1,
@@ -494,13 +606,18 @@ public final class TomeScreen
                 getCurrentPage().nodes()) {
 
             int x =
-                    getNodeLeftX(node);
+                    getNodeLeftX(
+                            node
+                    );
 
             int y =
-                    getNodeTopY(node);
+                    getNodeTopY(
+                            node
+                    );
 
             boolean selected =
-                    node.id().equals(
+                    selectedNode != null
+                            && node.id().equals(
                             selectedNode.id()
                     );
 
@@ -522,14 +639,18 @@ public final class TomeScreen
                     y,
                     x + NODE_WIDTH,
                     y + NODE_HEIGHT,
-                    getNodeColor(node)
+                    getNodeColor(
+                            node
+                    )
             );
 
             Component nodeText;
 
             if (node.root()) {
                 nodeText =
-                        Component.literal("◆");
+                        Component.literal(
+                                "◆"
+                        );
             } else {
                 nodeText =
                         Component.literal(
@@ -552,6 +673,10 @@ public final class TomeScreen
     private void renderSelectedNodeDetails(
             GuiGraphics graphics
     ) {
+        if (selectedNode == null) {
+            return;
+        }
+
         int panelY =
                 getPanelY();
 
@@ -586,6 +711,10 @@ public final class TomeScreen
     }
 
     private Component getSelectedStatus() {
+        if (selectedNode == null) {
+            return Component.empty();
+        }
+
         if (selectedNode.root()) {
             return Component.translatable(
                     "screen.lapidary.tome.status.root"
@@ -652,17 +781,42 @@ public final class TomeScreen
             int button
     ) {
         if (button == 0) {
-            TomePage clickedPage =
-                    findTabAt(
+            String clickedPageId =
+                    findTabIdAt(
                             mouseX,
                             mouseY
                     );
 
-            if (clickedPage != null) {
-                switchPage(clickedPage);
+            if (clickedPageId != null) {
+                switchPage(
+                        clickedPageId
+                );
+
+                return true;
+            }
+        }
+
+        if (isCalibrationPage()) {
+            if (calibrationPanel.mouseClicked(
+                    mouseX,
+                    mouseY,
+                    button,
+                    getCalibrationLeft(),
+                    getCalibrationTop(),
+                    getCalibrationRight(),
+                    getCalibrationBottom()
+            )) {
                 return true;
             }
 
+            return super.mouseClicked(
+                    mouseX,
+                    mouseY,
+                    button
+            );
+        }
+
+        if (button == 0) {
             TomeNode clickedNode =
                     findNodeAt(
                             mouseX,
@@ -674,6 +828,7 @@ public final class TomeScreen
                         clickedNode;
 
                 updatePurchaseButton();
+
                 return true;
             }
         }
@@ -685,20 +840,49 @@ public final class TomeScreen
         );
     }
 
-    private TomePage findTabAt(
+    @Override
+    public boolean mouseReleased(
+            double mouseX,
+            double mouseY,
+            int button
+    ) {
+        if (isCalibrationPage()
+                && calibrationPanel.mouseReleased(
+                mouseX,
+                mouseY,
+                button,
+                getCalibrationLeft(),
+                getCalibrationTop(),
+                getCalibrationRight(),
+                getCalibrationBottom()
+        )) {
+            return true;
+        }
+
+        return super.mouseReleased(
+                mouseX,
+                mouseY,
+                button
+        );
+    }
+
+    private String findTabIdAt(
             double mouseX,
             double mouseY
     ) {
         List<TomePage> unlockedPages =
                 getUnlockedPages();
 
+        int tabCount =
+                unlockedPages.size() + 1;
+
         int tabHeight =
                 getTabHeight(
-                        unlockedPages.size()
+                        tabCount
                 );
 
         for (int index = 0;
-             index < unlockedPages.size();
+             index < tabCount;
              index++) {
 
             int x =
@@ -710,15 +894,28 @@ public final class TomeScreen
                             tabHeight
                     );
 
-            if (mouseX >= x
-                    && mouseX < x
-                    + TAB_RAIL_WIDTH - 8
-                    && mouseY >= y
-                    && mouseY < y
-                    + tabHeight) {
+            boolean inside =
+                    mouseX >= x
+                            && mouseX
+                            < x
+                            + TAB_RAIL_WIDTH
+                            - 8
+                            && mouseY >= y
+                            && mouseY
+                            < y
+                            + tabHeight;
 
-                return unlockedPages.get(index);
+            if (!inside) {
+                continue;
             }
+
+            if (index == unlockedPages.size()) {
+                return CALIBRATION_PAGE_ID;
+            }
+
+            return unlockedPages
+                    .get(index)
+                    .id();
         }
 
         return null;
@@ -728,14 +925,22 @@ public final class TomeScreen
             double mouseX,
             double mouseY
     ) {
+        if (isCalibrationPage()) {
+            return null;
+        }
+
         for (TomeNode node :
                 getCurrentPage().nodes()) {
 
             int x =
-                    getNodeLeftX(node);
+                    getNodeLeftX(
+                            node
+                    );
 
             int y =
-                    getNodeTopY(node);
+                    getNodeTopY(
+                            node
+                    );
 
             if (mouseX >= x
                     && mouseX < x + NODE_WIDTH
@@ -750,11 +955,32 @@ public final class TomeScreen
     }
 
     private void switchPage(
-            TomePage page
+            String pageId
     ) {
-        if (page.id().equals(
+        if (pageId.equals(
                 selectedPageId
         )) {
+            return;
+        }
+
+        if (CALIBRATION_PAGE_ID.equals(
+                pageId
+        )) {
+            selectedPageId =
+                    CALIBRATION_PAGE_ID;
+
+            updatePurchaseButton();
+            playPageTurnSound();
+
+            return;
+        }
+
+        TomePage page =
+                TomeTree.getPage(
+                        pageId
+                );
+
+        if (page == null) {
             return;
         }
 
@@ -772,18 +998,22 @@ public final class TomeScreen
                 page.root();
 
         updatePurchaseButton();
+        playPageTurnSound();
+    }
 
-        if (this.minecraft != null) {
-            this.minecraft
-                    .getSoundManager()
-                    .play(
-                            SimpleSoundInstance.forUI(
-                                    SoundEvents
-                                            .BOOK_PAGE_TURN,
-                                    1.0F
-                            )
-                    );
+    private void playPageTurnSound() {
+        if (this.minecraft == null) {
+            return;
         }
+
+        this.minecraft
+                .getSoundManager()
+                .play(
+                        SimpleSoundInstance.forUI(
+                                SoundEvents.BOOK_PAGE_TURN,
+                                1.0F
+                        )
+                );
     }
 
     private void requestPurchase() {
@@ -791,7 +1021,8 @@ public final class TomeScreen
             return;
         }
 
-        purchaseButton.active = false;
+        purchaseButton.active =
+                false;
 
         ClientPlayNetworking.send(
                 new TomePurchasePayload(
@@ -802,6 +1033,10 @@ public final class TomeScreen
     }
 
     private boolean canPurchaseSelectedNode() {
+        if (isCalibrationPage()) {
+            return false;
+        }
+
         if (selectedNode == null
                 || selectedNode.root()) {
 
@@ -840,6 +1075,16 @@ public final class TomeScreen
             return;
         }
 
+        purchaseButton.visible =
+                !isCalibrationPage();
+
+        if (isCalibrationPage()) {
+            purchaseButton.active =
+                    false;
+
+            return;
+        }
+
         if (selectedNode == null
                 || selectedNode.root()) {
 
@@ -849,7 +1094,9 @@ public final class TomeScreen
                     )
             );
 
-            purchaseButton.active = false;
+            purchaseButton.active =
+                    false;
+
             return;
         }
 
@@ -863,7 +1110,9 @@ public final class TomeScreen
                     )
             );
 
-            purchaseButton.active = false;
+            purchaseButton.active =
+                    false;
+
             return;
         }
 
@@ -877,7 +1126,9 @@ public final class TomeScreen
                     )
             );
 
-            purchaseButton.active = false;
+            purchaseButton.active =
+                    false;
+
             return;
         }
 
@@ -893,7 +1144,7 @@ public final class TomeScreen
     }
 
     /**
-     * Applies authoritative state sent by the server.
+     * Applies authoritative Tome progression state sent by the server.
      */
     public void updateState(
             int insight,
@@ -907,28 +1158,51 @@ public final class TomeScreen
                         purchasedNodeIds
                 );
 
-        TomePage currentPage =
-                TomeTree.getPage(
-                        selectedPageId
-                );
-
         /*
-         * A reset can remove the school that is currently open.
+         * Calibration is not a progression-tree page, so it should
+         * remain open when the progression state changes.
          */
-        if (currentPage == null
-                || !TomeTree.isPageUnlocked(
-                this.purchasedNodeIds,
-                currentPage
-        )) {
+        if (!isCalibrationPage()) {
+            TomePage currentPage =
+                    TomeTree.getPage(
+                            selectedPageId
+                    );
 
-            selectedPageId =
-                    TomeTree.SCHOOLS_PAGE_ID;
+            /*
+             * A reset can remove the school currently being viewed.
+             */
+            if (currentPage == null
+                    || !TomeTree.isPageUnlocked(
+                    this.purchasedNodeIds,
+                    currentPage
+            )) {
+                selectedPageId =
+                        TomeTree.SCHOOLS_PAGE_ID;
 
-            selectedNode =
-                    TomeTree.SCHOOLS_PAGE.root();
+                selectedNode =
+                        TomeTree.SCHOOLS_PAGE
+                                .root();
+            }
         }
 
         updatePurchaseButton();
+    }
+
+    /**
+     * Applies authoritative player magic data sent by the server.
+     */
+    public void updateMagicData(
+            PlayerMagicData newData
+    ) {
+        calibrationPanel.updateData(
+                newData
+        );
+    }
+
+    private boolean isCalibrationPage() {
+        return CALIBRATION_PAGE_ID.equals(
+                selectedPageId
+        );
     }
 
     private TomePage getCurrentPage() {
@@ -1040,6 +1314,24 @@ public final class TomeScreen
                 - 6;
     }
 
+    private int getCalibrationLeft() {
+        return getContentLeft() + 8;
+    }
+
+    private int getCalibrationTop() {
+        return getPanelY() + 42;
+    }
+
+    private int getCalibrationRight() {
+        return getContentRight() - 8;
+    }
+
+    private int getCalibrationBottom() {
+        return getPanelY()
+                + getPanelHeight()
+                - 44;
+    }
+
     private int getTreeOriginX() {
         return (
                 getContentLeft()
@@ -1138,14 +1430,18 @@ public final class TomeScreen
     private int getNodeCenterX(
             TomeNode node
     ) {
-        return getNodeLeftX(node)
+        return getNodeLeftX(
+                node
+        )
                 + NODE_WIDTH / 2;
     }
 
     private int getNodeCenterY(
             TomeNode node
     ) {
-        return getNodeTopY(node)
+        return getNodeTopY(
+                node
+        )
                 + NODE_HEIGHT / 2;
     }
 

@@ -1,5 +1,6 @@
 package name.lapidary.progression.tome;
 
+import name.lapidary.magic.PlayerMagic;
 import name.lapidary.network.TomeOpenPayload;
 import name.lapidary.network.TomeStatePayload;
 import name.lapidary.progression.LapidaryInsight;
@@ -43,6 +44,12 @@ public final class TomeProgression {
             ServerPlayer player,
             BlockPos tablePosition
     ) {
+        /*
+         * Ensure the calibration page has current player data before
+         * the screen-opening payload reaches the client.
+         */
+        PlayerMagic.sync(player);
+
         if (!ServerPlayNetworking.canSend(
                 player,
                 TomeOpenPayload.TYPE

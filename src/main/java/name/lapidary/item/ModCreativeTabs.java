@@ -39,20 +39,12 @@ public final class ModCreativeTabs {
                         BuiltInRegistries.CREATIVE_MODE_TAB,
                         LAPIDARY_TAB_KEY,
                         FabricItemGroup.builder()
-                                .icon(
-                                        () -> new ItemStack(
-                                                ModItems.LAPIDARY_GUIDEBOOK
-                                        )
-                                )
-                                .title(
-                                        Component.translatable(
+                                .icon(() -> new ItemStack(ModItems.LAPIDARY_GUIDEBOOK))
+                                .title(Component.translatable(
                                                 "itemGroup.lapidary"
-                                        )
-                                )
-                                .displayItems(
-                                        (parameters, output) -> {
-                                            Set<Item> addedItems =
-                                                    new HashSet<>();
+                                        ))
+                                .displayItems((parameters, output) -> {
+                                            Set<Item> addedItems = new HashSet<>();
 
                                             Consumer<ItemLike> add =
                                                     entry -> {
@@ -90,93 +82,35 @@ public final class ModCreativeTabs {
                                                         output.accept(stack);
                                                     };
 
-                                            add.accept(
-                                                    ModItems.LAPIDARY_GUIDEBOOK
-                                            );
-                                            add.accept(
-                                                    ModItems.SEA_GLASS
-                                            );
-                                            add.accept(
-                                                    ModItems.FULGURITE
-                                            );
-                                            add.accept(
-                                                    ModItems.FULGURITE
-                                            );
-                                            add.accept(
-                                                    ModItems.PURE_LAPIS
-                                            );
-                                            add.accept(
-                                                    ModItems.SIEVE
-                                            );
-                                            add.accept(
-                                                    ModItems.GOLD_PAN
-                                            );
-                                            add.accept(
-                                                    ModItems.GOLD_FLAKES
-                                            );
-                                            add.accept(
-                                                    ModItems.ELECTROSTATIC_MIX
-                                            );
-                                            add.accept(
-                                                    ModItems.MANA_BUCKET
-                                            );
-                                            add.accept(
-                                                    ModItems.NECKLACE_EMPTY
-                                            );
-                                            add.accept(
-                                                    ModItems.RING_EMPTY
-                                            );
-                                            add.accept(
-                                                    ModItems.SABLE_FUR
-                                            );
-                                            add.accept(
-                                                    ModItems.GLOW_TROUT_BUCKET
-                                            );
-                                            add.accept(
-                                                    ModItems.BRIGHT_SALMON_BUCKET
-                                            );
-                                            add.accept(
-                                                    ModItems.AMEFYSH_BUCKET
-                                            );
-                                            add.accept(
-                                                    ModItems.MOLTEN_BISMUTH_BOTTLE
-                                            );
-                                            add.accept(
-                                                    ModBlocks.SEA_GLASS_BLOCK
-                                            );
-                                            add.accept(
-                                                    ModBlocks.FINE_SAND
-                                            );
-                                            add.accept(
-                                                    ModBlocks.LOAM
-                                            );
-                                            add.accept(
-                                                    ModBlocks.BISMUTH_BLOCK
-                                            );
-                                            add.accept(
-                                                    ModItems.SEA_GLASS_EMERALD
-                                            );
-                                            add.accept(
-                                                    ModBlocks.GEM_CUTTER
-                                            );
-                                            add.accept(
-                                                    ModItems.NECKLACE_SEA_GLASS
-                                            );
-                                            add.accept(
-                                                    ModBlocks.JEWELERS_TABLE
-                                            );
-                                            add.accept(
-                                                    ModBlocks.TOME_TABLE
-                                            );
-                                            add.accept(
-                                                    ModBlocks.CANISTER
-                                            );
-                                            add.accept(
-                                                    ModItems.MAGE_BACKPACK
-                                            );
-
-
-
+                                            add.accept(ModItems.LAPIDARY_GUIDEBOOK);
+                                            add.accept(ModItems.SEA_GLASS);
+                                            add.accept(ModItems.FULGURITE);
+                                            add.accept(ModItems.FULGURITE);
+                                            add.accept(ModItems.PURE_LAPIS);
+                                            add.accept(ModItems.SIEVE);
+                                            add.accept(ModItems.GOLD_PAN);
+                                            add.accept(ModItems.GOLD_FLAKES);
+                                            add.accept(ModItems.ELECTROSTATIC_MIX);
+                                            add.accept(ModItems.MANA_BUCKET);
+                                            add.accept(ModItems.NECKLACE_EMPTY);
+                                            add.accept(ModItems.RING_EMPTY);
+                                            add.accept(ModItems.SABLE_FUR);
+                                            add.accept(ModItems.GLOW_TROUT_BUCKET);
+                                            add.accept(ModItems.BRIGHT_SALMON_BUCKET);
+                                            add.accept(ModItems.AMEFYSH_BUCKET);
+                                            add.accept(ModItems.MOLTEN_BISMUTH_BOTTLE);
+                                            add.accept(ModBlocks.SEA_GLASS_BLOCK);
+                                            add.accept(ModBlocks.FINE_SAND);
+                                            add.accept(ModBlocks.LOAM);
+                                            add.accept(ModBlocks.BISMUTH_BLOCK);
+                                            add.accept(ModItems.SEA_GLASS_EMERALD);
+                                            add.accept(ModBlocks.GEM_CUTTER);
+                                            add.accept(ModItems.NECKLACE_SEA_GLASS);
+                                            add.accept(ModBlocks.JEWELERS_TABLE);
+                                            add.accept(ModBlocks.TOME_TABLE);
+                                            add.accept(ModBlocks.CANISTER);
+                                            add.accept(ModItems.MAGE_BACKPACK);
+                                            add.accept(ModItems.STAFF);
                                         }
                                 )
                                 .build()

@@ -3,6 +3,7 @@ package name.lapidary.network;
 import name.lapidary.Lapidary;
 import name.lapidary.block.ModBlocks;
 import name.lapidary.item.MageBackpackAccess;
+import name.lapidary.magic.PlayerMagic;
 import name.lapidary.progression.LapidaryInsight;
 import name.lapidary.progression.tome.TomeProgression;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -26,13 +27,31 @@ public final class ModNetworking {
         );
 
         /*
-         * Existing Insight synchronization.
+         * Server-to-client state synchronization.
          */
         PayloadTypeRegistry.playS2C().register(
                 InsightSyncPayload.TYPE,
                 InsightSyncPayload.STREAM_CODEC
         );
 
+        PayloadTypeRegistry.playS2C().register(
+                TomeOpenPayload.TYPE,
+                TomeOpenPayload.STREAM_CODEC
+        );
+
+        PayloadTypeRegistry.playS2C().register(
+                TomeStatePayload.TYPE,
+                TomeStatePayload.STREAM_CODEC
+        );
+
+        PayloadTypeRegistry.playS2C().register(
+                MagicStatePayload.TYPE,
+                MagicStatePayload.STREAM_CODEC
+        );
+
+        /*
+         * Backpack interaction.
+         */
         PayloadTypeRegistry.playC2S().register(
                 OpenMageBackpackPayload.TYPE,
                 OpenMageBackpackPayload.STREAM_CODEC
@@ -47,24 +66,28 @@ public final class ModNetworking {
         );
 
         /*
-         * Tome server-to-client payloads.
-         */
-        PayloadTypeRegistry.playS2C().register(
-                TomeOpenPayload.TYPE,
-                TomeOpenPayload.STREAM_CODEC
-        );
-
-        PayloadTypeRegistry.playS2C().register(
-                TomeStatePayload.TYPE,
-                TomeStatePayload.STREAM_CODEC
-        );
-
-        /*
-         * Tome client-to-server purchase request.
+         * Tome requests.
          */
         PayloadTypeRegistry.playC2S().register(
                 TomePurchasePayload.TYPE,
                 TomePurchasePayload.STREAM_CODEC
+        );
+
+        PayloadTypeRegistry.playC2S().register(
+                TomePrepareSpellPayload.TYPE,
+                TomePrepareSpellPayload.STREAM_CODEC
+        );
+
+        PayloadTypeRegistry.playC2S().register(
+                TomeClearPreparedSpellPayload.TYPE,
+                TomeClearPreparedSpellPayload
+                        .STREAM_CODEC
+        );
+
+        PayloadTypeRegistry.playC2S().register(
+                TomeSwapPreparedSpellsPayload.TYPE,
+                TomeSwapPreparedSpellsPayload
+                        .STREAM_CODEC
         );
 
         ServerPlayNetworking.registerGlobalReceiver(
@@ -73,45 +96,10 @@ public final class ModNetworking {
                     ServerPlayer player =
                             context.player();
 
-                    BlockPos tablePosition =
-                            payload.tablePosition();
-
-                    /*
-                     * Reject requests for unloaded positions.
-                     */
-                    if (!player.level().isLoaded(
-                            tablePosition
+                    if (!isValidTomeRequest(
+                            player,
+                            payload.tablePosition()
                     )) {
-                        return;
-                    }
-
-                    /*
-                     * The referenced block must still be a Tome Table.
-                     */
-                    if (!player.level()
-                            .getBlockState(tablePosition)
-                            .is(ModBlocks.TOME_TABLE)) {
-
-                        return;
-                    }
-
-                    /*
-                     * Prevent remote purchases after walking away and
-                     * prevent fabricated packets targeting distant tables.
-                     */
-                    double distanceSquared =
-                            player.distanceToSqr(
-                                    tablePosition.getX()
-                                            + 0.5D,
-                                    tablePosition.getY()
-                                            + 0.5D,
-                                    tablePosition.getZ()
-                                            + 0.5D
-                            );
-
-                    if (distanceSquared
-                            > MAX_TOME_DISTANCE_SQUARED) {
-
                         return;
                     }
 
@@ -121,8 +109,8 @@ public final class ModNetworking {
                     );
 
                     /*
-                     * Return the authoritative state regardless of whether
-                     * the purchase succeeded.
+                     * Always return authoritative progression state,
+                     * including when the request was rejected.
                      */
                     TomeProgression.syncOpenScreen(
                             player
@@ -130,24 +118,151 @@ public final class ModNetworking {
                 }
         );
 
-        /*
-         * Existing Insight synchronization when joining.
-         */
-        ServerPlayConnectionEvents.JOIN.register(
-                (handler, sender, server) ->
-                        LapidaryInsight.sync(
-                                handler.player
-                        )
+        ServerPlayNetworking.registerGlobalReceiver(
+                TomePrepareSpellPayload.TYPE,
+                (payload, context) -> {
+                    ServerPlayer player =
+                            context.player();
+
+                    if (!isValidTomeRequest(
+                            player,
+                            payload.tablePosition()
+                    )) {
+                        /*
+                         * The client updated optimistically, so correct it.
+                         */
+                        PlayerMagic.sync(player);
+                        return;
+                    }
+
+                    boolean changed =
+                            PlayerMagic.prepareSpell(
+                                    player,
+                                    payload.slot(),
+                                    payload.spellId()
+                            );
+
+                    /*
+                     * Successful mutations synchronize through
+                     * PlayerMagic.set(). Rejected mutations still need
+                     * an authoritative correction.
+                     */
+                    if (!changed) {
+                        PlayerMagic.sync(player);
+                    }
+                }
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                TomeClearPreparedSpellPayload.TYPE,
+                (payload, context) -> {
+                    ServerPlayer player =
+                            context.player();
+
+                    if (!isValidTomeRequest(
+                            player,
+                            payload.tablePosition()
+                    )) {
+                        PlayerMagic.sync(player);
+                        return;
+                    }
+
+                    boolean changed =
+                            PlayerMagic.clearPreparedSlot(
+                                    player,
+                                    payload.slot()
+                            );
+
+                    if (!changed) {
+                        PlayerMagic.sync(player);
+                    }
+                }
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                TomeSwapPreparedSpellsPayload.TYPE,
+                (payload, context) -> {
+                    ServerPlayer player =
+                            context.player();
+
+                    if (!isValidTomeRequest(
+                            player,
+                            payload.tablePosition()
+                    )) {
+                        PlayerMagic.sync(player);
+                        return;
+                    }
+
+                    boolean changed =
+                            PlayerMagic.swapPreparedSlots(
+                                    player,
+                                    payload.firstSlot(),
+                                    payload.secondSlot()
+                            );
+
+                    if (!changed) {
+                        PlayerMagic.sync(player);
+                    }
+                }
         );
 
         /*
-         * Existing Insight synchronization after respawning.
+         * Persistent player data must be sent when the client joins.
+         */
+        ServerPlayConnectionEvents.JOIN.register(
+                (handler, sender, server) -> {
+                    LapidaryInsight.sync(
+                            handler.player
+                    );
+
+                    PlayerMagic.sync(
+                            handler.player
+                    );
+                }
+        );
+
+        /*
+         * Attachments copy across death, but the new client-side player
+         * still needs the authoritative values sent again.
          */
         ServerPlayerEvents.AFTER_RESPAWN.register(
-                (oldPlayer, newPlayer, alive) ->
-                        LapidaryInsight.sync(
-                                newPlayer
-                        )
+                (oldPlayer, newPlayer, alive) -> {
+                    LapidaryInsight.sync(
+                            newPlayer
+                    );
+
+                    PlayerMagic.sync(
+                            newPlayer
+                    );
+                }
         );
+    }
+
+    private static boolean isValidTomeRequest(
+            ServerPlayer player,
+            BlockPos tablePosition
+    ) {
+        if (!player.level().isLoaded(
+                tablePosition
+        )) {
+            return false;
+        }
+
+        if (!player.level()
+                .getBlockState(tablePosition)
+                .is(ModBlocks.TOME_TABLE)) {
+
+            return false;
+        }
+
+        double distanceSquared =
+                player.distanceToSqr(
+                        tablePosition.getX() + 0.5D,
+                        tablePosition.getY() + 0.5D,
+                        tablePosition.getZ() + 0.5D
+                );
+
+        return distanceSquared
+                <= MAX_TOME_DISTANCE_SQUARED;
     }
 }

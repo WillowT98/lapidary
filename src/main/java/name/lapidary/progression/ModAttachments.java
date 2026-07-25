@@ -2,6 +2,7 @@ package name.lapidary.progression;
 
 import com.mojang.serialization.Codec;
 import name.lapidary.Lapidary;
+import name.lapidary.magic.PlayerMagicData;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.resources.ResourceLocation;
@@ -45,6 +46,18 @@ public final class ModAttachments {
                                             Lapidary.MOD_ID,
                                             "tome_purchases"
                                     )
+                    );
+    /**
+     * Persistent player magic knowledge and prepared loadout.
+     */
+    public static final AttachmentType<PlayerMagicData> PLAYER_MAGIC =
+            AttachmentRegistry
+                    .<PlayerMagicData>builder()
+                    .initializer(PlayerMagicData::empty)
+                    .persistent(PlayerMagicData.CODEC)
+                    .copyOnDeath()
+                    .buildAndRegister(
+                            Lapidary.id("player_magic")
                     );
 
     /**

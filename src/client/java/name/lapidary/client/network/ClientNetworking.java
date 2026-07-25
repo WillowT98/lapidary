@@ -1,8 +1,11 @@
 package name.lapidary.client.network;
 
+import name.lapidary.client.magic.ClientMagicData;
 import name.lapidary.client.progression.ClientInsightData;
 import name.lapidary.client.screen.TomeScreen;
+import name.lapidary.magic.PlayerMagicData;
 import name.lapidary.network.InsightSyncPayload;
+import name.lapidary.network.MagicStatePayload;
 import name.lapidary.network.TomeOpenPayload;
 import name.lapidary.network.TomeStatePayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -14,14 +17,35 @@ public final class ClientNetworking {
     }
 
     public static void initialize() {
-        /*
-         * Existing Insight updates.
-         */
         ClientPlayNetworking.registerGlobalReceiver(
                 InsightSyncPayload.TYPE,
                 (payload, context) ->
                         ClientInsightData.set(
                                 payload.insight()
+                        )
+        );
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                MagicStatePayload.TYPE,
+                (payload, context) ->
+                        context.client().execute(
+                                () -> {
+                                    PlayerMagicData data =
+                                            payload.toData();
+
+                                    ClientMagicData.set(
+                                            data
+                                    );
+
+                                    if (context.client().screen
+                                            instanceof TomeScreen
+                                            tomeScreen) {
+
+                                        tomeScreen.updateMagicData(
+                                                data
+                                        );
+                                    }
+                                }
                         )
         );
 
@@ -39,8 +63,7 @@ public final class ClientNetworking {
                                                     new TomeScreen(
                                                             payload.tablePosition(),
                                                             payload.insight(),
-                                                            payload
-                                                                    .purchasedNodeIds()
+                                                            payload.purchasedNodeIds()
                                                     )
                                             );
                                 }
@@ -62,8 +85,7 @@ public final class ClientNetworking {
 
                                         tomeScreen.updateState(
                                                 payload.insight(),
-                                                payload
-                                                        .purchasedNodeIds()
+                                                payload.purchasedNodeIds()
                                         );
                                     }
                                 }
@@ -71,8 +93,10 @@ public final class ClientNetworking {
         );
 
         ClientPlayConnectionEvents.DISCONNECT.register(
-                (handler, client) ->
-                        ClientInsightData.reset()
+                (handler, client) -> {
+                    ClientInsightData.reset();
+                    ClientMagicData.reset();
+                }
         );
     }
 }

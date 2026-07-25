@@ -134,6 +134,14 @@ public final class ModItems {
                             .stacksTo(1)
             )
     );
+    public static final Item STAFF =
+            register(
+                    "staff",
+                    new StaffItem(
+                            new Item.Properties()
+                                    .stacksTo(1)
+                    )
+            );
 
     private ModItems() {
         // Prevent this utility class from being instantiated.
