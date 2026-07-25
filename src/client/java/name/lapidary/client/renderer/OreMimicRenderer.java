@@ -12,17 +12,10 @@ public final class OreMimicRenderer extends MobRenderer<
         OreMimicModel
         > {
 
-    /*
-     * Temporary texture.
-     *
-     * This can later be changed to:
-     *
-     * lapidary:textures/entity/ore_mimic.png
-     */
-    private static final ResourceLocation PLACEHOLDER_TEXTURE =
+    private static final ResourceLocation TEXTURE =
             ResourceLocation.fromNamespaceAndPath(
-                    "minecraft",
-                    "textures/entity/player/wide/steve.png"
+                    "lapidary",
+                    "textures/entity/ore_mimic.png"
             );
 
     public OreMimicRenderer(
@@ -43,6 +36,6 @@ public final class OreMimicRenderer extends MobRenderer<
     public ResourceLocation getTextureLocation(
             OreMimicEntity entity
     ) {
-        return PLACEHOLDER_TEXTURE;
+        return TEXTURE;
     }
 }
