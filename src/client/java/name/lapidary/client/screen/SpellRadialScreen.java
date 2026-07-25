@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
+import org.lwjgl.glfw.GLFW;
 
 public final class SpellRadialScreen
         extends Screen {
@@ -32,6 +33,12 @@ public final class SpellRadialScreen
 
     private static final int DEAD_ZONE_RADIUS =
             27;
+    /**
+     * If the opening packet arrives after the player has already released
+     * right-click, briefly display the radial and then cancel it.
+     */
+    private static final int UNARMED_CLOSE_TICKS =
+            8;
 
     private static final int SCREEN_DARKENING =
             0x60000000;
@@ -64,6 +71,14 @@ public final class SpellRadialScreen
             0xFFB9A8BD;
 
     private int ticksOpen;
+    /**
+     * True after the radial has observed the physical right mouse button
+     * in its pressed state.
+     *
+     * This prevents the screen from mistaking its opening transition for
+     * the player's intentional release.
+     */
+    private boolean sawRightButtonDown;
 
     private int lastHighlightedSlot =
             -1;
@@ -76,6 +91,20 @@ public final class SpellRadialScreen
                         "screen.lapidary.spell_radial.title"
                 )
         );
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        /*
+         * The radial normally opens while right-click is already held.
+         * Record that physical state immediately rather than relying upon
+         * Minecraft's key-binding state, which may have been reset while
+         * switching into a GUI screen.
+         */
+        sawRightButtonDown =
+                isRightMouseButtonDown();
     }
 
     @Override
@@ -513,7 +542,9 @@ public final class SpellRadialScreen
             double mouseY,
             int button
     ) {
-        if (button == 1) {
+        if (button
+                == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+
             int highlightedSlot =
                     findHighlightedSlot(
                             mouseX,
@@ -534,6 +565,8 @@ public final class SpellRadialScreen
 
     @Override
     public void tick() {
+        super.tick();
+
         ticksOpen++;
 
         if (this.minecraft == null
@@ -543,6 +576,10 @@ public final class SpellRadialScreen
             return;
         }
 
+        /*
+         * The radial is relevant only while the player continues holding
+         * a staff or another spellcasting focus in the main hand.
+         */
         if (!SpellcastingFocusHelper
                 .isHoldingFocus(
                         this.minecraft.player
@@ -552,20 +589,46 @@ public final class SpellRadialScreen
             return;
         }
 
-        /*
-         * Normally mouseReleased handles selection. This fallback
-         * prevents the menu becoming stuck if a platform does not
-         * deliver the original right-button release to the new screen.
-         */
-        if (ticksOpen > 2
-                && !this.minecraft
-                .options
-                .keyUse
-                .isDown()) {
+        boolean rightButtonDown =
+                isRightMouseButtonDown();
 
+        if (rightButtonDown) {
+            /*
+             * The player is physically holding right-click. Keep the
+             * radial open and arm it for release-based selection.
+             */
+            sawRightButtonDown =
+                    true;
+
+            return;
+        }
+
+        if (sawRightButtonDown) {
+            /*
+             * We previously observed the button being held and now observe
+             * it released. This is the intentional selection gesture.
+             *
+             * mouseReleased() normally handles this first, but polling here
+             * is a reliable fallback if the release event is not delivered
+             * to the newly opened screen.
+             */
             completeSelection(
                     lastHighlightedSlot
             );
+
+            return;
+        }
+
+        /*
+         * The opening packet may occasionally arrive after a very quick
+         * right-click has already been released. In that case there is no
+         * held gesture to complete, so close without changing the selected
+         * spell after a short grace period.
+         */
+        if (ticksOpen
+                > UNARMED_CLOSE_TICKS) {
+
+            onClose();
         }
     }
 
@@ -605,6 +668,21 @@ public final class SpellRadialScreen
         }
 
         onClose();
+    }
+    private boolean isRightMouseButtonDown() {
+        if (this.minecraft == null) {
+            return false;
+        }
+
+        long windowHandle =
+                this.minecraft
+                        .getWindow()
+                        .getWindow();
+
+        return GLFW.glfwGetMouseButton(
+                windowHandle,
+                GLFW.GLFW_MOUSE_BUTTON_RIGHT
+        ) == GLFW.GLFW_PRESS;
     }
 
     private int getRingRadius() {
