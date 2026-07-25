@@ -1,19 +1,30 @@
 package name.lapidary.inventory;
 
+import name.lapidary.block.ModBlocks;
 import name.lapidary.item.MageBackpackItem;
 import name.lapidary.item.ModItems;
+import name.lapidary.screen.ModMenus;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public final class MageBackpackMenu
         extends AbstractContainerMenu {
 
-    private static final int BACKPACK_SLOT_START = 0;
+    public static final int CANISTER_SLOT_X = 185;
+    public static final int CANISTER_SLOT_Y = 18;
+
+    public static final int CANISTER_MENU_SLOT =
+            MageBackpackItem.CANISTER_SLOT_INDEX;
+
+    private static final int GENERAL_SLOT_START = 0;
+
+    private static final int GENERAL_SLOT_END =
+            MageBackpackItem.GENERAL_INVENTORY_SIZE;
 
     private static final int BACKPACK_SLOT_END =
             MageBackpackItem.INVENTORY_SIZE;
@@ -32,17 +43,35 @@ public final class MageBackpackMenu
 
     private final Container backpackContainer;
 
+    /**
+     * Client-side constructor used by MenuType.
+     *
+     * The server synchronizes the real contents into this temporary
+     * client container.
+     */
+    public MageBackpackMenu(
+            int containerId,
+            Inventory playerInventory
+    ) {
+        this(
+                containerId,
+                playerInventory,
+                new SimpleContainer(
+                        MageBackpackItem.INVENTORY_SIZE
+                )
+        );
+    }
+
+    /**
+     * Server-side constructor used when opening the equipped backpack.
+     */
     public MageBackpackMenu(
             int containerId,
             Inventory playerInventory,
             Container backpackContainer
     ) {
-        /*
-         * We retain the vanilla two-row chest MenuType so Minecraft
-         * continues to use its standard two-row chest screen.
-         */
         super(
-                MenuType.GENERIC_9x2,
+                ModMenus.MAGE_BACKPACK,
                 containerId
         );
 
@@ -58,12 +87,13 @@ public final class MageBackpackMenu
                 playerInventory.player
         );
 
-        addBackpackSlots();
+        addGeneralBackpackSlots();
+        addCanisterSlot();
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
     }
 
-    private void addBackpackSlots() {
+    private void addGeneralBackpackSlots() {
         for (int row = 0;
              row < MageBackpackItem.INVENTORY_ROWS;
              row++) {
@@ -88,6 +118,10 @@ public final class MageBackpackMenu
                             ) {
                                 return !stack.is(
                                         ModItems.MAGE_BACKPACK
+                                )
+                                        && !stack.is(
+                                        ModBlocks.CANISTER
+                                                .asItem()
                                 );
                             }
                         }
@@ -96,12 +130,35 @@ public final class MageBackpackMenu
         }
     }
 
+    private void addCanisterSlot() {
+        this.addSlot(
+                new Slot(
+                        backpackContainer,
+                        MageBackpackItem
+                                .CANISTER_SLOT_INDEX,
+                        CANISTER_SLOT_X,
+                        CANISTER_SLOT_Y
+                ) {
+                    @Override
+                    public boolean mayPlace(
+                            ItemStack stack
+                    ) {
+                        return stack.is(
+                                ModBlocks.CANISTER.asItem()
+                        );
+                    }
+
+                    @Override
+                    public int getMaxStackSize() {
+                        return 1;
+                    }
+                }
+        );
+    }
+
     private void addPlayerInventory(
             Inventory playerInventory
     ) {
-        /*
-         * The vertical offset matches vanilla's two-row chest menu.
-         */
         int verticalOffset =
                 (
                         MageBackpackItem.INVENTORY_ROWS
@@ -186,12 +243,12 @@ public final class MageBackpackMenu
         ItemStack originalStack =
                 sourceStack.copy();
 
-        if (slotIndex >= BACKPACK_SLOT_START
+        /*
+         * Any backpack-owned slot moves to the player inventory.
+         */
+        if (slotIndex >= GENERAL_SLOT_START
                 && slotIndex < BACKPACK_SLOT_END) {
 
-            /*
-             * Backpack inventory → player inventory.
-             */
             if (!this.moveItemStackTo(
                     sourceStack,
                     PLAYER_INVENTORY_START,
@@ -201,31 +258,45 @@ public final class MageBackpackMenu
                 return ItemStack.EMPTY;
             }
         } else {
-            /*
-             * Explicitly reject shift-clicking a backpack into
-             * the equipped backpack.
-             */
             if (sourceStack.is(
                     ModItems.MAGE_BACKPACK
             )) {
                 return ItemStack.EMPTY;
             }
 
-            /*
-             * Player inventory → backpack inventory.
-             */
-            if (!this.moveItemStackTo(
-                    sourceStack,
-                    BACKPACK_SLOT_START,
-                    BACKPACK_SLOT_END,
-                    false
+            boolean movedIntoBackpack;
+
+            if (sourceStack.is(
+                    ModBlocks.CANISTER.asItem()
             )) {
                 /*
-                 * Preserve ordinary main-inventory/hotbar movement
-                 * when the backpack cannot accept the item.
+                 * Canisters route only to the dedicated mount.
                  */
-                if (slotIndex >= PLAYER_INVENTORY_START
-                        && slotIndex < PLAYER_INVENTORY_END) {
+                movedIntoBackpack =
+                        this.moveItemStackTo(
+                                sourceStack,
+                                CANISTER_MENU_SLOT,
+                                CANISTER_MENU_SLOT + 1,
+                                false
+                        );
+            } else {
+                /*
+                 * Ordinary items route only to general storage.
+                 */
+                movedIntoBackpack =
+                        this.moveItemStackTo(
+                                sourceStack,
+                                GENERAL_SLOT_START,
+                                GENERAL_SLOT_END,
+                                false
+                        );
+            }
+
+            if (!movedIntoBackpack) {
+                if (slotIndex
+                        >= PLAYER_INVENTORY_START
+                        && slotIndex
+                        < PLAYER_INVENTORY_END) {
 
                     if (!this.moveItemStackTo(
                             sourceStack,
@@ -235,8 +306,10 @@ public final class MageBackpackMenu
                     )) {
                         return ItemStack.EMPTY;
                     }
-                } else if (slotIndex >= HOTBAR_START
-                        && slotIndex < HOTBAR_END) {
+                } else if (slotIndex
+                        >= HOTBAR_START
+                        && slotIndex
+                        < HOTBAR_END) {
 
                     if (!this.moveItemStackTo(
                             sourceStack,
@@ -246,6 +319,8 @@ public final class MageBackpackMenu
                     )) {
                         return ItemStack.EMPTY;
                     }
+                } else {
+                    return ItemStack.EMPTY;
                 }
             }
         }

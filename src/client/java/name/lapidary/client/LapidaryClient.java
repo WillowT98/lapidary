@@ -27,6 +27,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.renderer.entity.FoxRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
+import name.lapidary.client.screen.MageBackpackScreen;
 
 public class LapidaryClient implements ClientModInitializer {
 	@Override
@@ -113,6 +114,10 @@ public class LapidaryClient implements ClientModInitializer {
 		TrinketRendererRegistry.registerRenderer(
 				ModItems.MAGE_BACKPACK,
 				new MageBackpackRenderer()
+		);
+		MenuScreens.register(
+				ModMenus.MAGE_BACKPACK,
+				MageBackpackScreen::new
 		);
 	}
 }

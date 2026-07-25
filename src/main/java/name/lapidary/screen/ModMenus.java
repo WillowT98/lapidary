@@ -1,6 +1,7 @@
 package name.lapidary.screen;
 
 import name.lapidary.Lapidary;
+import name.lapidary.inventory.MageBackpackMenu;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -8,6 +9,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 
 public final class ModMenus {
+
     public static final MenuType<JewelersTableMenu>
             JEWELERS_TABLE =
             Registry.register(
@@ -21,7 +23,9 @@ public final class ModMenus {
                             FeatureFlags.DEFAULT_FLAGS
                     )
             );
-    public static final MenuType<GemCutterMenu> GEM_CUTTER =
+
+    public static final MenuType<GemCutterMenu>
+            GEM_CUTTER =
             Registry.register(
                     BuiltInRegistries.MENU,
                     ResourceLocation.fromNamespaceAndPath(
@@ -30,6 +34,20 @@ public final class ModMenus {
                     ),
                     new MenuType<>(
                             GemCutterMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
+
+    public static final MenuType<MageBackpackMenu>
+            MAGE_BACKPACK =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Lapidary.MOD_ID,
+                            "mage_backpack"
+                    ),
+                    new MenuType<>(
+                            MageBackpackMenu::new,
                             FeatureFlags.DEFAULT_FLAGS
                     )
             );

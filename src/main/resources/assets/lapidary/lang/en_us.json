@@ -52,6 +52,7 @@
   "key.lapidary.open_mage_backpack": "Open Mage Backpack",
   "key.categories.lapidary": "Lapidary",
   "message.lapidary.no_mage_backpack": "You do not have a Mage Backpack equipped.",
+  "container.lapidary.mage_backpack.canister": "Canister Mount",
 
   "screen.lapidary.tome.title": "Tome of Insight",
   "screen.lapidary.tome.insight": "Insight: %s",

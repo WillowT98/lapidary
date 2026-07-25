@@ -1,6 +1,7 @@
 package name.lapidary.inventory;
 
 import dev.emi.trinkets.api.TrinketInventory;
+import name.lapidary.block.ModBlocks;
 import name.lapidary.item.MageBackpackItem;
 import name.lapidary.item.ModItems;
 import net.minecraft.core.NonNullList;
@@ -123,11 +124,26 @@ public final class MageBackpackContainer
             int slot,
             ItemStack stack
     ) {
+        boolean isCanister =
+                stack.is(
+                        ModBlocks.CANISTER.asItem()
+                );
+
         /*
-         * Prevent recursive backpack storage and the associated
-         * duplication and save-depth problems.
+         * Only the dedicated final slot accepts a canister.
          */
-        return !stack.is(
+        if (slot
+                == MageBackpackItem.CANISTER_SLOT_INDEX) {
+
+            return isCanister;
+        }
+
+        /*
+         * Canisters cannot occupy general storage, and backpacks
+         * still cannot be nested.
+         */
+        return !isCanister
+                && !stack.is(
                 ModItems.MAGE_BACKPACK
         );
     }
