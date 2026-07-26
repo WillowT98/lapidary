@@ -14,6 +14,7 @@ import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -214,9 +215,11 @@ public final class GemCutterMenu
     private static boolean isValidGem(
             ItemStack stack
     ) {
-        return stack.is(
-                ModItems.SEA_GLASS
-        );
+        return stack.is(ModItems.SEA_GLASS)
+                || stack.is(Items.DIAMOND)
+                || stack.is(ModItems.FULGURITE)
+                || stack.is(ModItems.HEARTROOT)
+                || stack.is(ModItems.PURE_LAPIS);
     }
 
     /*
@@ -225,17 +228,50 @@ public final class GemCutterMenu
      * Later, this method can read actual gem-cutting recipes.
      */
     public List<ItemStack> getAvailableCuts() {
-        if (!isValidGem(
-                inputContainer.getItem(0)
-        )) {
-            return List.of();
+        ItemStack input =
+                inputContainer.getItem(0);
+
+        if (input.is(ModItems.SEA_GLASS)) {
+            return List.of(
+                    new ItemStack(
+                            ModItems.SEA_GLASS_EMERALD
+                    )
+            );
         }
 
-        return List.of(
-                new ItemStack(
-                        ModItems.SEA_GLASS_EMERALD
-                )
-        );
+        if (input.is(Items.DIAMOND)) {
+            return List.of(
+                    new ItemStack(
+                            ModItems.DIAMOND_EMERALD
+                    )
+            );
+        }
+
+        if (input.is(ModItems.FULGURITE)) {
+            return List.of(
+                    new ItemStack(
+                            ModItems.FULGURITE_EMERALD
+                    )
+            );
+        }
+
+        if (input.is(ModItems.HEARTROOT)) {
+            return List.of(
+                    new ItemStack(
+                            ModItems.HEARTROOT_EMERALD
+                    )
+            );
+        }
+
+        if (input.is(ModItems.PURE_LAPIS)) {
+            return List.of(
+                    new ItemStack(
+                            ModItems.LAPIS_EMERALD
+                    )
+            );
+        }
+
+        return List.of();
     }
 
     public int getAvailableCutCount() {
@@ -401,7 +437,7 @@ public final class GemCutterMenu
             }
         } else if (isValidGem(slotStack)) {
             /*
-             * Shift-clicking sea glass inserts it into the cutter.
+             * Shift-clicking gem inserts it into the cutter.
              */
             if (!this.moveItemStackTo(
                     slotStack,

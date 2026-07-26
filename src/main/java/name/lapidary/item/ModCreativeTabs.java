@@ -134,6 +134,7 @@ public final class ModCreativeTabs {
                                             add.accept(ModItems.BISMUTH_SHARD);
                                             add.accept(ModItems.HEARTROOT);
                                             add.accept(ModItems.PEARL);
+                                            add.accept(ModItems.FISH_STICK);
                                         }
                                 )
                                 .build()

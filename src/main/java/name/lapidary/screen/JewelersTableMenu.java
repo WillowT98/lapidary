@@ -10,7 +10,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 public final class JewelersTableMenu
         extends AbstractContainerMenu {
@@ -26,6 +29,34 @@ public final class JewelersTableMenu
     private static final int HOTBAR_END = 39;
 
     private final ContainerLevelAccess access;
+    private static final List<JewelrySet> JEWELRY_SETS =
+            List.of(
+                    new JewelrySet(
+                            ModItems.SEA_GLASS_EMERALD,
+                            ModItems.NECKLACE_SEA_GLASS,
+                            ModItems.RING_SEAGLASS
+                    ),
+                    new JewelrySet(
+                            ModItems.DIAMOND_EMERALD,
+                            ModItems.NECKLACE_DIAMOND,
+                            ModItems.RING_DIAMOND
+                    ),
+                    new JewelrySet(
+                            ModItems.FULGURITE_EMERALD,
+                            ModItems.NECKLACE_FULGURITE,
+                            ModItems.RING_FULGURITE
+                    ),
+                    new JewelrySet(
+                            ModItems.HEARTROOT_EMERALD,
+                            ModItems.NECKLACE_HEARTROOT,
+                            ModItems.RING_HEARTROOT
+                    ),
+                    new JewelrySet(
+                            ModItems.LAPIS_EMERALD,
+                            ModItems.NECKLACE_LAPIS,
+                            ModItems.RING_LAPIS
+                    )
+            );
 
     private final Container inputContainer =
             new SimpleContainer(2) {
@@ -163,46 +194,86 @@ public final class JewelersTableMenu
         setupResult();
     }
 
+
     private static boolean isAcceptedGem(
             ItemStack stack
     ) {
-        return stack.is(
-                ModItems.SEA_GLASS_EMERALD
-        );
+        return findJewelrySet(stack) != null;
     }
 
     private static boolean isAcceptedJewelry(
             ItemStack stack
     ) {
-        return stack.is(
-                ModItems.NECKLACE_EMPTY
-        );
+        return stack.is(ModItems.NECKLACE_EMPTY)
+                || stack.is(ModItems.RING_EMPTY);
+    }
+
+    /**
+     * Finds the set of finished jewelry associated with a cut gem.
+     */
+    private static JewelrySet findJewelrySet(
+            ItemStack gemStack
+    ) {
+        for (JewelrySet jewelrySet : JEWELRY_SETS) {
+            if (gemStack.is(jewelrySet.cutGem())) {
+                return jewelrySet;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Determines the finished jewelry produced by the two current inputs.
+     */
+    private static Item findResultItem(
+            ItemStack gemStack,
+            ItemStack jewelryStack
+    ) {
+        JewelrySet jewelrySet =
+                findJewelrySet(gemStack);
+
+        if (jewelrySet == null) {
+            return null;
+        }
+
+        if (jewelryStack.is(ModItems.NECKLACE_EMPTY)) {
+            return jewelrySet.necklace();
+        }
+
+        if (jewelryStack.is(ModItems.RING_EMPTY)) {
+            return jewelrySet.ring();
+        }
+
+        return null;
     }
 
     private void setupResult() {
-        ItemStack gem =
+        ItemStack gemStack =
                 inputContainer.getItem(
                         GEM_SLOT
                 );
 
-        ItemStack jewelry =
+        ItemStack jewelryStack =
                 inputContainer.getItem(
                         JEWELRY_SLOT
                 );
 
-        if (gem.is(ModItems.SEA_GLASS_EMERALD)
-                && jewelry.is(ModItems.NECKLACE_EMPTY)) {
+        Item resultItem =
+                findResultItem(
+                        gemStack,
+                        jewelryStack
+                );
 
+        if (resultItem == null) {
             resultContainer.setItem(
                     0,
-                    new ItemStack(
-                            ModItems.NECKLACE_SEA_GLASS
-                    )
+                    ItemStack.EMPTY
             );
         } else {
             resultContainer.setItem(
                     0,
-                    ItemStack.EMPTY
+                    new ItemStack(resultItem)
             );
         }
 
@@ -427,5 +498,11 @@ public final class JewelersTableMenu
                 stack,
                 slot
         );
+    }
+    private record JewelrySet(
+            Item cutGem,
+            Item necklace,
+            Item ring
+    ) {
     }
 }

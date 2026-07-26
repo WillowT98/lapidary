@@ -96,7 +96,7 @@ public final class ModItems {
 
     public static final Item RING_EMPTY = register(
             "ring_empty",
-            new Item(new Item.Properties().stacksTo(1))
+            new Item(new Item.Properties())
     );
     public static final Item RING_AMETHYST = register(
             "ring_amethyst",
@@ -247,6 +247,15 @@ public final class ModItems {
                                     .stacksTo(1)
                     )
             );
+    public static final Item FISH_STICK =
+            register(
+                    "fish_stick",
+                    new FishStickItem(
+                            new Item.Properties()
+                                    .durability(100)
+                    )
+            );
+
 
     private ModItems() {
         // Prevent this utility class from being instantiated.
