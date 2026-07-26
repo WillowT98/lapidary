@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Sharpen Claws",
+  "description": {
+    "text": "Press ",
+    "extra": [
+      {
+        "keybind": "key.lapidary.origin_active",
+        "color": "gold"
+      },
+      {
+        "text": " while looking at an unstripped log. You strip the log and gain increased attack damage until dawn."
+      }
+    ]
+  }
+}

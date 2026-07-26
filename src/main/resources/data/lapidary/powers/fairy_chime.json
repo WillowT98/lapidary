@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Chime",
+  "description": {
+    "text": "Press ",
+    "extra": [
+      {
+        "keybind": "key.lapidary.origin_vocalize",
+        "color": "gold"
+      },
+      {
+        "text": " to chime for nearby players."
+      }
+    ]
+  }
+}

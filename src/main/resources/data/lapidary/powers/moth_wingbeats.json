@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Wingbeats",
+  "description": {
+    "text": "While airborne, press ",
+    "extra": [
+      {
+        "keybind": "key.jump",
+        "color": "gold"
+      },
+      {
+        "text": " again to flap upward. You have six flaps, all of which return when you touch the ground."
+      }
+    ]
+  }
+}

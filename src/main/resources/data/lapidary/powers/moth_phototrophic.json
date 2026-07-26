@@ -1,0 +1,5 @@
+{
+  "type": "origins:simple",
+  "name": "Phototrophic",
+  "description": "Bright light gradually restores your health. Healing this way consumes hunger."
+}

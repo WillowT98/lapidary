@@ -1,11 +1,18 @@
 {
   "powers": [
     "lapidary:fairy_marker",
-    "lapidary:fairy_summary",
-    "lapidary:fairy_self_glow"
+    "lapidary:fairy_tiny_frame",
+    "lapidary:fairy_lightweight_body",
+    "lapidary:fairy_sweet_tooth",
+    "lapidary:fairy_fluttering_flight",
+    "lapidary:fairy_self_glow",
+    "lapidary:fairy_revealing_radiance",
+    "lapidary:fairy_restorative_burst",
+    "lapidary:fairy_perch",
+    "lapidary:fairy_chime"
   ],
   "icon": {
-    "item": "minecraft:allay_spawn_egg"
+    "id": "minecraft:allay_spawn_egg"
   },
   "order": 22,
   "impact": 3,

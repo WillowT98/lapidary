@@ -1,10 +1,18 @@
 {
   "powers": [
     "lapidary:moth_marker",
-    "lapidary:moth_summary"
+    "lapidary:moth_small_frame",
+    "lapidary:moth_lightweight_body",
+    "lapidary:moth_fibervore",
+    "lapidary:moth_gentle_descent",
+    "lapidary:moth_wingbeats",
+    "lapidary:moth_airborne_agility",
+    "lapidary:moth_phototrophic",
+    "lapidary:moth_dive_bomb",
+    "lapidary:moth_squeak"
   ],
   "icon": {
-    "item": "minecraft:phantom_membrane"
+    "id": "minecraft:phantom_membrane"
   },
   "order": 21,
   "impact": 2,

@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Powder Dive Bomb",
+  "description": {
+    "text": "While airborne, press ",
+    "extra": [
+      {
+        "keybind": "key.lapidary.origin_active",
+        "color": "gold"
+      },
+      {
+        "text": " to begin a steep dive. Striking an enemy while descending deals additional damage and rebounds you upward."
+      }
+    ]
+  }
+}

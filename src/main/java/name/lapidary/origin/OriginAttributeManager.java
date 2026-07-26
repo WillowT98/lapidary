@@ -38,6 +38,9 @@ public final class OriginAttributeManager {
     private static final ResourceLocation MOTH_HEALTH =
             Lapidary.id("origin/moth_health");
 
+    private static final ResourceLocation MOTH_SPEED =
+            Lapidary.id("origin/moth_speed");
+
     private static final ResourceLocation FAIRY_HEALTH =
             Lapidary.id("origin/fairy_health");
 
@@ -149,6 +152,19 @@ public final class OriginAttributeManager {
                         MOTH_HEALTH,
                         -8.0D,
                         AttributeModifier.Operation.ADD_VALUE
+                );
+
+                /*
+                 * This modifier is synchronized to the controlling client,
+                 * so it improves ordinary lateral steering on the ground
+                 * and while airborne without server velocity corrections.
+                 */
+                add(
+                        player,
+                        Attributes.MOVEMENT_SPEED,
+                        MOTH_SPEED,
+                        0.45D,
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                 );
             }
 
@@ -284,6 +300,12 @@ public final class OriginAttributeManager {
                 player,
                 Attributes.MAX_HEALTH,
                 MOTH_HEALTH
+        );
+
+        remove(
+                player,
+                Attributes.MOVEMENT_SPEED,
+                MOTH_SPEED
         );
 
         remove(

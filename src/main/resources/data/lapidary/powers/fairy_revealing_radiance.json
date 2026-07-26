@@ -1,0 +1,5 @@
+{
+  "type": "origins:simple",
+  "name": "Revealing Radiance",
+  "description": "Hostile creatures within eight blocks are outlined with the Glowing effect."
+}

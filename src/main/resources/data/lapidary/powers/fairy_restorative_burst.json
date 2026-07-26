@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Restorative Burst",
+  "description": {
+    "text": "Press ",
+    "extra": [
+      {
+        "keybind": "key.lapidary.origin_magic",
+        "color": "gold"
+      },
+      {
+        "text": " while carrying mana in your Mage Backpack. One bucket of mana grants Regeneration II to every other nearby player."
+      }
+    ]
+  }
+}

@@ -12,7 +12,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -32,10 +34,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.UUID;
 
 public final class OriginManager {
@@ -45,6 +49,21 @@ public final class OriginManager {
 
     public static final int FAIRY_MAX_FLIGHT_CHARGE =
             20 * 10;
+
+    public static final double FAIRY_MAX_FLIGHT_HEIGHT =
+            8.0D;
+
+    public static final double FAIRY_UNSUPPORTED_DESCENT_SPEED =
+            0.2D;
+
+    private static final double MOTH_FLAP_ADDITION =
+            0.48D;
+
+    private static final double MOTH_MIN_UPWARD_SPEED =
+            0.55D;
+
+    private static final double MOTH_MAX_UPWARD_SPEED =
+            1.10D;
 
     public static final long FELINE_TRANSFORM_MANA_COST =
             2L * CanisterFluidStorage.BUCKET;
@@ -802,22 +821,68 @@ public final class OriginManager {
                     FAIRY_MAX_FLIGHT_CHARGE;
         }
 
-        boolean support =
-                hasSupportWithinFour(
-                        player
-                );
-
-        boolean mayFly =
-                charge > 0
-                        && support;
-
-        if (mayFly) {
+        /*
+         * Charge, rather than immediate proximity to the floor, controls
+         * whether the Fairy retains creative flight. When the Fairy crosses
+         * a cliff, flight stays enabled and vertical movement is guided
+         * downward until the terrain is within eight blocks again.
+         */
+        if (charge > 0) {
             enableFairyFlight(
                     player
             );
 
             if (player.getAbilities()
                     .flying) {
+
+                OptionalDouble supportSurface =
+                        findFairySupportSurface(
+                                player
+                        );
+
+                Vec3 movement =
+                        player.getDeltaMovement();
+
+                if (supportSurface.isPresent()) {
+                    double ceilingY =
+                            supportSurface.getAsDouble()
+                                    + FAIRY_MAX_FLIGHT_HEIGHT;
+
+                    if (player.getY()
+                            >= ceilingY - 0.01D
+                            && movement.y > 0.0D) {
+
+                        player.setDeltaMovement(
+                                movement.x,
+                                0.0D,
+                                movement.z
+                        );
+
+                        player.hasImpulse =
+                                true;
+                    }
+                } else {
+                    /*
+                     * Do not cancel flight over a drop. Instead, remove any
+                     * upward movement and impose a gentle descent. The
+                     * matching client rule handles this before rendering,
+                     * so no teleport correction or rubber-banding is needed.
+                     */
+                    double descendingY =
+                            Math.min(
+                                    movement.y,
+                                    -FAIRY_UNSUPPORTED_DESCENT_SPEED
+                            );
+
+                    player.setDeltaMovement(
+                            movement.x,
+                            descendingY,
+                            movement.z
+                    );
+
+                    player.hasImpulse =
+                            true;
+                }
 
                 charge =
                         Math.max(
@@ -1278,17 +1343,31 @@ public final class OriginManager {
         Vec3 movement =
                 player.getDeltaMovement();
 
-        player.setDeltaMovement(
-                movement.x,
-                Math.max(
-                        movement.y,
-                        0.42D
-                ),
-                movement.z
+        /*
+         * Add upward momentum instead of only imposing a minimum.
+         * Every reasonably spaced flap therefore creates a real ascent.
+         */
+        double boostedY =
+                Math.min(
+                        MOTH_MAX_UPWARD_SPEED,
+                        Math.max(
+                                MOTH_MIN_UPWARD_SPEED,
+                                movement.y
+                                        + MOTH_FLAP_ADDITION
+                        )
+                );
+
+        synchronizeMotion(
+                player,
+                new Vec3(
+                        movement.x,
+                        boostedY,
+                        movement.z
+                )
         );
 
-        player.hasImpulse =
-                true;
+        player.fallDistance =
+                0.0F;
 
         player.level()
                 .playSound(
@@ -1354,14 +1433,27 @@ public final class OriginManager {
         }
     }
 
-    private static boolean hasSupportWithinFour(
+    private static OptionalDouble findFairySupportSurface(
             ServerPlayer player
     ) {
-        BlockPos origin =
-                player.blockPosition();
+        double feetY =
+                player.getY();
 
-        for (int depth = 1;
-             depth <= 4;
+        BlockPos origin =
+                BlockPos.containing(
+                        player.getX(),
+                        feetY,
+                        player.getZ()
+                );
+
+        /*
+         * At the full eight-block limit, the supporting block itself can be
+         * nine block coordinates below the block containing the Fairy's
+         * feet. Scan slightly farther than the permitted distance, then use
+         * the exact top of the collision shape for the real measurement.
+         */
+        for (int depth = 0;
+             depth <= 10;
              depth++) {
 
             BlockPos tested =
@@ -1375,16 +1467,60 @@ public final class OriginManager {
                                     tested
                             );
 
-            if (!state.getCollisionShape(
-                    player.level(),
-                    tested
-            ).isEmpty()) {
+            VoxelShape collision =
+                    state.getCollisionShape(
+                            player.level(),
+                            tested
+                    );
 
-                return true;
+            if (collision.isEmpty()) {
+                continue;
+            }
+
+            double surfaceY =
+                    tested.getY()
+                            + collision.max(
+                                    Direction.Axis.Y
+                            );
+
+            double distance =
+                    feetY - surfaceY;
+
+            if (distance >= -0.01D
+                    && distance
+                    <= FAIRY_MAX_FLIGHT_HEIGHT
+                    + 0.01D) {
+
+                return OptionalDouble.of(
+                        surfaceY
+                );
             }
         }
 
-        return false;
+        return OptionalDouble.empty();
+    }
+
+    private static void synchronizeMotion(
+            ServerPlayer player,
+            Vec3 movement
+    ) {
+        player.setDeltaMovement(
+                movement
+        );
+
+        player.hasImpulse =
+                true;
+
+        /*
+         * A ServerPlayer's movement is predicted by its controlling client.
+         * Explicitly synchronize server-created impulses so the client does
+         * not immediately replace them.
+         */
+        player.connection.send(
+                new ClientboundSetEntityMotionPacket(
+                        player
+                )
+        );
     }
 
     private static void enableFairyFlight(

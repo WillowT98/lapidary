@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Fluttering Flight",
+  "description": {
+    "text": "Use ",
+    "extra": [
+      {
+        "keybind": "key.jump",
+        "color": "gold"
+      },
+      {
+        "text": " as you would in Creative Mode to fly. Flight charge drains while flying and returns on landing. You cannot rise more than eight blocks above terrain; over a drop, you gently descend until terrain returns within range."
+      }
+    ]
+  }
+}

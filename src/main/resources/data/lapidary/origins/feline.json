@@ -1,10 +1,19 @@
 {
   "powers": [
     "lapidary:feline_marker",
-    "lapidary:feline_summary"
+    "lapidary:feline_towering_frame",
+    "lapidary:feline_swift_predator",
+    "lapidary:feline_powerful_legs",
+    "lapidary:feline_long_reach",
+    "lapidary:feline_carnivore",
+    "lapidary:feline_waterlogged",
+    "lapidary:feline_ravenous_metabolism",
+    "lapidary:feline_sharpen_claws",
+    "lapidary:feline_night_ascendant",
+    "lapidary:feline_purr"
   ],
   "icon": {
-    "item": "minecraft:cat_spawn_egg"
+    "id": "minecraft:cat_spawn_egg"
   },
   "order": 20,
   "impact": 2,

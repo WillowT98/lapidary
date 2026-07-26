@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Perch",
+  "description": {
+    "text": "Look directly at a nearby player and press ",
+    "extra": [
+      {
+        "keybind": "key.lapidary.origin_active",
+        "color": "gold"
+      },
+      {
+        "text": " to sit upon their head and view the world through them. Press it again to dismount."
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "origins:simple",
+  "name": "Moon Form",
+  "description": {
+    "text": "At night, press ",
+    "extra": [
+      {
+        "keybind": "key.lapidary.origin_magic",
+        "color": "gold"
+      },
+      {
+        "text": " while carrying mana in your Mage Backpack. Two buckets of mana transform you into a larger, stronger and faster form until dawn."
+      }
+    ]
+  }
+}
