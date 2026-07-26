@@ -215,6 +215,9 @@
   "label.lapidary.window.more_materials": "+ %s more",
 
   "message.lapidary.window.missing_material": "Missing %2$s × %1$s",
-  "message.lapidary.window.fabricated": "Stained-glass design fabricated."
+  "message.lapidary.window.fabricated": "Stained-glass design fabricated.",
+  "label.lapidary.window.background": "Background Material",
+  "message.lapidary.window.choose_background": "Insert a block in the background slot."
+
 
 }

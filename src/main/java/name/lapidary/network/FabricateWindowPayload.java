@@ -1,19 +1,15 @@
 package name.lapidary.network;
 
 import name.lapidary.Lapidary;
-import name.lapidary.window.WindowBackground;
 import name.lapidary.window.WindowDesign;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-import java.util.Optional;
-
 public record FabricateWindowPayload(
         int containerId,
         int blockWidth,
         int blockHeight,
-        int backgroundIndex,
         byte[] pixels
 ) implements CustomPacketPayload {
 
@@ -64,28 +60,10 @@ public record FabricateWindowPayload(
         return TYPE;
     }
 
-    public Optional<WindowDesign> toDesign() {
-        try {
-            return Optional.of(
-                    new WindowDesign(
-                            blockWidth,
-                            blockHeight,
-                            WindowBackground.byIndex(
-                                    backgroundIndex
-                            ).id(),
-                            pixels
-                    )
-            );
-        } catch (IllegalArgumentException exception) {
-            return Optional.empty();
-        }
-    }
-
     private static FabricateWindowPayload read(
             RegistryFriendlyByteBuf buffer
     ) {
         return new FabricateWindowPayload(
-                buffer.readVarInt(),
                 buffer.readVarInt(),
                 buffer.readVarInt(),
                 buffer.readVarInt(),
@@ -108,10 +86,6 @@ public record FabricateWindowPayload(
 
         buffer.writeVarInt(
                 blockHeight
-        );
-
-        buffer.writeVarInt(
-                backgroundIndex
         );
 
         buffer.writeByteArray(

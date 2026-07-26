@@ -76,8 +76,8 @@ public final class CustomStainedGlassItem
                             tooltip.add(
                                     Component.translatable(
                                                     "tooltip.lapidary.custom_stained_glass.background",
-                                                    design.background()
-                                                            .displayName()
+                                                    design.backgroundBlock()
+                                                            .getName()
                                             )
                                             .withStyle(
                                                     ChatFormatting.GRAY

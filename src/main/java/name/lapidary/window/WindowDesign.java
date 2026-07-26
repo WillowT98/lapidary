@@ -1,5 +1,11 @@
 package name.lapidary.window;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+
 import java.util.Arrays;
 
 public record WindowDesign(
@@ -47,12 +53,6 @@ public record WindowDesign(
             );
         }
 
-        if (backgroundId == null) {
-            throw new IllegalArgumentException(
-                    "Window background cannot be null."
-            );
-        }
-
         int expectedLength =
                 blockWidth
                         * PIXELS_PER_BLOCK
@@ -71,9 +71,7 @@ public record WindowDesign(
             int value =
                     Byte.toUnsignedInt(pixel);
 
-            if (value < 0
-                    || value > BACKGROUND_PIXEL) {
-
+            if (value > BACKGROUND_PIXEL) {
                 throw new IllegalArgumentException(
                         "Invalid stained-glass pixel value: "
                                 + value
@@ -82,14 +80,18 @@ public record WindowDesign(
         }
 
         /*
-         * Normalize unknown IDs to a known background and prevent callers
-         * from retaining a mutable reference to the design's pixel array.
+         * Older Phase 1 designs stored values such as "stone_bricks".
+         * Treat an ID without a namespace as a vanilla Minecraft block.
          */
         backgroundId =
-                WindowBackground.byId(
+                normalizeBackgroundId(
                         backgroundId
-                ).id();
+                );
 
+        /*
+         * Prevent callers from retaining a mutable reference to the
+         * design's saved pixels.
+         */
         pixels =
                 pixels.clone();
     }
@@ -113,9 +115,18 @@ public record WindowDesign(
         return pixels.length;
     }
 
-    public WindowBackground background() {
-        return WindowBackground.byId(
-                backgroundId
+    public Block backgroundBlock() {
+        ResourceLocation id =
+                ResourceLocation.tryParse(
+                        backgroundId
+                );
+
+        if (id == null) {
+            return Blocks.STONE_BRICKS;
+        }
+
+        return BuiltInRegistries.BLOCK.get(
+                id
         );
     }
 
@@ -141,7 +152,7 @@ public record WindowDesign(
     public static WindowDesign blank(
             int blockWidth,
             int blockHeight,
-            WindowBackground background
+            Block backgroundBlock
     ) {
         byte[] pixels =
                 new byte[
@@ -159,7 +170,9 @@ public record WindowDesign(
         return new WindowDesign(
                 blockWidth,
                 blockHeight,
-                background.id(),
+                BuiltInRegistries.BLOCK
+                        .getKey(backgroundBlock)
+                        .toString(),
                 pixels
         );
     }
@@ -172,7 +185,7 @@ public record WindowDesign(
                 blank(
                         newBlockWidth,
                         newBlockHeight,
-                        background()
+                        backgroundBlock()
                 );
 
         byte[] resizedPixels =
@@ -209,5 +222,57 @@ public record WindowDesign(
                 backgroundId,
                 resizedPixels
         );
+    }
+
+    private static String normalizeBackgroundId(
+            String rawId
+    ) {
+        if (rawId == null
+                || rawId.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Window background cannot be empty."
+            );
+        }
+
+        String expandedId =
+                rawId.contains(":")
+                        ? rawId
+                        : "minecraft:" + rawId;
+
+        ResourceLocation id =
+                ResourceLocation.tryParse(
+                        expandedId
+                );
+
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "Invalid background block ID: "
+                            + rawId
+            );
+        }
+
+        Block block =
+                BuiltInRegistries.BLOCK.get(
+                        id
+                );
+
+        /*
+         * AIR is also the registry's fallback for an unknown ID. It has
+         * no usable item form, so neither AIR nor missing blocks may be
+         * used as a window background.
+         */
+        if (block == Blocks.AIR
+                || block.asItem() == Items.AIR) {
+
+            throw new IllegalArgumentException(
+                    "Background must be a registered block item: "
+                            + rawId
+            );
+        }
+
+        return BuiltInRegistries.BLOCK
+                .getKey(block)
+                .toString();
     }
 }

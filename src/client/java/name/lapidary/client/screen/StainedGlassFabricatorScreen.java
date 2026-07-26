@@ -1,8 +1,9 @@
 package name.lapidary.client.screen;
 
+import name.lapidary.item.CustomStainedGlassItem;
 import name.lapidary.network.FabricateWindowPayload;
+import name.lapidary.network.SelectWindowBackgroundPayload;
 import name.lapidary.screen.StainedGlassFabricatorMenu;
-import name.lapidary.window.WindowBackground;
 import name.lapidary.window.WindowDesign;
 import name.lapidary.window.WindowMaterials;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -10,14 +11,27 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class StainedGlassFabricatorScreen
@@ -26,28 +40,61 @@ public final class StainedGlassFabricatorScreen
         > {
 
     private static final int GUI_WIDTH =
-            370;
+            350;
 
     private static final int GUI_HEIGHT =
-            310;
+            188;
 
     private static final int CANVAS_X =
-            12;
+            8;
 
     private static final int CANVAS_Y =
-            26;
+            20;
 
     private static final int CANVAS_MAX_SIZE =
-            176;
+            160;
+
+    private static final int PANEL_X =
+            178;
+
+    private static final int BACKGROUND_TILE_X =
+            178;
+
+    private static final int BACKGROUND_TILE_Y =
+            20;
+
+    private static final int TEMPLATE_TILE_X =
+            214;
+
+    private static final int TEMPLATE_TILE_Y =
+            20;
+
+    private static final int TILE_SIZE =
+            32;
 
     private static final int PALETTE_X =
-            202;
+            178;
 
     private static final int PALETTE_Y =
-            84;
+            62;
 
     private static final int PALETTE_CELL_SIZE =
-            18;
+            17;
+
+    private static final int PICKER_X =
+            178;
+
+    private static final int PICKER_Y =
+            54;
+
+    private static final int PICKER_WIDTH =
+            164;
+
+    private static final int PICKER_ROW_HEIGHT =
+            20;
+
+    private static final int PICKER_VISIBLE_ROWS =
+            6;
 
     private static final int[] COLOR_RGB = {
             0xF9FFFE,
@@ -74,9 +121,6 @@ public final class StainedGlassFabricatorScreen
     private int blockHeight =
             1;
 
-    private int backgroundIndex =
-            0;
-
     private byte selectedColor =
             0;
 
@@ -84,10 +128,13 @@ public final class StainedGlassFabricatorScreen
             WindowDesign.blank(
                     1,
                     1,
-                    WindowBackground.byIndex(0)
+                    Blocks.STONE_BRICKS
             ).pixels();
 
-    private Button backgroundButton;
+    private PickerMode pickerMode =
+            PickerMode.NONE;
+
+    private int pickerScroll;
 
     public StainedGlassFabricatorScreen(
             StainedGlassFabricatorMenu menu,
@@ -105,20 +152,11 @@ public final class StainedGlassFabricatorScreen
 
         this.imageHeight =
                 GUI_HEIGHT;
-
-        this.inventoryLabelY =
-                210;
     }
 
     @Override
     protected void init() {
         super.init();
-
-        int controlsX =
-                leftPos + 202;
-
-        int controlsY =
-                topPos + 26;
 
         addRenderableWidget(
                 Button.builder(
@@ -129,10 +167,10 @@ public final class StainedGlassFabricatorScreen
                                 )
                         )
                         .bounds(
-                                controlsX,
-                                controlsY,
+                                leftPos + 252,
+                                topPos + 20,
                                 20,
-                                20
+                                16
                         )
                         .build()
         );
@@ -146,10 +184,10 @@ public final class StainedGlassFabricatorScreen
                                 )
                         )
                         .bounds(
-                                controlsX + 86,
-                                controlsY,
+                                leftPos + 322,
+                                topPos + 20,
                                 20,
-                                20
+                                16
                         )
                         .build()
         );
@@ -163,10 +201,10 @@ public final class StainedGlassFabricatorScreen
                                 )
                         )
                         .bounds(
-                                controlsX,
-                                controlsY + 24,
+                                leftPos + 252,
+                                topPos + 38,
                                 20,
-                                20
+                                16
                         )
                         .build()
         );
@@ -180,39 +218,13 @@ public final class StainedGlassFabricatorScreen
                                 )
                         )
                         .bounds(
-                                controlsX + 86,
-                                controlsY + 24,
+                                leftPos + 322,
+                                topPos + 38,
                                 20,
-                                20
+                                16
                         )
                         .build()
         );
-
-        backgroundButton =
-                addRenderableWidget(
-                        Button.builder(
-                                        backgroundButtonText(),
-                                        button -> {
-                                            backgroundIndex =
-                                                    (
-                                                            backgroundIndex
-                                                                    + 1
-                                                    )
-                                                            % WindowBackground.count();
-
-                                            button.setMessage(
-                                                    backgroundButtonText()
-                                            );
-                                        }
-                                )
-                                .bounds(
-                                        controlsX + 112,
-                                        controlsY,
-                                        48,
-                                        44
-                                )
-                                .build()
-                );
 
         addRenderableWidget(
                 Button.builder(
@@ -222,25 +234,9 @@ public final class StainedGlassFabricatorScreen
                                 button -> clearDesign()
                         )
                         .bounds(
-                                controlsX,
-                                topPos + 166,
-                                75,
-                                20
-                        )
-                        .build()
-        );
-
-        addRenderableWidget(
-                Button.builder(
-                                Component.translatable(
-                                        "button.lapidary.window.load_template"
-                                ),
-                                button -> loadTemplate()
-                        )
-                        .bounds(
-                                controlsX + 81,
-                                topPos + 166,
-                                79,
+                                leftPos + PANEL_X,
+                                topPos + 102,
+                                72,
                                 20
                         )
                         .build()
@@ -254,9 +250,9 @@ public final class StainedGlassFabricatorScreen
                                 button -> fabricate()
                         )
                         .bounds(
-                                controlsX,
-                                topPos + 190,
-                                160,
+                                leftPos + PANEL_X + 76,
+                                topPos + 102,
+                                88,
                                 20
                         )
                         .build()
@@ -284,11 +280,25 @@ public final class StainedGlassFabricatorScreen
                 partialTick
         );
 
-        renderTooltip(
-                graphics,
-                mouseX,
-                mouseY
-        );
+        if (pickerMode != PickerMode.NONE) {
+            renderPicker(
+                    graphics,
+                    mouseX,
+                    mouseY
+            );
+        } else {
+            renderTooltip(
+                    graphics,
+                    mouseX,
+                    mouseY
+            );
+
+            renderTileTooltip(
+                    graphics,
+                    mouseX,
+                    mouseY
+            );
+        }
     }
 
     @Override
@@ -308,7 +318,7 @@ public final class StainedGlassFabricatorScreen
 
         graphics.fill(
                 leftPos + 4,
-                topPos + 20,
+                topPos + 17,
                 leftPos + imageWidth - 4,
                 topPos + imageHeight - 4,
                 0xFF242A31
@@ -318,11 +328,11 @@ public final class StainedGlassFabricatorScreen
                 graphics
         );
 
-        renderPalette(
+        renderSelectionTiles(
                 graphics
         );
 
-        renderTemplateSlot(
+        renderPalette(
                 graphics
         );
 
@@ -341,7 +351,7 @@ public final class StainedGlassFabricatorScreen
                 font,
                 title,
                 8,
-                7,
+                5,
                 0xF0F0F0,
                 false
         );
@@ -352,8 +362,8 @@ public final class StainedGlassFabricatorScreen
                         "label.lapidary.window.width",
                         blockWidth
                 ),
-                226,
-                32,
+                276,
+                24,
                 0xFFFFFF,
                 false
         );
@@ -364,8 +374,8 @@ public final class StainedGlassFabricatorScreen
                         "label.lapidary.window.height",
                         blockHeight
                 ),
-                226,
-                56,
+                276,
+                42,
                 0xFFFFFF,
                 false
         );
@@ -375,28 +385,8 @@ public final class StainedGlassFabricatorScreen
                 Component.translatable(
                         "label.lapidary.window.palette"
                 ),
-                202,
-                72,
-                0xD8D8D8,
-                false
-        );
-
-        graphics.drawString(
-                font,
-                Component.translatable(
-                        "label.lapidary.window.template"
-                ),
-                300,
-                21,
-                0xD8D8D8,
-                false
-        );
-
-        graphics.drawString(
-                font,
-                playerInventoryTitle,
-                104,
-                210,
+                PALETTE_X,
+                53,
                 0xD8D8D8,
                 false
         );
@@ -408,6 +398,61 @@ public final class StainedGlassFabricatorScreen
             double mouseY,
             int button
     ) {
+        if (button != 0
+                && pickerMode != PickerMode.NONE) {
+
+            closePicker();
+
+            return true;
+        }
+
+        if (button == 0
+                && pickerMode != PickerMode.NONE) {
+
+            if (clickPicker(
+                    mouseX,
+                    mouseY
+            )) {
+                return true;
+            }
+
+            closePicker();
+
+            return true;
+        }
+
+        if (button == 0
+                && isInside(
+                mouseX,
+                mouseY,
+                BACKGROUND_TILE_X,
+                BACKGROUND_TILE_Y,
+                TILE_SIZE,
+                TILE_SIZE
+        )) {
+            openPicker(
+                    PickerMode.BACKGROUND
+            );
+
+            return true;
+        }
+
+        if (button == 0
+                && isInside(
+                mouseX,
+                mouseY,
+                TEMPLATE_TILE_X,
+                TEMPLATE_TILE_Y,
+                TILE_SIZE,
+                TILE_SIZE
+        )) {
+            openPicker(
+                    PickerMode.TEMPLATE
+            );
+
+            return true;
+        }
+
         if (button == 0
                 && selectPaletteColor(
                 mouseX,
@@ -440,6 +485,10 @@ public final class StainedGlassFabricatorScreen
             double dragX,
             double dragY
     ) {
+        if (pickerMode != PickerMode.NONE) {
+            return true;
+        }
+
         if ((button == 0 || button == 1)
                 && paintPixel(
                 mouseX,
@@ -456,6 +505,47 @@ public final class StainedGlassFabricatorScreen
                 dragX,
                 dragY
         );
+    }
+
+    @Override
+    public boolean mouseScrolled(
+            double mouseX,
+            double mouseY,
+            double horizontalAmount,
+            double verticalAmount
+    ) {
+        if (pickerMode == PickerMode.NONE) {
+            return super.mouseScrolled(
+                    mouseX,
+                    mouseY,
+                    horizontalAmount,
+                    verticalAmount
+            );
+        }
+
+        int entryCount =
+                pickerMode == PickerMode.BACKGROUND
+                        ? getBackgroundEntries().size()
+                        : getTemplateEntries().size();
+
+        int maxScroll =
+                Math.max(
+                        0,
+                        entryCount
+                                - PICKER_VISIBLE_ROWS
+                );
+
+        pickerScroll =
+                Mth.clamp(
+                        pickerScroll
+                                - (int) Math.signum(
+                                verticalAmount
+                        ),
+                        0,
+                        maxScroll
+                );
+
+        return true;
     }
 
     private void renderCanvas(
@@ -504,12 +594,27 @@ public final class StainedGlassFabricatorScreen
                 0xFF090B0D
         );
 
-        renderTiledBackground(
-                graphics,
-                canvasLeft,
-                canvasTop,
-                scale
-        );
+        Block background =
+                menu.getSelectedBackgroundBlock();
+
+        if (background != Blocks.AIR) {
+            renderTiledBackground(
+                    graphics,
+                    canvasLeft,
+                    canvasTop,
+                    scale,
+                    background
+            );
+        } else {
+            renderCheckerboard(
+                    graphics,
+                    canvasLeft,
+                    canvasTop,
+                    canvasWidth,
+                    canvasHeight,
+                    scale
+            );
+        }
 
         for (int y = 0;
              y < pixelHeight;
@@ -526,10 +631,6 @@ public final class StainedGlassFabricatorScreen
                                         ]
                         );
 
-                /*
-                 * Background pixels leave the tiled block texture visible.
-                 * Colored pixels replace that texture in the editor.
-                 */
                 if (value
                         == WindowDesign.BACKGROUND_PIXEL) {
 
@@ -555,10 +656,6 @@ public final class StainedGlassFabricatorScreen
             }
         }
 
-        /*
-         * Strong lines every sixteen pixels show where the finished
-         * artwork will cross from one placed pane block to the next.
-         */
         for (int x = 0;
              x <= pixelWidth;
              x += WindowDesign.PIXELS_PER_BLOCK) {
@@ -594,25 +691,461 @@ public final class StainedGlassFabricatorScreen
         }
     }
 
+    private void renderSelectionTiles(
+            GuiGraphics graphics
+    ) {
+        renderTileBackground(
+                graphics,
+                BACKGROUND_TILE_X,
+                BACKGROUND_TILE_Y
+        );
+
+        renderTileBackground(
+                graphics,
+                TEMPLATE_TILE_X,
+                TEMPLATE_TILE_Y
+        );
+
+        Block background =
+                menu.getSelectedBackgroundBlock();
+
+        if (background != Blocks.AIR) {
+            graphics.renderItem(
+                    new ItemStack(
+                            background.asItem()
+                    ),
+                    leftPos
+                            + BACKGROUND_TILE_X
+                            + 8,
+                    topPos
+                            + BACKGROUND_TILE_Y
+                            + 8
+            );
+        } else {
+            graphics.drawCenteredString(
+                    font,
+                    Component.literal("+"),
+                    leftPos
+                            + BACKGROUND_TILE_X
+                            + TILE_SIZE / 2,
+                    topPos
+                            + BACKGROUND_TILE_Y
+                            + 11,
+                    0xAAB1B9
+            );
+        }
+
+        graphics.drawCenteredString(
+                font,
+                Component.literal("T"),
+                leftPos
+                        + TEMPLATE_TILE_X
+                        + TILE_SIZE / 2,
+                topPos
+                        + TEMPLATE_TILE_Y
+                        + 11,
+                0xAAB1B9
+        );
+    }
+
+    private void renderTileBackground(
+            GuiGraphics graphics,
+            int tileX,
+            int tileY
+    ) {
+        int left =
+                leftPos + tileX;
+
+        int top =
+                topPos + tileY;
+
+        graphics.fill(
+                left,
+                top,
+                left + TILE_SIZE,
+                top + TILE_SIZE,
+                0xFF090B0D
+        );
+
+        graphics.fill(
+                left + 2,
+                top + 2,
+                left + TILE_SIZE - 2,
+                top + TILE_SIZE - 2,
+                0xFF4A5159
+        );
+    }
+
+    private void renderPicker(
+            GuiGraphics graphics,
+            int mouseX,
+            int mouseY
+    ) {
+        List<? extends PickerEntry> entries =
+                pickerMode == PickerMode.BACKGROUND
+                        ? getBackgroundEntries()
+                        : getTemplateEntries();
+
+        int left =
+                leftPos + PICKER_X;
+
+        int top =
+                topPos + PICKER_Y;
+
+        int height =
+                PICKER_VISIBLE_ROWS
+                        * PICKER_ROW_HEIGHT
+                        + 4;
+
+        graphics.fill(
+                left - 2,
+                top - 2,
+                left + PICKER_WIDTH + 2,
+                top + height,
+                0xFF07090B
+        );
+
+        graphics.fill(
+                left,
+                top,
+                left + PICKER_WIDTH,
+                top + height - 2,
+                0xFF30363D
+        );
+
+        if (entries.isEmpty()) {
+            graphics.drawCenteredString(
+                    font,
+                    pickerMode == PickerMode.BACKGROUND
+                            ? Component.translatable(
+                            "message.lapidary.window.no_background_blocks"
+                    )
+                            : Component.translatable(
+                            "message.lapidary.window.no_templates"
+                    ),
+                    left + PICKER_WIDTH / 2,
+                    top + 9,
+                    0xD8D8D8
+            );
+
+            return;
+        }
+
+        int first =
+                pickerScroll;
+
+        int last =
+                Math.min(
+                        entries.size(),
+                        first + PICKER_VISIBLE_ROWS
+                );
+
+        for (int index = first;
+             index < last;
+             index++) {
+
+            int visibleRow =
+                    index - first;
+
+            int rowTop =
+                    top
+                            + visibleRow
+                            * PICKER_ROW_HEIGHT;
+
+            PickerEntry entry =
+                    entries.get(index);
+
+            boolean hovered =
+                    mouseX >= left
+                            && mouseX < left
+                            + PICKER_WIDTH
+                            && mouseY >= rowTop
+                            && mouseY < rowTop
+                            + PICKER_ROW_HEIGHT;
+
+            if (hovered) {
+                graphics.fill(
+                        left + 1,
+                        rowTop + 1,
+                        left + PICKER_WIDTH - 1,
+                        rowTop + PICKER_ROW_HEIGHT - 1,
+                        0xFF56616C
+                );
+            }
+
+            graphics.renderItem(
+                    entry.stack(),
+                    left + 2,
+                    rowTop + 2
+            );
+
+            graphics.drawString(
+                    font,
+                    entry.label(),
+                    left + 22,
+                    rowTop + 6,
+                    0xFFFFFF,
+                    false
+            );
+        }
+    }
+
+    private boolean clickPicker(
+            double mouseX,
+            double mouseY
+    ) {
+        int left =
+                leftPos + PICKER_X;
+
+        int top =
+                topPos + PICKER_Y;
+
+        if (!isInside(
+                mouseX,
+                mouseY,
+                PICKER_X,
+                PICKER_Y,
+                PICKER_WIDTH,
+                PICKER_VISIBLE_ROWS
+                        * PICKER_ROW_HEIGHT
+        )) {
+            return false;
+        }
+
+        int row =
+                (
+                        (int) mouseY
+                                - top
+                ) / PICKER_ROW_HEIGHT;
+
+        int index =
+                pickerScroll + row;
+
+        if (pickerMode == PickerMode.BACKGROUND) {
+            List<BackgroundEntry> entries =
+                    getBackgroundEntries();
+
+            if (index >= 0
+                    && index < entries.size()) {
+
+                BackgroundEntry entry =
+                        entries.get(index);
+
+                ClientPlayNetworking.send(
+                        new SelectWindowBackgroundPayload(
+                                menu.getContainerIdValue(),
+                                BuiltInRegistries.BLOCK
+                                        .getId(
+                                                entry.block()
+                                        )
+                        )
+                );
+
+                closePicker();
+
+                return true;
+            }
+        } else if (pickerMode
+                == PickerMode.TEMPLATE) {
+
+            List<TemplateEntry> entries =
+                    getTemplateEntries();
+
+            if (index >= 0
+                    && index < entries.size()) {
+
+                loadTemplate(
+                        entries.get(index)
+                                .design()
+                );
+
+                closePicker();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private List<BackgroundEntry> getBackgroundEntries() {
+        Minecraft minecraft =
+                Minecraft.getInstance();
+
+        if (minecraft.player == null) {
+            return List.of();
+        }
+
+        Map<Block, Integer> counts =
+                new LinkedHashMap<>();
+
+        for (ItemStack stack :
+                minecraft.player
+                        .getInventory()
+                        .items) {
+
+            addBackgroundStack(
+                    counts,
+                    stack
+            );
+        }
+
+        for (ItemStack stack :
+                minecraft.player
+                        .getInventory()
+                        .offhand) {
+
+            addBackgroundStack(
+                    counts,
+                    stack
+            );
+        }
+
+        List<BackgroundEntry> entries =
+                new ArrayList<>();
+
+        for (Map.Entry<Block, Integer> entry :
+                counts.entrySet()) {
+
+            entries.add(
+                    new BackgroundEntry(
+                            entry.getKey(),
+                            entry.getValue()
+                    )
+            );
+        }
+
+        entries.sort(
+                Comparator.comparing(
+                        entry ->
+                                entry.block()
+                                        .getName()
+                                        .getString(),
+                        String.CASE_INSENSITIVE_ORDER
+                )
+        );
+
+        return entries;
+    }
+
+    private void addBackgroundStack(
+            Map<Block, Integer> counts,
+            ItemStack stack
+    ) {
+        if (!(stack.getItem()
+                instanceof BlockItem blockItem)
+                || blockItem.getBlock()
+                == Blocks.AIR) {
+
+            return;
+        }
+
+        counts.merge(
+                blockItem.getBlock(),
+                stack.getCount(),
+                Integer::sum
+        );
+    }
+
+    private List<TemplateEntry> getTemplateEntries() {
+        Minecraft minecraft =
+                Minecraft.getInstance();
+
+        if (minecraft.player == null) {
+            return List.of();
+        }
+
+        List<TemplateEntry> entries =
+                new ArrayList<>();
+
+        for (ItemStack stack :
+                minecraft.player
+                        .getInventory()
+                        .items) {
+
+            CustomStainedGlassItem.readDesign(
+                    stack
+            ).ifPresent(
+                    design ->
+                            entries.add(
+                                    new TemplateEntry(
+                                            stack.copyWithCount(1),
+                                            design
+                                    )
+                            )
+            );
+        }
+
+        for (ItemStack stack :
+                minecraft.player
+                        .getInventory()
+                        .offhand) {
+
+            CustomStainedGlassItem.readDesign(
+                    stack
+            ).ifPresent(
+                    design ->
+                            entries.add(
+                                    new TemplateEntry(
+                                            stack.copyWithCount(1),
+                                            design
+                                    )
+                            )
+            );
+        }
+
+        return entries;
+    }
+
+    private void loadTemplate(
+            WindowDesign design
+    ) {
+        blockWidth =
+                design.blockWidth();
+
+        blockHeight =
+                design.blockHeight();
+
+        pixels =
+                design.pixels();
+
+        /*
+         * Select the template's background automatically only when the
+         * player currently carries that block. Otherwise the artwork
+         * loads and the player can choose a replacement background.
+         */
+        for (BackgroundEntry entry :
+                getBackgroundEntries()) {
+
+            if (entry.block()
+                    == design.backgroundBlock()) {
+
+                ClientPlayNetworking.send(
+                        new SelectWindowBackgroundPayload(
+                                menu.getContainerIdValue(),
+                                BuiltInRegistries.BLOCK
+                                        .getId(
+                                                entry.block()
+                                        )
+                        )
+                );
+
+                break;
+            }
+        }
+    }
+
     private void renderTiledBackground(
             GuiGraphics graphics,
             int canvasLeft,
             int canvasTop,
-            int scale
+            int scale,
+            Block backgroundBlock
     ) {
-        WindowBackground background =
-                WindowBackground.byIndex(
-                        backgroundIndex
-                );
-
         TextureAtlasSprite sprite =
-                Minecraft.getInstance()
-                        .getTextureAtlas(
-                                InventoryMenu.BLOCK_ATLAS
-                        )
-                        .apply(
-                                background.texture()
-                        );
+                getSideSprite(
+                        backgroundBlock
+                );
 
         int tileSize =
                 WindowDesign.PIXELS_PER_BLOCK
@@ -635,6 +1168,87 @@ public final class StainedGlassFabricatorScreen
                         tileSize,
                         tileSize,
                         sprite
+                );
+            }
+        }
+    }
+
+    private TextureAtlasSprite getSideSprite(
+            Block block
+    ) {
+        BlockState state =
+                block.defaultBlockState();
+
+        BakedModel model =
+                Minecraft.getInstance()
+                        .getBlockRenderer()
+                        .getBlockModel(
+                                state
+                        );
+
+        List<BakedQuad> sideQuads =
+                model.getQuads(
+                        state,
+                        Direction.NORTH,
+                        RandomSource.create(0L)
+                );
+
+        for (BakedQuad quad : sideQuads) {
+            if (quad.getTintIndex() < 0) {
+                return quad.getSprite();
+            }
+        }
+
+        if (!sideQuads.isEmpty()) {
+            return sideQuads.getFirst()
+                    .getSprite();
+        }
+
+        List<BakedQuad> unculledQuads =
+                model.getQuads(
+                        state,
+                        null,
+                        RandomSource.create(0L)
+                );
+
+        if (!unculledQuads.isEmpty()) {
+            return unculledQuads.getFirst()
+                    .getSprite();
+        }
+
+        return model.getParticleIcon();
+    }
+
+    private void renderCheckerboard(
+            GuiGraphics graphics,
+            int canvasLeft,
+            int canvasTop,
+            int canvasWidth,
+            int canvasHeight,
+            int scale
+    ) {
+        for (int y = 0;
+             y < canvasHeight;
+             y += scale) {
+
+            for (int x = 0;
+                 x < canvasWidth;
+                 x += scale) {
+
+                int checker =
+                        (
+                                x / scale
+                                        + y / scale
+                        ) & 1;
+
+                graphics.fill(
+                        canvasLeft + x,
+                        canvasTop + y,
+                        canvasLeft + x + scale,
+                        canvasTop + y + scale,
+                        checker == 0
+                                ? 0xFF3B4148
+                                : 0xFF272C32
                 );
             }
         }
@@ -676,53 +1290,52 @@ public final class StainedGlassFabricatorScreen
             graphics.fill(
                     left,
                     top,
-                    left + 16,
-                    top + 16,
+                    left + 15,
+                    top + 15,
                     borderColor
             );
 
             graphics.fill(
                     left + 2,
                     top + 2,
-                    left + 14,
-                    top + 14,
+                    left + 13,
+                    top + 13,
                     0xFF000000
                             | COLOR_RGB[colorIndex]
             );
         }
     }
 
-    private void renderTemplateSlot(
-            GuiGraphics graphics
-    ) {
-        int left =
-                leftPos + 322;
-
-        int top =
-                topPos + 30;
-
-        graphics.fill(
-                left,
-                top,
-                left + 20,
-                top + 20,
-                0xFF090B0D
-        );
-
-        graphics.fill(
-                left + 1,
-                top + 1,
-                left + 19,
-                top + 19,
-                0xFF565C63
-        );
-    }
-
     private void renderRequirements(
             GuiGraphics graphics
     ) {
+        Block background =
+                menu.getSelectedBackgroundBlock();
+
+        if (background == Blocks.AIR) {
+            graphics.drawString(
+                    font,
+                    Component.translatable(
+                            "message.lapidary.window.choose_background"
+                    ),
+                    leftPos + PANEL_X,
+                    topPos + 128,
+                    0xD99A72,
+                    false
+            );
+
+            return;
+        }
+
         WindowDesign design =
-                currentDesign();
+                new WindowDesign(
+                        blockWidth,
+                        blockHeight,
+                        BuiltInRegistries.BLOCK
+                                .getKey(background)
+                                .toString(),
+                        pixels
+                );
 
         Map<Item, Integer> requirements =
                 WindowMaterials.requirements(
@@ -732,24 +1345,18 @@ public final class StainedGlassFabricatorScreen
         int line =
                 0;
 
-        int x =
-                leftPos + 202;
-
-        int y =
-                topPos + 124;
-
         for (Map.Entry<Item, Integer> entry :
                 requirements.entrySet()) {
 
-            if (line >= 4) {
+            if (line >= 5) {
                 graphics.drawString(
                         font,
                         Component.translatable(
                                 "label.lapidary.window.more_materials",
                                 requirements.size() - line
                         ),
-                        x,
-                        y + line * 10,
+                        leftPos + PANEL_X,
+                        topPos + 128 + line * 10,
                         0xBFC5CC,
                         false
                 );
@@ -766,8 +1373,8 @@ public final class StainedGlassFabricatorScreen
                             entry.getKey()
                                     .getDescription()
                     ),
-                    x,
-                    y + line * 10,
+                    leftPos + PANEL_X,
+                    topPos + 128 + line * 10,
                     0xBFC5CC,
                     false
             );
@@ -926,12 +1533,26 @@ public final class StainedGlassFabricatorScreen
             return;
         }
 
+        Block background =
+                menu.getSelectedBackgroundBlock();
+
+        if (background == Blocks.AIR) {
+            background =
+                    Blocks.STONE_BRICKS;
+        }
+
         WindowDesign resized =
-                currentDesign()
-                        .resized(
-                                newWidth,
-                                newHeight
-                        );
+                new WindowDesign(
+                        blockWidth,
+                        blockHeight,
+                        BuiltInRegistries.BLOCK
+                                .getKey(background)
+                                .toString(),
+                        pixels
+                ).resized(
+                        newWidth,
+                        newHeight
+                );
 
         blockWidth =
                 resized.blockWidth();
@@ -950,56 +1571,51 @@ public final class StainedGlassFabricatorScreen
         );
     }
 
-    private void loadTemplate() {
-        name.lapidary.item.CustomStainedGlassItem
-                .readDesign(
-                        menu.getTemplateStack()
-                )
-                .ifPresent(
-                        design -> {
-                            blockWidth =
-                                    design.blockWidth();
-
-                            blockHeight =
-                                    design.blockHeight();
-
-                            backgroundIndex =
-                                    design.background()
-                                            .index();
-
-                            pixels =
-                                    design.pixels();
-
-                            if (backgroundButton != null) {
-                                backgroundButton.setMessage(
-                                        backgroundButtonText()
-                                );
-                            }
-                        }
-                );
-    }
-
     private void fabricate() {
+        if (menu.getSelectedBackgroundBlock()
+                == Blocks.AIR) {
+
+            if (minecraft != null
+                    && minecraft.player != null) {
+
+                minecraft.player
+                        .displayClientMessage(
+                                Component.translatable(
+                                        "message.lapidary.window.choose_background"
+                                ),
+                                true
+                        );
+            }
+
+            return;
+        }
+
         ClientPlayNetworking.send(
                 new FabricateWindowPayload(
                         menu.getContainerIdValue(),
                         blockWidth,
                         blockHeight,
-                        backgroundIndex,
                         pixels
                 )
         );
     }
 
-    private WindowDesign currentDesign() {
-        return new WindowDesign(
-                blockWidth,
-                blockHeight,
-                WindowBackground.byIndex(
-                        backgroundIndex
-                ).id(),
-                pixels
-        );
+    private void openPicker(
+            PickerMode mode
+    ) {
+        pickerMode =
+                mode;
+
+        pickerScroll =
+                0;
+    }
+
+    private void closePicker() {
+        pickerMode =
+                PickerMode.NONE;
+
+        pickerScroll =
+                0;
     }
 
     private int canvasScale() {
@@ -1025,9 +1641,127 @@ public final class StainedGlassFabricatorScreen
         );
     }
 
-    private Component backgroundButtonText() {
-        return WindowBackground.byIndex(
-                backgroundIndex
-        ).displayName();
+    private void renderTileTooltip(
+            GuiGraphics graphics,
+            int mouseX,
+            int mouseY
+    ) {
+        if (isInside(
+                mouseX,
+                mouseY,
+                BACKGROUND_TILE_X,
+                BACKGROUND_TILE_Y,
+                TILE_SIZE,
+                TILE_SIZE
+        )) {
+            Block background =
+                    menu.getSelectedBackgroundBlock();
+
+            graphics.renderTooltip(
+                    font,
+                    background == Blocks.AIR
+                            ? Component.translatable(
+                            "label.lapidary.window.choose_background_tile"
+                    )
+                            : background.getName(),
+                    mouseX,
+                    mouseY
+            );
+
+            return;
+        }
+
+        if (isInside(
+                mouseX,
+                mouseY,
+                TEMPLATE_TILE_X,
+                TEMPLATE_TILE_Y,
+                TILE_SIZE,
+                TILE_SIZE
+        )) {
+            graphics.renderTooltip(
+                    font,
+                    Component.translatable(
+                            "label.lapidary.window.choose_template_tile"
+                    ),
+                    mouseX,
+                    mouseY
+            );
+        }
+    }
+
+    private boolean isInside(
+            double mouseX,
+            double mouseY,
+            int localX,
+            int localY,
+            int width,
+            int height
+    ) {
+        int left =
+                leftPos + localX;
+
+        int top =
+                topPos + localY;
+
+        return mouseX >= left
+                && mouseX < left + width
+                && mouseY >= top
+                && mouseY < top + height;
+    }
+
+    private enum PickerMode {
+        NONE,
+        BACKGROUND,
+        TEMPLATE
+    }
+
+    private interface PickerEntry {
+
+        ItemStack stack();
+
+        Component label();
+    }
+
+    private record BackgroundEntry(
+            Block block,
+            int count
+    ) implements PickerEntry {
+
+        @Override
+        public ItemStack stack() {
+            return new ItemStack(
+                    block.asItem(),
+                    count
+            );
+        }
+
+        @Override
+        public Component label() {
+            return block.getName()
+                    .copy()
+                    .append(
+                            Component.literal(
+                                    " ×" + count
+                            )
+                    );
+        }
+    }
+
+    private record TemplateEntry(
+            ItemStack stack,
+            WindowDesign design
+    ) implements PickerEntry {
+
+        @Override
+        public Component label() {
+            return Component.translatable(
+                    "label.lapidary.window.template_entry",
+                    design.blockWidth(),
+                    design.blockHeight(),
+                    design.backgroundBlock()
+                            .getName()
+            );
+        }
     }
 }

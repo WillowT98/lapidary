@@ -4,7 +4,6 @@ import name.lapidary.Lapidary;
 import name.lapidary.block.ModBlocks;
 import name.lapidary.item.MageBackpackAccess;
 import name.lapidary.magic.PlayerMagic;
-import name.lapidary.magic.SpellCasting;
 import name.lapidary.progression.LapidaryInsight;
 import name.lapidary.progression.tome.TomeProgression;
 import name.lapidary.screen.StainedGlassFabricatorMenu;
@@ -14,9 +13,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import name.lapidary.magic.PlayerMagicData;
-import name.lapidary.magic.focus.SpellcastingFocusHelper;
-
 
 public final class ModNetworking {
 
@@ -53,14 +49,64 @@ public final class ModNetworking {
                 MagicStatePayload.TYPE,
                 MagicStatePayload.STREAM_CODEC
         );
-        PayloadTypeRegistry.playS2C().register(
-                OpenSpellRadialPayload.TYPE,
-                OpenSpellRadialPayload.STREAM_CODEC
+
+        /*
+         * Backpack interaction.
+         */
+        PayloadTypeRegistry.playC2S().register(
+                OpenMageBackpackPayload.TYPE,
+                OpenMageBackpackPayload.STREAM_CODEC
         );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                OpenMageBackpackPayload.TYPE,
+                (payload, context) ->
+                        MageBackpackAccess.openEquipped(
+                                context.player()
+                        )
+        );
+
+        /*
+         * Stained-glass fabrication.
+         */
+        PayloadTypeRegistry.playC2S().register(
+                SelectWindowBackgroundPayload.TYPE,
+                SelectWindowBackgroundPayload.STREAM_CODEC
+        );
+
         PayloadTypeRegistry.playC2S().register(
                 FabricateWindowPayload.TYPE,
                 FabricateWindowPayload.STREAM_CODEC
         );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                SelectWindowBackgroundPayload.TYPE,
+                (
+                        payload,
+                        context
+                ) -> {
+                    ServerPlayer player =
+                            context.player();
+
+                    if (!(player.containerMenu
+                            instanceof StainedGlassFabricatorMenu menu)) {
+
+                        return;
+                    }
+
+                    if (menu.getContainerIdValue()
+                            != payload.containerId()) {
+
+                        return;
+                    }
+
+                    menu.selectBackground(
+                            player,
+                            payload.blockRegistryId()
+                    );
+                }
+        );
+
         ServerPlayNetworking.registerGlobalReceiver(
                 FabricateWindowPayload.TYPE,
                 (
@@ -82,107 +128,12 @@ public final class ModNetworking {
                         return;
                     }
 
-                    payload.toDesign()
-                            .ifPresent(
-                                    design ->
-                                            menu.fabricate(
-                                                    player,
-                                                    design
-                                            )
-                            );
-                }
-        );
-
-
-
-        /*
-         * Backpack interaction.
-         */
-        PayloadTypeRegistry.playC2S().register(
-                OpenMageBackpackPayload.TYPE,
-                OpenMageBackpackPayload.STREAM_CODEC
-        );
-
-        ServerPlayNetworking.registerGlobalReceiver(
-                OpenMageBackpackPayload.TYPE,
-                (payload, context) ->
-                        MageBackpackAccess.openEquipped(
-                                context.player()
-                        )
-        );
-
-        /*
-         * Staff spell casting.
-         */
-        PayloadTypeRegistry.playC2S().register(
-                CastSelectedSpellPayload.TYPE,
-                CastSelectedSpellPayload.STREAM_CODEC
-        );
-
-        ServerPlayNetworking.registerGlobalReceiver(
-                CastSelectedSpellPayload.TYPE,
-                (payload, context) ->
-                        SpellCasting.castSelected(
-                                context.player()
-                        )
-        );
-
-        PayloadTypeRegistry.playC2S().register(
-                SelectPreparedSpellPayload.TYPE,
-                SelectPreparedSpellPayload.STREAM_CODEC
-        );
-
-        ServerPlayNetworking.registerGlobalReceiver(
-                SelectPreparedSpellPayload.TYPE,
-                (payload, context) -> {
-                    ServerPlayer player =
-                            context.player();
-
-                    /*
-                     * A client cannot change its selected staff spell while
-                     * not actually holding a casting focus.
-                     */
-                    if (!SpellcastingFocusHelper
-                            .isHoldingFocus(player)) {
-
-                        return;
-                    }
-
-                    int slot =
-                            payload.slot();
-
-                    if (!PlayerMagicData.isValidSlot(
-                            slot
-                    )) {
-                        PlayerMagic.sync(player);
-                        return;
-                    }
-
-                    /*
-                     * Empty radial positions are not selectable.
-                     */
-                    if (PlayerMagic.get(player)
-                            .preparedSpell(slot)
-                            .isEmpty()) {
-
-                        PlayerMagic.sync(player);
-                        return;
-                    }
-
-                    boolean changed =
-                            PlayerMagic.selectSlot(
-                                    player,
-                                    slot
-                            );
-
-                    /*
-                     * Some versions of selectSlot return false when the same
-                     * slot was already selected. Send the state anyway so the
-                     * optimistic client remains authoritative.
-                     */
-                    if (!changed) {
-                        PlayerMagic.sync(player);
-                    }
+                    menu.fabricate(
+                            player,
+                            payload.blockWidth(),
+                            payload.blockHeight(),
+                            payload.pixels()
+                    );
                 }
         );
 
@@ -252,7 +203,10 @@ public final class ModNetworking {
                         /*
                          * The client updated optimistically, so correct it.
                          */
-                        PlayerMagic.sync(player);
+                        PlayerMagic.sync(
+                                player
+                        );
+
                         return;
                     }
 
@@ -269,7 +223,9 @@ public final class ModNetworking {
                      * an authoritative correction.
                      */
                     if (!changed) {
-                        PlayerMagic.sync(player);
+                        PlayerMagic.sync(
+                                player
+                        );
                     }
                 }
         );
@@ -284,7 +240,10 @@ public final class ModNetworking {
                             player,
                             payload.tablePosition()
                     )) {
-                        PlayerMagic.sync(player);
+                        PlayerMagic.sync(
+                                player
+                        );
+
                         return;
                     }
 
@@ -295,7 +254,9 @@ public final class ModNetworking {
                             );
 
                     if (!changed) {
-                        PlayerMagic.sync(player);
+                        PlayerMagic.sync(
+                                player
+                        );
                     }
                 }
         );
@@ -310,7 +271,10 @@ public final class ModNetworking {
                             player,
                             payload.tablePosition()
                     )) {
-                        PlayerMagic.sync(player);
+                        PlayerMagic.sync(
+                                player
+                        );
+
                         return;
                     }
 
@@ -322,7 +286,9 @@ public final class ModNetworking {
                             );
 
                     if (!changed) {
-                        PlayerMagic.sync(player);
+                        PlayerMagic.sync(
+                                player
+                        );
                     }
                 }
         );
@@ -331,7 +297,11 @@ public final class ModNetworking {
          * Persistent player data must be sent when the client joins.
          */
         ServerPlayConnectionEvents.JOIN.register(
-                (handler, sender, server) -> {
+                (
+                        handler,
+                        sender,
+                        server
+                ) -> {
                     LapidaryInsight.sync(
                             handler.player
                     );
@@ -347,7 +317,11 @@ public final class ModNetworking {
          * still needs the authoritative values sent again.
          */
         ServerPlayerEvents.AFTER_RESPAWN.register(
-                (oldPlayer, newPlayer, alive) -> {
+                (
+                        oldPlayer,
+                        newPlayer,
+                        alive
+                ) -> {
                     LapidaryInsight.sync(
                             newPlayer
                     );
@@ -370,7 +344,9 @@ public final class ModNetworking {
         }
 
         if (!player.level()
-                .getBlockState(tablePosition)
+                .getBlockState(
+                        tablePosition
+                )
                 .is(ModBlocks.TOME_TABLE)) {
 
             return false;
@@ -378,9 +354,12 @@ public final class ModNetworking {
 
         double distanceSquared =
                 player.distanceToSqr(
-                        tablePosition.getX() + 0.5D,
-                        tablePosition.getY() + 0.5D,
-                        tablePosition.getZ() + 0.5D
+                        tablePosition.getX()
+                                + 0.5D,
+                        tablePosition.getY()
+                                + 0.5D,
+                        tablePosition.getZ()
+                                + 0.5D
                 );
 
         return distanceSquared

@@ -83,8 +83,8 @@ public final class WindowMaterials {
 
         if (backgroundCount > 0) {
             requirements.merge(
-                    design.background()
-                            .materialItem(),
+                    design.backgroundBlock()
+                            .asItem(),
                     backgroundCount,
                     Integer::sum
             );
@@ -183,9 +183,13 @@ public final class WindowMaterials {
                  slot++) {
 
                 ItemStack stack =
-                        inventory.getItem(slot);
+                        inventory.getItem(
+                                slot
+                        );
 
-                if (!stack.is(entry.getKey())) {
+                if (!stack.is(
+                        entry.getKey()
+                )) {
                     continue;
                 }
 
@@ -219,7 +223,9 @@ public final class WindowMaterials {
              slot++) {
 
             ItemStack stack =
-                    inventory.getItem(slot);
+                    inventory.getItem(
+                            slot
+                    );
 
             if (stack.is(item)) {
                 total +=
