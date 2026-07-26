@@ -1,5 +1,6 @@
 package name.lapidary.client.screen;
 
+import name.lapidary.Lapidary;
 import name.lapidary.client.magic.ClientMagicData;
 import name.lapidary.magic.PlayerMagicData;
 import name.lapidary.network.TomePurchasePayload;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 
 import java.util.List;
@@ -32,6 +34,10 @@ public final class TomeScreen extends Screen {
 
     private static final int NODE_WIDTH = 46;
     private static final int NODE_HEIGHT = 24;
+
+    private static final int SCHOOL_ICON_SIZE = 16;
+    private static final int SCHOOL_ICON_TEXTURE_SIZE = 16;
+    private static final String SCHOOL_ICON_DIRECTORY = "textures/gui/tome/schools/";
 
     private static final int PANEL_COLOR =
             0xEE17121C;
@@ -644,30 +650,119 @@ public final class TomeScreen extends Screen {
                     )
             );
 
-            Component nodeText;
-
-            if (node.root()) {
-                nodeText =
-                        Component.literal(
-                                "◆"
-                        );
+            if (isSchoolUnlockNode(node)) {
+                renderSchoolIcon(
+                        graphics,
+                        node,
+                        x,
+                        y
+                );
             } else {
-                nodeText =
-                        Component.literal(
-                                Integer.toString(
-                                        node.cost()
-                                )
-                        );
-            }
+                Component nodeText;
 
-            graphics.drawCenteredString(
-                    this.font,
-                    nodeText,
-                    x + NODE_WIDTH / 2,
-                    y + 8,
-                    TEXT_COLOR
-            );
+                if (node.root()) {
+                    nodeText =
+                            Component.literal(
+                                    "◆"
+                            );
+                } else {
+                    nodeText =
+                            Component.literal(
+                                    Integer.toString(
+                                            node.cost()
+                                    )
+                            );
+                }
+
+                graphics.drawCenteredString(
+                        this.font,
+                        nodeText,
+                        x + NODE_WIDTH / 2,
+                        y + 8,
+                        TEXT_COLOR
+                );
+            }
         }
+    }
+    /**
+     * School-unlock nodes use their associated school icon instead of
+     * displaying their Insight cost inside the node.
+     */
+    private boolean isSchoolUnlockNode(
+            TomeNode node
+    ) {
+        return TomeTree.SCHOOLS_PAGE_ID.equals(
+                getCurrentPage().id()
+        ) && !node.root();
+    }
+
+    /**
+     * Draws a school icon centered inside its Tome node.
+     */
+    private void renderSchoolIcon(
+            GuiGraphics graphics,
+            TomeNode node,
+            int nodeX,
+            int nodeY
+    ) {
+        ResourceLocation texture =
+                getSchoolIconTexture(
+                        node
+                );
+
+        int iconX =
+                nodeX
+                        + (
+                        NODE_WIDTH
+                                - SCHOOL_ICON_SIZE
+                ) / 2;
+
+        int iconY =
+                nodeY
+                        + (
+                        NODE_HEIGHT
+                                - SCHOOL_ICON_SIZE
+                ) / 2;
+
+        graphics.blit(
+                texture,
+                iconX,
+                iconY,
+                0.0F,
+                0.0F,
+                SCHOOL_ICON_SIZE,
+                SCHOOL_ICON_SIZE,
+                SCHOOL_ICON_TEXTURE_SIZE,
+                SCHOOL_ICON_TEXTURE_SIZE
+        );
+    }
+
+    /**
+     * Converts an ID such as "schools/summoning" into:
+     *
+     * lapidary:textures/gui/tome/schools/summoning.png
+     */
+    private static ResourceLocation getSchoolIconTexture(
+            TomeNode node
+    ) {
+        String nodeId =
+                node.id();
+
+        int separator =
+                nodeId.lastIndexOf('/');
+
+        String schoolName =
+                separator >= 0
+                        ? nodeId.substring(
+                        separator + 1
+                )
+                        : nodeId;
+
+        return Lapidary.id(
+                SCHOOL_ICON_DIRECTORY
+                        + schoolName
+                        + ".png"
+        );
     }
 
     private void renderSelectedNodeDetails(

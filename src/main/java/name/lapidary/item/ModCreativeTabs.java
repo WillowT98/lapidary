@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
+
 public final class ModCreativeTabs {
 
     public static final ResourceKey<CreativeModeTab> LAPIDARY_TAB_KEY =
