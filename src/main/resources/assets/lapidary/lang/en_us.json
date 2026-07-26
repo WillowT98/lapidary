@@ -227,7 +227,35 @@
   "label.lapidary.window.brush_size": "Brush: %s",
   "block.lapidary.custom_window_controller": "Custom Stained-Glass Window",
   "block.lapidary.custom_window_segment": "Custom Stained-Glass Window",
-  "message.lapidary.window.not_enough_space": "The full window does not fit here."
+  "message.lapidary.window.not_enough_space": "The full window does not fit here.",
+  "origin.lapidary.feline.name": "Feline",
+  "origin.lapidary.feline.description": "A towering, powerful hunter whose body and magic are strongest on dry land and beneath the night sky.",
+  "origin.lapidary.moth.name": "Moth",
+  "origin.lapidary.moth.description": "A small nocturnal flyer sustained by fiber and bright light.",
+  "origin.lapidary.fairy.name": "Fairy",
+  "origin.lapidary.fairy.description": "A tiny luminous helper with constrained flight and restorative magic.",
+
+  "power.lapidary.feline_summary.name": "Feline Nature",
+  "power.lapidary.moth_summary.name": "Moth Nature",
+  "power.lapidary.fairy_summary.name": "Fairy Nature",
+  "power.lapidary.fairy_glow.name": "Luminous",
+  "power.lapidary.fairy_glow.description": "Your body is visibly radiant.",
+
+  "key.lapidary.origin_active": "Origin Ability",
+  "key.lapidary.origin_magic": "Origin Magic",
+  "key.lapidary.origin_vocalize": "Vocalize",
+
+  "message.lapidary.origin.no_log": "Look at an unstripped log.",
+  "message.lapidary.origin.claws_sharpened": "Your claws are sharpened until dawn.",
+  "message.lapidary.origin.dive_started": "Dive begun.",
+  "message.lapidary.origin.dive_cancelled": "Dive cancelled.",
+  "message.lapidary.origin.no_head_target": "Look directly at a nearby player.",
+  "message.lapidary.origin.sitting_on": "Sitting on %s.",
+  "message.lapidary.origin.night_only": "This magic can only be invoked at night.",
+  "message.lapidary.origin.feline_transformed": "Night magic swells through your body.",
+  "message.lapidary.origin.armor_too_heavy": "That armor is too heavy for your origin.",
+  "message.lapidary.origin.moth_magic_unset": "The Moth mana ability has not been defined yet."
+
 
 
 

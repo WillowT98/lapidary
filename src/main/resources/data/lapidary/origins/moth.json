@@ -1,0 +1,17 @@
+{
+  "powers": [
+    "lapidary:moth_marker",
+    "lapidary:moth_summary"
+  ],
+  "icon": {
+    "item": "minecraft:phantom_membrane"
+  },
+  "order": 21,
+  "impact": 2,
+  "name": {
+    "translate": "origin.lapidary.moth.name"
+  },
+  "description": {
+    "translate": "origin.lapidary.moth.description"
+  }
+}

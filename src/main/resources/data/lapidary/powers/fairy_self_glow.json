@@ -1,0 +1,10 @@
+{
+  "type": "origins:self_glow",
+  "use_teams": false,
+  "name": {
+    "translate": "power.lapidary.fairy_glow.name"
+  },
+  "description": {
+    "translate": "power.lapidary.fairy_glow.description"
+  }
+}

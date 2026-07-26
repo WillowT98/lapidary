@@ -159,11 +159,11 @@ dependencies {
 			"org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
 	)
 
-	// Load Origins in the development environment for compatibility testing.
-	// Carpet is an optional Origins integration that Lapidary does not need.
-	modRuntimeOnly("io.github.apace100:origins-fabric:${project.origins_version}") {
+
+	modImplementation("io.github.apace100:origins-fabric:${project.origins_version}") {
 		exclude group: "carpet", module: "fabric-carpet"
 	}
+
 }
 
 processResources {

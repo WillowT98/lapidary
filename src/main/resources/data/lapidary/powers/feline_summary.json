@@ -1,0 +1,7 @@
+{
+  "type": "origins:simple",
+  "name": {
+    "translate": "power.lapidary.feline_summary.name"
+  },
+  "description": "Large and powerful hunters with speed, reach, strong legs, a meat diet, sharpened claws and nocturnal mana transformation."
+}

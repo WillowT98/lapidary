@@ -6,6 +6,7 @@ import name.lapidary.magic.PlayerMagicData;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.resources.ResourceLocation;
+import name.lapidary.origin.OriginAbilityData;
 
 import java.util.List;
 
@@ -59,6 +60,23 @@ public final class ModAttachments {
                     .buildAndRegister(
                             Lapidary.id("player_magic")
                     );
+    public static final AttachmentType<OriginAbilityData>
+            ORIGIN_ABILITIES =
+            AttachmentRegistry
+                    .<OriginAbilityData>builder()
+                    .initializer(
+                            OriginAbilityData::empty
+                    )
+                    .persistent(
+                            OriginAbilityData.CODEC
+                    )
+                    .copyOnDeath()
+                    .buildAndRegister(
+                            Lapidary.id(
+                                    "origin_abilities"
+                            )
+                    );
+
 
     /**
      * Current Tome purchase storage.

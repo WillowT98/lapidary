@@ -1,0 +1,18 @@
+{
+  "powers": [
+    "lapidary:fairy_marker",
+    "lapidary:fairy_summary",
+    "lapidary:fairy_self_glow"
+  ],
+  "icon": {
+    "item": "minecraft:allay_spawn_egg"
+  },
+  "order": 22,
+  "impact": 3,
+  "name": {
+    "translate": "origin.lapidary.fairy.name"
+  },
+  "description": {
+    "translate": "origin.lapidary.fairy.description"
+  }
+}

@@ -1,18 +1,16 @@
 package name.lapidary.client.network;
 
 import name.lapidary.client.magic.ClientMagicData;
+import name.lapidary.client.origin.ClientOriginState;
 import name.lapidary.client.progression.ClientInsightData;
 import name.lapidary.client.screen.TomeScreen;
 import name.lapidary.magic.PlayerMagicData;
-import name.lapidary.network.InsightSyncPayload;
-import name.lapidary.network.MagicStatePayload;
-import name.lapidary.network.TomeOpenPayload;
-import name.lapidary.network.TomeStatePayload;
+import name.lapidary.network.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import name.lapidary.client.screen.SpellRadialScreen;
 import name.lapidary.magic.focus.SpellcastingFocusHelper;
-import name.lapidary.network.OpenSpellRadialPayload;
+import net.minecraft.world.entity.Entity;
 
 public final class ClientNetworking {
 
@@ -20,6 +18,48 @@ public final class ClientNetworking {
     }
 
     public static void initialize() {
+        ClientPlayNetworking.registerGlobalReceiver(
+                OriginStatePayload.TYPE,
+                (
+                        payload,
+                        context
+                ) -> context.client().execute(
+                        () -> {
+                            ClientOriginState.update(
+                                    payload.originKind(),
+                                    payload.resource(),
+                                    payload.maximum(),
+                                    payload.secondaryActive()
+                            );
+
+                            if (context.client().player == null) {
+                                return;
+                            }
+
+                            if (payload.cameraEntityId() < 0) {
+                                context.client().setCameraEntity(
+                                        context.client().player
+                                );
+                                return;
+                            }
+
+                            Entity camera =
+                                    context.client().level
+                                            .getEntity(
+                                                    payload.cameraEntityId()
+                                            );
+
+                            if (camera != null) {
+                                context.client().setCameraEntity(
+                                        camera
+                                );
+                            }
+                        }
+                )
+        );
+        ClientOriginState.reset();
+
+
         ClientPlayNetworking.registerGlobalReceiver(
                 InsightSyncPayload.TYPE,
                 (payload, context) ->

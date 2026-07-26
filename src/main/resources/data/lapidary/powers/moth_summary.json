@@ -1,0 +1,7 @@
+{
+  "type": "origins:simple",
+  "name": {
+    "translate": "power.lapidary.moth_summary.name"
+  },
+  "description": "Small fiber-eaters with limited wing flaps, slow falling, bright-light healing and a damaging dive."
+}

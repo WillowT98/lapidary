@@ -1,7 +1,9 @@
 package name.lapidary.client;
 
 import dev.emi.trinkets.api.client.TrinketRendererRegistry;
+import name.lapidary.client.hud.OriginHud;
 import name.lapidary.client.input.MageBackpackKeybinds;
+import name.lapidary.client.input.OriginKeybinds;
 import name.lapidary.client.renderer.*;
 import name.lapidary.client.screen.GemCutterScreen;
 import name.lapidary.block.entity.ModBlockEntities;
@@ -35,6 +37,9 @@ public class LapidaryClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		ClientNetworking.initialize();
 		InsightHud.initialize();
+		OriginKeybinds.initialize();
+		OriginHud.initialize();
+
 
 		BlockRenderLayerMap.INSTANCE.putBlock(
 				ModBlocks.SEA_GLASS_BLOCK,

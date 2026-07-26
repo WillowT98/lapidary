@@ -4,6 +4,7 @@ import name.lapidary.block.entity.ModBlockEntities;
 import name.lapidary.fluid.ModFluids;
 import name.lapidary.item.ModCreativeTabs;
 import name.lapidary.magic.spell.ModSpells;
+import name.lapidary.origin.OriginManager;
 import name.lapidary.progression.ModAttachments;
 import name.lapidary.screen.ModMenus;
 import name.lapidary.sifting.SieveProcessing;
@@ -46,6 +47,8 @@ public class Lapidary implements ModInitializer {
 		LapidaryCommands.initialize();
 		ModCreativeTabs.initialize();
 		ModMenus.initialize();
+		OriginManager.initialize();
+
 	}
 
 	public static ResourceLocation id(String path) {

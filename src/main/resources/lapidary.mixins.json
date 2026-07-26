@@ -6,7 +6,8 @@
 		"AbstractVillagerMixin",
 		"LightningRodBlockMixin",
 		"AbstractFishMixin",
-		"ItemEntityMixin"
+		"ItemEntityMixin",
+		"ItemStackOriginFoodMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

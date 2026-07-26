@@ -9,21 +9,47 @@ import net.minecraft.world.item.Item;
 public final class ModItemTags {
 
     public static final TagKey<Item> SHOWS_INSIGHT_BAR =
-            TagKey.create(
-                    Registries.ITEM,
-                    ResourceLocation.fromNamespaceAndPath(
-                            Lapidary.MOD_ID,
-                            "shows_insight_bar"
-                    )
+            create(
+                    "shows_insight_bar"
             );
+
     public static final TagKey<Item> SABLE_FOOD =
-            TagKey.create(
-                    Registries.ITEM,
-                    ResourceLocation.fromNamespaceAndPath(
-                            Lapidary.MOD_ID,
-                            "sable_food"
-                    )
+            create(
+                    "sable_food"
             );
+
+    public static final TagKey<Item> FELINE_FOODS =
+            create(
+                    "feline_foods"
+            );
+
+    public static final TagKey<Item> MOTH_FOODS =
+            create(
+                    "moth_foods"
+            );
+
+    public static final TagKey<Item> FAIRY_FOODS =
+            create(
+                    "fairy_foods"
+            );
+
+    public static final TagKey<Item> HEAVY_ARMOR =
+            create(
+                    "heavy_armor"
+            );
+
+    private static TagKey<Item> create(
+            String path
+    ) {
+        return TagKey.create(
+                Registries.ITEM,
+                ResourceLocation.fromNamespaceAndPath(
+                        Lapidary.MOD_ID,
+                        path
+                )
+        );
+    }
+
     private ModItemTags() {
     }
 }

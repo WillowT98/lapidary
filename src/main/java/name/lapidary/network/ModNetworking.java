@@ -7,6 +7,7 @@ import name.lapidary.magic.PlayerMagic;
 import name.lapidary.magic.PlayerMagicData;
 import name.lapidary.magic.SpellCasting;
 import name.lapidary.magic.focus.SpellcastingFocusHelper;
+import name.lapidary.origin.OriginManager;
 import name.lapidary.progression.LapidaryInsight;
 import name.lapidary.progression.tome.TomeProgression;
 import name.lapidary.screen.StainedGlassFabricatorMenu;
@@ -72,6 +73,30 @@ public final class ModNetworking {
                                 context.player()
                         )
         );
+
+        PayloadTypeRegistry.playC2S().register(
+                OriginActionPayload.TYPE,
+                OriginActionPayload.STREAM_CODEC
+        );
+
+        PayloadTypeRegistry.playS2C().register(
+                OriginStatePayload.TYPE,
+                OriginStatePayload.STREAM_CODEC
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                OriginActionPayload.TYPE,
+                (
+                        payload,
+                        context
+                ) -> OriginManager.handleAction(
+                        context.player(),
+                        payload.action()
+                )
+        );
+
+
+
         /*
          * Staff spell casting.
          */
