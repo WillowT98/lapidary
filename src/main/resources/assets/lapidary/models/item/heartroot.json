@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "lapidary:item/necklace_seaglass"
+    "layer0": "lapidary:item/heartroot"
   }
 }

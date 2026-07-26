@@ -93,6 +93,15 @@ public final class ModCreativeTabs {
                                             add.accept(ModItems.MANA_BUCKET);
                                             add.accept(ModItems.NECKLACE_EMPTY);
                                             add.accept(ModItems.RING_EMPTY);
+                                            add.accept(ModItems.RING_AMETHYST);
+                                            add.accept(ModItems.RING_BISMUTH);
+                                            add.accept(ModItems.RING_DIAMOND);
+                                            add.accept(ModItems.RING_ENDER);
+                                            add.accept(ModItems.RING_FULGURITE);
+                                            add.accept(ModItems.RING_HEARTROOT);
+                                            add.accept(ModItems.RING_LAPIS);
+                                            add.accept(ModItems.RING_PEARL);
+                                            add.accept(ModItems.RING_SEAGLASS);
                                             add.accept(ModItems.SABLE_FUR);
                                             add.accept(ModItems.GLOW_TROUT_BUCKET);
                                             add.accept(ModItems.BRIGHT_SALMON_BUCKET);
@@ -103,13 +112,28 @@ public final class ModCreativeTabs {
                                             add.accept(ModBlocks.LOAM);
                                             add.accept(ModBlocks.BISMUTH_BLOCK);
                                             add.accept(ModItems.SEA_GLASS_EMERALD);
+                                            add.accept(ModItems.DIAMOND_EMERALD);
+                                            add.accept(ModItems.FULGURITE_EMERALD);
+                                            add.accept(ModItems.HEARTROOT_EMERALD);
+                                            add.accept(ModItems.LAPIS_EMERALD);
                                             add.accept(ModBlocks.GEM_CUTTER);
                                             add.accept(ModItems.NECKLACE_SEA_GLASS);
+                                            add.accept(ModItems.NECKLACE_AMETHYST);
+                                            add.accept(ModItems.NECKLACE_BISMUTH);
+                                            add.accept(ModItems.NECKLACE_DIAMOND);
+                                            add.accept(ModItems.NECKLACE_ENDER);
+                                            add.accept(ModItems.NECKLACE_FULGURITE);
+                                            add.accept(ModItems.NECKLACE_HEARTROOT);
+                                            add.accept(ModItems.NECKLACE_LAPIS);
+                                            add.accept(ModItems.NECKLACE_PEARL);
                                             add.accept(ModBlocks.JEWELERS_TABLE);
                                             add.accept(ModBlocks.TOME_TABLE);
                                             add.accept(ModBlocks.CANISTER);
                                             add.accept(ModItems.MAGE_BACKPACK);
                                             add.accept(ModItems.STAFF);
+                                            add.accept(ModItems.BISMUTH_SHARD);
+                                            add.accept(ModItems.HEARTROOT);
+                                            add.accept(ModItems.PEARL);
                                         }
                                 )
                                 .build()

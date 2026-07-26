@@ -21,6 +21,22 @@ public final class ModItems {
             "sea_glass_emerald",
             new Item(new Item.Properties())
     );
+    public static final Item DIAMOND_EMERALD = register(
+            "diamond_emerald",
+            new Item(new Item.Properties())
+    );
+    public static final Item FULGURITE_EMERALD = register(
+            "fulgurite_emerald",
+            new Item(new Item.Properties())
+    );
+    public static final Item HEARTROOT_EMERALD = register(
+            "heartroot_emerald",
+            new Item(new Item.Properties())
+    );
+    public static final Item LAPIS_EMERALD = register(
+            "lapis_emerald",
+            new Item(new Item.Properties())
+    );
     public static final Item FULGURITE = register(
             "fulgurite",
             new Item(new Item.Properties())
@@ -45,8 +61,77 @@ public final class ModItems {
             "necklace_sea_glass",
             new Item(new Item.Properties())
     );
+    public static final Item NECKLACE_AMETHYST = register(
+            "necklace_amethyst",
+            new Item(new Item.Properties())
+    );
+    public static final Item NECKLACE_BISMUTH = register(
+            "necklace_bismuth",
+            new Item(new Item.Properties())
+    );
+    public static final Item NECKLACE_DIAMOND = register(
+            "necklace_diamond",
+            new Item(new Item.Properties())
+    );
+    public static final Item NECKLACE_ENDER = register(
+            "necklace_ender",
+            new Item(new Item.Properties())
+    );
+    public static final Item NECKLACE_FULGURITE = register(
+            "necklace_fulgurite",
+            new Item(new Item.Properties())
+    );
+    public static final Item NECKLACE_HEARTROOT = register(
+            "necklace_heartroot",
+            new Item(new Item.Properties())
+    );
+    public static final Item NECKLACE_LAPIS = register(
+            "necklace_lapis",
+            new Item(new Item.Properties())
+    );
+    public static final Item NECKLACE_PEARL = register(
+            "necklace_pearl",
+            new Item(new Item.Properties())
+    );
+
     public static final Item RING_EMPTY = register(
             "ring_empty",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_AMETHYST = register(
+            "ring_amethyst",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_BISMUTH = register(
+            "ring_bismuth",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_DIAMOND = register(
+            "ring_diamond",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_ENDER = register(
+            "ring_ender",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_FULGURITE = register(
+            "ring_fulgurite",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_HEARTROOT = register(
+            "ring_heartroot",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_LAPIS = register(
+            "ring_lapis",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_PEARL = register(
+            "ring_pearl",
+            new Item(new Item.Properties().stacksTo(1))
+    );
+    public static final Item RING_SEAGLASS = register(
+            "ring_seaglass",
             new Item(new Item.Properties().stacksTo(1))
     );
     public static final Item SIEVE = register(
@@ -71,6 +156,18 @@ public final class ModItems {
                             .craftRemainder(Items.BUCKET)
                             .stacksTo(1)
             )
+    );
+    public static final Item PEARL = register(
+            "pearl",
+            new Item(new Item.Properties())
+    );
+    public static final Item HEARTROOT = register(
+            "heartroot",
+            new Item(new Item.Properties())
+    );
+    public static final Item BISMUTH_SHARD = register(
+            "bismuth_shard",
+            new Item(new Item.Properties())
     );
     public static final Item SABLE_FUR = register(
             "sable_fur",
@@ -162,24 +259,10 @@ public final class ModItems {
         return Registry.register(BuiltInRegistries.ITEM, id, item);
     }
 
+
+
+
+
     public static void initialize() {
-        /*ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
-                .register(entries -> {
-                    entries.accept(SEA_GLASS);
-                    entries.accept(FULGURITE);
-                    entries.accept(PURE_LAPIS);
-                    entries.accept(SIEVE);
-                    entries.accept(GOLD_PAN);
-                    entries.accept(GOLD_FLAKES);
-                    entries.accept(ELECTROSTATIC_MIX);
-                    entries.accept(MANA_BUCKET);
-                    entries.accept(NECKLACE_EMPTY);
-                    entries.accept(RING_EMPTY);
-                    entries.accept(SABLE_FUR);
-                    entries.accept(GLOW_TROUT_BUCKET);
-                    entries.accept(BRIGHT_SALMON_BUCKET);
-                    entries.accept(AMEFYSH_BUCKET);
-                    entries.accept(MOLTEN_BISMUTH_BOTTLE);
-                });*/
     }
 }

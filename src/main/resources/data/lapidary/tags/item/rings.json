@@ -1,6 +1,15 @@
 {
   "replace": false,
   "values": [
-    "lapidary:ring_empty"
+    "lapidary:ring_empty",
+    "lapidary:ring_amethyst",
+    "lapidary:ring_bismuth",
+    "lapidary:ring_diamond",
+    "lapidary:ring_ender",
+    "lapidary:ring_fulgurite",
+    "lapidary:ring_heartroot",
+    "lapidary:ring_lapis",
+    "lapidary:ring_pearl",
+    "lapidary:ring_seaglass"
   ]
 }

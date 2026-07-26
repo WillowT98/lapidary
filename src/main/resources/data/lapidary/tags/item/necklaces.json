@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "lapidary:necklace_empty",
+    "lapidary:necklace_sea_glass",
+    "lapidary:necklace_amethyst",
+    "lapidary:necklace_bismuth",
+    "lapidary:necklace_diamond",
+    "lapidary:necklace_ender",
+    "lapidary:necklace_fulgurite",
+    "lapidary:necklace_heartroot",
+    "lapidary:necklace_lapis",
+    "lapidary:necklace_pearl"
+  ]
+}

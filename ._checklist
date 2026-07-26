@@ -1,5 +1,5 @@
-TODO: emerald cut gems, replace ore mimic skin
-TODO: replace placeholder blocks for sable (cache, nest, sable fur)
+TODO: emerald cut gems
+TODO: replace placeholder blocks for sable nestbox
 TODO: implement nestbox, natural spawning for sable (and ore mimic)
 TODO: make drop for flint
 TODO: use actual sable fur instead of rabbit hide
@@ -7,15 +7,13 @@ TODO: Spawn eggs for sable, ore mimic
 TODO: remove base enchanting mechanics
 
 To add items:
--Choose a consistent name for item! Must be
- the same everywhere
 -Add to src/main/java/name/lapidary/item/ModItems.java and ModCreativeTabs.java
   This is where you add unusual properties, like
   stack sizes or durability
 -Add .png texture to src/main/resources/assets/lapidary/textures/item/
 -Add model to src/main/resources/assets/lapidary/models/item/
   Normal items use "minecraft:item/generated" and "lapidary:item/polished_sea_glass"
-  Handheld items use "minecraft:item/handheld" and "lapidary:item/example_tool"
+  Tool items use "minecraft:item/handheld" and "lapidary:item/example_tool"
 -Add display name to src/main/resources/assets/lapidary/lang/en_us.json
 
 To add blocks:
