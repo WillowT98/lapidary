@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -14,6 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class SieveProcessing {
+
     /*
      * A player can only actively finish breaking one block at a time.
      * This records that Lapidary was responsible for canceling the break.
@@ -26,15 +29,19 @@ public final class SieveProcessing {
 
     public static void initialize() {
         /*
-         * This fires when the mining progress has completed, immediately
-         * before Minecraft would destroy the block.
+         * This fires when mining progress has completed, immediately
+         * before Minecraft would normally destroy the block.
          */
         PlayerBlockBreakEvents.BEFORE.register(
                 (level, player, pos, state, blockEntity) -> {
-                    ItemStack heldItem = player.getMainHandItem();
-                    BlockState result = getSiftingResult(state);
+                    ItemStack heldItem =
+                            player.getMainHandItem();
 
-                    if (!heldItem.is(ModItems.SIEVE) || result == null) {
+                    SiftingResult result =
+                            getSiftingResult(state);
+
+                    if (!heldItem.is(ModItems.SIEVE)
+                            || result == null) {
                         return true;
                     }
 
@@ -49,9 +56,10 @@ public final class SieveProcessing {
 
                     /*
                      * Cancel ordinary destruction:
-                     * - Sand remains in the world for the moment.
-                     * - No sand item is dropped.
-                     * - The CANCELED event runs next.
+                     *
+                     * - The original block remains temporarily.
+                     * - Its normal loot table is not used.
+                     * - The CANCELED event performs the sifting result.
                      */
                     return false;
                 }
@@ -60,7 +68,9 @@ public final class SieveProcessing {
         PlayerBlockBreakEvents.CANCELED.register(
                 (level, player, pos, state, blockEntity) -> {
                     PendingSift pending =
-                            PENDING_SIFTS.remove(player.getUUID());
+                            PENDING_SIFTS.remove(
+                                    player.getUUID()
+                            );
 
                     if (pending == null
                             || !pending.position().equals(pos)) {
@@ -76,7 +86,8 @@ public final class SieveProcessing {
                         return;
                     }
 
-                    ItemStack heldItem = player.getMainHandItem();
+                    ItemStack heldItem =
+                            player.getMainHandItem();
 
                     /*
                      * Verify that the player is still holding the sieve.
@@ -85,10 +96,30 @@ public final class SieveProcessing {
                         return;
                     }
 
+                    SiftingResult result =
+                            pending.result();
+
+                    /*
+                     * Gravel uses air as its resulting state, while sand,
+                     * dirt, and grass transform into another block.
+                     */
                     level.setBlockAndUpdate(
                             pos,
-                            pending.resultState()
+                            result.resultState()
                     );
+
+                    /*
+                     * Spawn any item produced by the sifting operation.
+                     * A copy prevents the stored result stack from being
+                     * modified by Minecraft's item-spawning code.
+                     */
+                    if (!result.droppedItem().isEmpty()) {
+                        Block.popResource(
+                                level,
+                                pos,
+                                result.droppedItem().copy()
+                        );
+                    }
 
                     if (!player.getAbilities().instabuild) {
                         heldItem.hurtAndBreak(
@@ -101,21 +132,61 @@ public final class SieveProcessing {
         );
     }
 
-    private static BlockState getSiftingResult(BlockState input) {
-        //this is where we can intercept anything else for sifting!
+    private static SiftingResult getSiftingResult(
+            BlockState input
+    ) {
         if (input.is(Blocks.SAND)) {
-            return ModBlocks.FINE_SAND.defaultBlockState();
-        } else if (input.is(Blocks.DIRT) || input.is(Blocks.GRASS_BLOCK)) {
-            return ModBlocks.LOAM.defaultBlockState();
+            return replaceWith(
+                    ModBlocks.FINE_SAND
+                            .defaultBlockState()
+            );
+        }
+
+        if (input.is(Blocks.DIRT)
+                || input.is(Blocks.GRASS_BLOCK)) {
+            return replaceWith(
+                    ModBlocks.LOAM
+                            .defaultBlockState()
+            );
+        }
+
+        if (input.is(Blocks.GRAVEL)) {
+            return removeAndDrop(
+                    new ItemStack(Items.FLINT)
+            );
         }
 
         return null;
     }
 
+    private static SiftingResult replaceWith(
+            BlockState resultState
+    ) {
+        return new SiftingResult(
+                resultState,
+                ItemStack.EMPTY
+        );
+    }
+
+    private static SiftingResult removeAndDrop(
+            ItemStack droppedItem
+    ) {
+        return new SiftingResult(
+                Blocks.AIR.defaultBlockState(),
+                droppedItem
+        );
+    }
+
     private record PendingSift(
             BlockPos position,
             BlockState originalState,
-            BlockState resultState
+            SiftingResult result
+    ) {
+    }
+
+    private record SiftingResult(
+            BlockState resultState,
+            ItemStack droppedItem
     ) {
     }
 }
