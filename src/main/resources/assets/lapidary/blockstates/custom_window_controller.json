@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lapidary:block/custom_window_controller"
+    },
+    "facing=south": {
+      "model": "lapidary:block/custom_window_controller"
+    },
+    "facing=east": {
+      "model": "lapidary:block/custom_window_controller"
+    },
+    "facing=west": {
+      "model": "lapidary:block/custom_window_controller"
+    }
+  }
+}

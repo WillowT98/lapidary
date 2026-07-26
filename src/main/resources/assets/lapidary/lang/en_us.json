@@ -217,7 +217,20 @@
   "message.lapidary.window.missing_material": "Missing %2$s × %1$s",
   "message.lapidary.window.fabricated": "Stained-glass design fabricated.",
   "label.lapidary.window.background": "Background Material",
-  "message.lapidary.window.choose_background": "Insert a block in the background slot."
+  "message.lapidary.window.choose_background": "Insert a block in the background slot.",
+  "label.lapidary.window.choose_background_tile": "Choose Background",
+  "label.lapidary.window.choose_template_tile": "Choose Template",
+  "label.lapidary.window.template_entry": "%1$s × %2$s — %3$s",
+  "message.lapidary.window.no_background_blocks": "No block items carried",
+  "message.lapidary.window.no_templates": "No custom windows carried",
+  "label.lapidary.window.air": "Air",
+  "label.lapidary.window.brush_size": "Brush: %s",
+  "block.lapidary.custom_window_controller": "Custom Stained-Glass Window",
+  "block.lapidary.custom_window_segment": "Custom Stained-Glass Window",
+  "message.lapidary.window.not_enough_space": "The full window does not fit here."
+
+
+
 
 
 }

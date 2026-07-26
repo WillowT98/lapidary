@@ -4,6 +4,9 @@ import name.lapidary.Lapidary;
 import name.lapidary.block.ModBlocks;
 import name.lapidary.item.MageBackpackAccess;
 import name.lapidary.magic.PlayerMagic;
+import name.lapidary.magic.PlayerMagicData;
+import name.lapidary.magic.SpellCasting;
+import name.lapidary.magic.focus.SpellcastingFocusHelper;
 import name.lapidary.progression.LapidaryInsight;
 import name.lapidary.progression.tome.TomeProgression;
 import name.lapidary.screen.StainedGlassFabricatorMenu;
@@ -49,6 +52,10 @@ public final class ModNetworking {
                 MagicStatePayload.TYPE,
                 MagicStatePayload.STREAM_CODEC
         );
+        PayloadTypeRegistry.playS2C().register(
+                OpenSpellRadialPayload.TYPE,
+                OpenSpellRadialPayload.STREAM_CODEC
+        );
 
         /*
          * Backpack interaction.
@@ -64,6 +71,81 @@ public final class ModNetworking {
                         MageBackpackAccess.openEquipped(
                                 context.player()
                         )
+        );
+        /*
+         * Staff spell casting.
+         */
+        PayloadTypeRegistry.playC2S().register(
+                CastSelectedSpellPayload.TYPE,
+                CastSelectedSpellPayload.STREAM_CODEC
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                CastSelectedSpellPayload.TYPE,
+                (payload, context) ->
+                        SpellCasting.castSelected(
+                                context.player()
+                        )
+        );
+
+        PayloadTypeRegistry.playC2S().register(
+                SelectPreparedSpellPayload.TYPE,
+                SelectPreparedSpellPayload.STREAM_CODEC
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                SelectPreparedSpellPayload.TYPE,
+                (payload, context) -> {
+                    ServerPlayer player =
+                            context.player();
+
+                    /*
+                     * A client cannot change its selected staff spell while
+                     * not actually holding a casting focus.
+                     */
+                    if (!SpellcastingFocusHelper
+                            .isHoldingFocus(player)) {
+
+                        return;
+                    }
+
+                    int slot =
+                            payload.slot();
+
+                    if (!PlayerMagicData.isValidSlot(
+                            slot
+                    )) {
+                        PlayerMagic.sync(player);
+
+                        return;
+                    }
+
+                    /*
+                     * Empty radial positions are not selectable.
+                     */
+                    if (PlayerMagic.get(player)
+                            .preparedSpell(slot)
+                            .isEmpty()) {
+
+                        PlayerMagic.sync(player);
+
+                        return;
+                    }
+
+                    boolean changed =
+                            PlayerMagic.selectSlot(
+                                    player,
+                                    slot
+                            );
+
+                    /*
+                     * Send an authoritative update even when the player
+                     * selected the slot that was already active.
+                     */
+                    if (!changed) {
+                        PlayerMagic.sync(player);
+                    }
+                }
         );
 
         /*

@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -81,7 +82,10 @@ public final class WindowMaterials {
                         PIXELS_PER_MATERIAL
                 );
 
-        if (backgroundCount > 0) {
+        if (backgroundCount > 0
+                && design.backgroundBlock()
+                != Blocks.AIR) {
+
             requirements.merge(
                     design.backgroundBlock()
                             .asItem(),

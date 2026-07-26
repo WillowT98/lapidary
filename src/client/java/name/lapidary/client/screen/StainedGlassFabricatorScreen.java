@@ -96,6 +96,12 @@ public final class StainedGlassFabricatorScreen
     private static final int PICKER_VISIBLE_ROWS =
             6;
 
+    private static final int MIN_BRUSH_SIZE =
+            1;
+
+    private static final int MAX_BRUSH_SIZE =
+            8;
+
     private static final int[] COLOR_RGB = {
             0xF9FFFE,
             0xF9801D,
@@ -123,6 +129,9 @@ public final class StainedGlassFabricatorScreen
 
     private byte selectedColor =
             0;
+
+    private int brushSize =
+            1;
 
     private byte[] pixels =
             WindowDesign.blank(
@@ -228,6 +237,38 @@ public final class StainedGlassFabricatorScreen
 
         addRenderableWidget(
                 Button.builder(
+                                Component.literal("-"),
+                                button -> setBrushSize(
+                                        brushSize - 1
+                                )
+                        )
+                        .bounds(
+                                leftPos + PANEL_X,
+                                topPos + 100,
+                                20,
+                                18
+                        )
+                        .build()
+        );
+
+        addRenderableWidget(
+                Button.builder(
+                                Component.literal("+"),
+                                button -> setBrushSize(
+                                        brushSize + 1
+                                )
+                        )
+                        .bounds(
+                                leftPos + PANEL_X + 144,
+                                topPos + 100,
+                                20,
+                                18
+                        )
+                        .build()
+        );
+
+        addRenderableWidget(
+                Button.builder(
                                 Component.translatable(
                                         "button.lapidary.window.clear"
                                 ),
@@ -235,7 +276,7 @@ public final class StainedGlassFabricatorScreen
                         )
                         .bounds(
                                 leftPos + PANEL_X,
-                                topPos + 102,
+                                topPos + 122,
                                 72,
                                 20
                         )
@@ -251,7 +292,7 @@ public final class StainedGlassFabricatorScreen
                         )
                         .bounds(
                                 leftPos + PANEL_X + 76,
-                                topPos + 102,
+                                topPos + 122,
                                 88,
                                 20
                         )
@@ -389,6 +430,17 @@ public final class StainedGlassFabricatorScreen
                 53,
                 0xD8D8D8,
                 false
+        );
+
+        graphics.drawCenteredString(
+                font,
+                Component.translatable(
+                        "label.lapidary.window.brush_size",
+                        brushSize
+                ),
+                PANEL_X + 82,
+                105,
+                0xFFFFFF
         );
     }
 
@@ -597,7 +649,9 @@ public final class StainedGlassFabricatorScreen
         Block background =
                 menu.getSelectedBackgroundBlock();
 
-        if (background != Blocks.AIR) {
+        if (menu.hasSelectedBackground()
+                && background != Blocks.AIR) {
+
             renderTiledBackground(
                     graphics,
                     canvasLeft,
@@ -606,6 +660,11 @@ public final class StainedGlassFabricatorScreen
                     background
             );
         } else {
+            /*
+             * The checkerboard represents either an explicit Air
+             * background or a design that has not chosen a background yet.
+             * The selection tile distinguishes those two states.
+             */
             renderCheckerboard(
                     graphics,
                     canvasLeft,
@@ -709,19 +768,7 @@ public final class StainedGlassFabricatorScreen
         Block background =
                 menu.getSelectedBackgroundBlock();
 
-        if (background != Blocks.AIR) {
-            graphics.renderItem(
-                    new ItemStack(
-                            background.asItem()
-                    ),
-                    leftPos
-                            + BACKGROUND_TILE_X
-                            + 8,
-                    topPos
-                            + BACKGROUND_TILE_Y
-                            + 8
-            );
-        } else {
+        if (!menu.hasSelectedBackground()) {
             graphics.drawCenteredString(
                     font,
                     Component.literal("+"),
@@ -732,6 +779,29 @@ public final class StainedGlassFabricatorScreen
                             + BACKGROUND_TILE_Y
                             + 11,
                     0xAAB1B9
+            );
+        } else if (background == Blocks.AIR) {
+            renderAirIcon(
+                    graphics,
+                    leftPos
+                            + BACKGROUND_TILE_X
+                            + 8,
+                    topPos
+                            + BACKGROUND_TILE_Y
+                            + 8,
+                    16
+            );
+        } else {
+            graphics.renderItem(
+                    new ItemStack(
+                            background.asItem()
+                    ),
+                    leftPos
+                            + BACKGROUND_TILE_X
+                            + 8,
+                    topPos
+                            + BACKGROUND_TILE_Y
+                            + 8
             );
         }
 
@@ -745,6 +815,48 @@ public final class StainedGlassFabricatorScreen
                         + TEMPLATE_TILE_Y
                         + 11,
                 0xAAB1B9
+        );
+    }
+
+    private void renderAirIcon(
+            GuiGraphics graphics,
+            int left,
+            int top,
+            int size
+    ) {
+        int half =
+                size / 2;
+
+        graphics.fill(
+                left,
+                top,
+                left + half,
+                top + half,
+                0xFF3B4148
+        );
+
+        graphics.fill(
+                left + half,
+                top,
+                left + size,
+                top + half,
+                0xFF272C32
+        );
+
+        graphics.fill(
+                left,
+                top + half,
+                left + half,
+                top + size,
+                0xFF272C32
+        );
+
+        graphics.fill(
+                left + half,
+                top + half,
+                left + size,
+                top + size,
+                0xFF3B4148
         );
     }
 
@@ -873,11 +985,23 @@ public final class StainedGlassFabricatorScreen
                 );
             }
 
-            graphics.renderItem(
-                    entry.stack(),
-                    left + 2,
-                    rowTop + 2
-            );
+            ItemStack iconStack =
+                    entry.stack();
+
+            if (iconStack.isEmpty()) {
+                renderAirIcon(
+                        graphics,
+                        left + 2,
+                        rowTop + 2,
+                        16
+                );
+            } else {
+                graphics.renderItem(
+                        iconStack,
+                        left + 2,
+                        rowTop + 2
+                );
+            }
 
             graphics.drawString(
                     font,
@@ -973,41 +1097,38 @@ public final class StainedGlassFabricatorScreen
                 Minecraft.getInstance();
 
         if (minecraft.player == null) {
-            return List.of();
+            return List.of(
+                    new BackgroundEntry(
+                            Blocks.AIR,
+                            0
+                    )
+            );
         }
 
         Map<Block, Integer> counts =
                 new LinkedHashMap<>();
 
-        for (ItemStack stack :
+        Inventory inventory =
                 minecraft.player
-                        .getInventory()
-                        .items) {
+                        .getInventory();
+
+        for (int slot = 0;
+             slot < inventory.getContainerSize();
+             slot++) {
 
             addBackgroundStack(
                     counts,
-                    stack
+                    inventory.getItem(slot)
             );
         }
 
-        for (ItemStack stack :
-                minecraft.player
-                        .getInventory()
-                        .offhand) {
-
-            addBackgroundStack(
-                    counts,
-                    stack
-            );
-        }
-
-        List<BackgroundEntry> entries =
+        List<BackgroundEntry> physicalEntries =
                 new ArrayList<>();
 
         for (Map.Entry<Block, Integer> entry :
                 counts.entrySet()) {
 
-            entries.add(
+            physicalEntries.add(
                     new BackgroundEntry(
                             entry.getKey(),
                             entry.getValue()
@@ -1015,7 +1136,7 @@ public final class StainedGlassFabricatorScreen
             );
         }
 
-        entries.sort(
+        physicalEntries.sort(
                 Comparator.comparing(
                         entry ->
                                 entry.block()
@@ -1023,6 +1144,23 @@ public final class StainedGlassFabricatorScreen
                                         .getString(),
                         String.CASE_INSENSITIVE_ORDER
                 )
+        );
+
+        List<BackgroundEntry> entries =
+                new ArrayList<>();
+
+        /*
+         * Air is always the first option and never depends on inventory.
+         */
+        entries.add(
+                new BackgroundEntry(
+                        Blocks.AIR,
+                        0
+                )
+        );
+
+        entries.addAll(
+                physicalEntries
         );
 
         return entries;
@@ -1058,28 +1196,16 @@ public final class StainedGlassFabricatorScreen
         List<TemplateEntry> entries =
                 new ArrayList<>();
 
-        for (ItemStack stack :
+        Inventory inventory =
                 minecraft.player
-                        .getInventory()
-                        .items) {
+                        .getInventory();
 
-            CustomStainedGlassItem.readDesign(
-                    stack
-            ).ifPresent(
-                    design ->
-                            entries.add(
-                                    new TemplateEntry(
-                                            stack.copyWithCount(1),
-                                            design
-                                    )
-                            )
-            );
-        }
+        for (int slot = 0;
+             slot < inventory.getContainerSize();
+             slot++) {
 
-        for (ItemStack stack :
-                minecraft.player
-                        .getInventory()
-                        .offhand) {
+            ItemStack stack =
+                    inventory.getItem(slot);
 
             CustomStainedGlassItem.readDesign(
                     stack
@@ -1312,14 +1438,14 @@ public final class StainedGlassFabricatorScreen
         Block background =
                 menu.getSelectedBackgroundBlock();
 
-        if (background == Blocks.AIR) {
+        if (!menu.hasSelectedBackground()) {
             graphics.drawString(
                     font,
                     Component.translatable(
                             "message.lapidary.window.choose_background"
                     ),
                     leftPos + PANEL_X,
-                    topPos + 128,
+                    topPos + 148,
                     0xD99A72,
                     false
             );
@@ -1348,7 +1474,7 @@ public final class StainedGlassFabricatorScreen
         for (Map.Entry<Item, Integer> entry :
                 requirements.entrySet()) {
 
-            if (line >= 5) {
+            if (line >= 3) {
                 graphics.drawString(
                         font,
                         Component.translatable(
@@ -1356,7 +1482,7 @@ public final class StainedGlassFabricatorScreen
                                 requirements.size() - line
                         ),
                         leftPos + PANEL_X,
-                        topPos + 128 + line * 10,
+                        topPos + 148 + line * 10,
                         0xBFC5CC,
                         false
                 );
@@ -1374,7 +1500,7 @@ public final class StainedGlassFabricatorScreen
                                     .getDescription()
                     ),
                     leftPos + PANEL_X,
-                    topPos + 128 + line * 10,
+                    topPos + 148 + line * 10,
                     0xBFC5CC,
                     false
             );
@@ -1498,13 +1624,13 @@ public final class StainedGlassFabricatorScreen
                 localY
                         / scale;
 
-        pixels[
-                pixelY * pixelWidth
-                        + pixelX
-                ] =
+        paintBrush(
+                pixelX,
+                pixelY,
                 button == 1
                         ? WindowDesign.BACKGROUND_PIXEL
-                        : selectedColor;
+                        : selectedColor
+        );
 
         return true;
     }
@@ -1534,12 +1660,9 @@ public final class StainedGlassFabricatorScreen
         }
 
         Block background =
-                menu.getSelectedBackgroundBlock();
-
-        if (background == Blocks.AIR) {
-            background =
-                    Blocks.STONE_BRICKS;
-        }
+                menu.hasSelectedBackground()
+                        ? menu.getSelectedBackgroundBlock()
+                        : Blocks.STONE_BRICKS;
 
         WindowDesign resized =
                 new WindowDesign(
@@ -1564,6 +1687,75 @@ public final class StainedGlassFabricatorScreen
                 resized.pixels();
     }
 
+    private void setBrushSize(
+            int requestedSize
+    ) {
+        brushSize =
+                Mth.clamp(
+                        requestedSize,
+                        MIN_BRUSH_SIZE,
+                        MAX_BRUSH_SIZE
+                );
+    }
+
+    /**
+     * Paints a square brush centered as closely as possible on the cursor.
+     * For even sizes, the extra row and column extend right and downward.
+     * Pixels outside the current canvas are simply clipped.
+     */
+    private void paintBrush(
+            int centerX,
+            int centerY,
+            byte value
+    ) {
+        int pixelWidth =
+                blockWidth
+                        * WindowDesign.PIXELS_PER_BLOCK;
+
+        int pixelHeight =
+                blockHeight
+                        * WindowDesign.PIXELS_PER_BLOCK;
+
+        int before =
+                (brushSize - 1) / 2;
+
+        int startX =
+                centerX - before;
+
+        int startY =
+                centerY - before;
+
+        for (int offsetY = 0;
+             offsetY < brushSize;
+             offsetY++) {
+
+            int y =
+                    startY + offsetY;
+
+            if (y < 0
+                    || y >= pixelHeight) {
+                continue;
+            }
+
+            for (int offsetX = 0;
+                 offsetX < brushSize;
+                 offsetX++) {
+
+                int x =
+                        startX + offsetX;
+
+                if (x < 0
+                        || x >= pixelWidth) {
+                    continue;
+                }
+
+                pixels[
+                        y * pixelWidth + x
+                        ] = value;
+            }
+        }
+    }
+
     private void clearDesign() {
         Arrays.fill(
                 pixels,
@@ -1572,8 +1764,7 @@ public final class StainedGlassFabricatorScreen
     }
 
     private void fabricate() {
-        if (menu.getSelectedBackgroundBlock()
-                == Blocks.AIR) {
+        if (!menu.hasSelectedBackground()) {
 
             if (minecraft != null
                     && minecraft.player != null) {
@@ -1657,13 +1848,20 @@ public final class StainedGlassFabricatorScreen
             Block background =
                     menu.getSelectedBackgroundBlock();
 
-            graphics.renderTooltip(
-                    font,
-                    background == Blocks.AIR
+            Component tooltip =
+                    !menu.hasSelectedBackground()
                             ? Component.translatable(
                             "label.lapidary.window.choose_background_tile"
                     )
-                            : background.getName(),
+                            : background == Blocks.AIR
+                            ? Component.translatable(
+                            "label.lapidary.window.air"
+                    )
+                            : background.getName();
+
+            graphics.renderTooltip(
+                    font,
+                    tooltip,
                     mouseX,
                     mouseY
             );
@@ -1730,6 +1928,10 @@ public final class StainedGlassFabricatorScreen
 
         @Override
         public ItemStack stack() {
+            if (block == Blocks.AIR) {
+                return ItemStack.EMPTY;
+            }
+
             return new ItemStack(
                     block.asItem(),
                     count
@@ -1738,6 +1940,12 @@ public final class StainedGlassFabricatorScreen
 
         @Override
         public Component label() {
+            if (block == Blocks.AIR) {
+                return Component.translatable(
+                        "label.lapidary.window.air"
+                );
+            }
+
             return block.getName()
                     .copy()
                     .append(

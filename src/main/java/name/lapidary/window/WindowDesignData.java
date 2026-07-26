@@ -32,6 +32,48 @@ public final class WindowDesignData {
             ItemStack stack,
             WindowDesign design
     ) {
+        CompoundTag root =
+                new CompoundTag();
+
+        writeToTag(
+                root,
+                ROOT_TAG,
+                design
+        );
+
+        stack.set(
+                DataComponents.CUSTOM_DATA,
+                CustomData.of(root)
+        );
+    }
+
+    public static Optional<WindowDesign> read(
+            ItemStack stack
+    ) {
+        CustomData customData =
+                stack.get(
+                        DataComponents.CUSTOM_DATA
+                );
+
+        if (customData == null) {
+            return Optional.empty();
+        }
+
+        return readFromTag(
+                customData.copyTag(),
+                ROOT_TAG
+        );
+    }
+
+    /**
+     * Writes a design beneath a named compound. This is shared by the
+     * custom item and the placed controller block entity.
+     */
+    public static void writeToTag(
+            CompoundTag parent,
+            String key,
+            WindowDesign design
+    ) {
         CompoundTag designTag =
                 new CompoundTag();
 
@@ -55,45 +97,29 @@ public final class WindowDesignData {
                 design.pixels()
         );
 
-        CompoundTag root =
-                new CompoundTag();
-
-        root.put(
-                ROOT_TAG,
+        parent.put(
+                key,
                 designTag
-        );
-
-        stack.set(
-                DataComponents.CUSTOM_DATA,
-                CustomData.of(root)
         );
     }
 
-    public static Optional<WindowDesign> read(
-            ItemStack stack
+    /**
+     * Reads and validates a design from a named compound.
+     */
+    public static Optional<WindowDesign> readFromTag(
+            CompoundTag parent,
+            String key
     ) {
-        CustomData customData =
-                stack.get(
-                        DataComponents.CUSTOM_DATA
-                );
-
-        if (customData == null) {
-            return Optional.empty();
-        }
-
-        CompoundTag root =
-                customData.copyTag();
-
-        if (!root.contains(
-                ROOT_TAG,
+        if (!parent.contains(
+                key,
                 Tag.TAG_COMPOUND
         )) {
             return Optional.empty();
         }
 
         CompoundTag designTag =
-                root.getCompound(
-                        ROOT_TAG
+                parent.getCompound(
+                        key
                 );
 
         if (!designTag.contains(

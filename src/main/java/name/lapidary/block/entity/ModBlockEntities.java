@@ -37,6 +37,21 @@ public final class ModBlockEntities {
                             )
                             .build(null)
             );
+    public static final BlockEntityType<
+            CustomWindowControllerBlockEntity
+            > CUSTOM_WINDOW_CONTROLLER =
+            Registry.register(
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Lapidary.MOD_ID,
+                            "custom_window_controller"
+                    ),
+                    BlockEntityType.Builder.of(
+                            CustomWindowControllerBlockEntity::new,
+                            ModBlocks.CUSTOM_WINDOW_CONTROLLER
+                    ).build(null)
+            );
+
 
     private ModBlockEntities() {
     }

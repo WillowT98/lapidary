@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import name.lapidary.fluid.ModFluids;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.material.PushReaction;
 
 public final class ModBlocks {
     public static final Block SEA_GLASS_BLOCK = register(
@@ -124,6 +125,34 @@ public final class ModBlocks {
                             )
                     )
             );
+    public static final Block CUSTOM_WINDOW_CONTROLLER =
+            registerBlockOnly(
+                    "custom_window_controller",
+                    new CustomWindowControllerBlock(
+                            BlockBehaviour.Properties.of()
+                                    .strength(0.3F)
+                                    .sound(SoundType.GLASS)
+                                    .noOcclusion()
+                                    .pushReaction(
+                                            PushReaction.BLOCK
+                                    )
+                    )
+            );
+
+    public static final Block CUSTOM_WINDOW_SEGMENT =
+            registerBlockOnly(
+                    "custom_window_segment",
+                    new CustomWindowSegmentBlock(
+                            BlockBehaviour.Properties.of()
+                                    .strength(0.3F)
+                                    .sound(SoundType.GLASS)
+                                    .noOcclusion()
+                                    .pushReaction(
+                                            PushReaction.BLOCK
+                                    )
+                    )
+            );
+
 
 
     private static Block registerBlockOnly(

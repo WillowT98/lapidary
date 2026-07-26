@@ -1,0 +1,9 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "lapidary:block/custom_window_segment"
+      }
+    }
+  ]
+}

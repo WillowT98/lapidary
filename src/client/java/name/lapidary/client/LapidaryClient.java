@@ -114,6 +114,11 @@ public class LapidaryClient implements ClientModInitializer {
 				ModBlockEntities.CANISTER,
 				CanisterBlockEntityRenderer::new
 		);
+		BlockEntityRendererRegistry.register(
+				ModBlockEntities.CUSTOM_WINDOW_CONTROLLER,
+				CustomWindowRenderer::new
+		);
+
 		MageBackpackKeybinds.initialize();
 
 		TrinketRendererRegistry.registerRenderer(

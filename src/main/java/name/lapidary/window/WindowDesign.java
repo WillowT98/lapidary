@@ -2,7 +2,6 @@ package name.lapidary.window;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -253,20 +252,28 @@ public record WindowDesign(
         }
 
         Block block =
-                BuiltInRegistries.BLOCK.get(
-                        id
-                );
+                BuiltInRegistries.BLOCK
+                        .getOptional(id)
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Unknown background block ID: "
+                                                + rawId
+                                )
+                        );
 
         /*
-         * AIR is also the registry's fallback for an unknown ID. It has
-         * no usable item form, so neither AIR nor missing blocks may be
-         * used as a window background.
+         * Air is deliberately valid: it represents genuinely transparent
+         * pixels and therefore costs no background material.
+         *
+         * Other backgrounds must have a corresponding block item so they
+         * can be selected from and consumed out of a player's inventory.
          */
-        if (block == Blocks.AIR
-                || block.asItem() == Items.AIR) {
+        if (block != Blocks.AIR
+                && !(block.asItem()
+                instanceof net.minecraft.world.item.BlockItem)) {
 
             throw new IllegalArgumentException(
-                    "Background must be a registered block item: "
+                    "Background must be air or a registered block item: "
                             + rawId
             );
         }

@@ -27,9 +27,8 @@ public final class StainedGlassFabricatorMenu
 
     /*
      * The selected background is synchronized as a numeric block registry
-     * ID. No inventory slot is needed: the server validates that the player
-     * actually carries the selected block whenever selection changes and
-     * again when fabrication occurs.
+     * ID. A value of -1 means that the player has not made a selection.
+     * The registry ID of minecraft:air is a separate, valid selection.
      */
     private final DataSlot selectedBackgroundId =
             DataSlot.standalone();
@@ -71,18 +70,20 @@ public final class StainedGlassFabricatorMenu
         return this.containerId;
     }
 
-    public Block getSelectedBackgroundBlock() {
-        int registryId =
-                selectedBackgroundId.get();
+    public boolean hasSelectedBackground() {
+        return selectedBackgroundId.get()
+                >= 0;
+    }
 
-        if (registryId < 0) {
+    public Block getSelectedBackgroundBlock() {
+        if (!hasSelectedBackground()) {
             return Blocks.AIR;
         }
 
         Block block =
                 BuiltInRegistries.BLOCK
                         .byId(
-                                registryId
+                                selectedBackgroundId.get()
                         );
 
         return isUsableBackground(block)
@@ -129,6 +130,17 @@ public final class StainedGlassFabricatorMenu
             byte[] pixels
     ) {
         if (!stillValid(player)) {
+            return false;
+        }
+
+        if (!hasSelectedBackground()) {
+            player.displayClientMessage(
+                    Component.translatable(
+                            "message.lapidary.window.choose_background"
+                    ),
+                    true
+            );
+
             return false;
         }
 
@@ -207,11 +219,12 @@ public final class StainedGlassFabricatorMenu
         }
 
         /*
-         * Consuming the last copy of a background block invalidates the
-         * current selection. Clear it so the screen cannot imply that the
-         * player still has material available.
+         * Air remains selected indefinitely because it is not an inventory
+         * material. A physical block selection is cleared only when the
+         * fabrication consumed the player's last copy.
          */
-        if (!playerCarries(
+        if (background != Blocks.AIR
+                && !playerCarries(
                 player,
                 background
         )) {
@@ -254,8 +267,8 @@ public final class StainedGlassFabricatorMenu
     private static boolean isUsableBackground(
             Block block
     ) {
-        return block != Blocks.AIR
-                && block.asItem()
+        return block == Blocks.AIR
+                || block.asItem()
                 instanceof BlockItem;
     }
 
@@ -263,24 +276,20 @@ public final class StainedGlassFabricatorMenu
             Player player,
             Block block
     ) {
-        for (ItemStack stack :
-                player.getInventory()
-                        .items) {
-
-            if (stack.is(
-                    block.asItem()
-            )) {
-                return true;
-            }
+        if (block == Blocks.AIR) {
+            return true;
         }
 
-        for (ItemStack stack :
-                player.getInventory()
-                        .offhand) {
+        Inventory inventory =
+                player.getInventory();
 
-            if (stack.is(
-                    block.asItem()
-            )) {
+        for (int slot = 0;
+             slot < inventory.getContainerSize();
+             slot++) {
+
+            if (inventory.getItem(slot)
+                    .is(block.asItem())) {
+
                 return true;
             }
         }
