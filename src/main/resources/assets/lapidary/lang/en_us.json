@@ -194,5 +194,27 @@
   "tome.lapidary.node.necromancy.root": "Necromancy",
   "tome.lapidary.node.necromancy.mortal_memory": "Mortal Memory",
   "tome.lapidary.node.necromancy.raise_lesser_dead": "Raise Lesser Dead",
-  "tome.lapidary.node.necromancy.bind_spirit": "Bind Spirit"
+  "tome.lapidary.node.necromancy.bind_spirit": "Bind Spirit",
+
+
+  "block.lapidary.stained_glass_fabricator": "Stained Glass Fabricator",
+  "item.lapidary.custom_stained_glass": "Custom Stained Glass",
+  "container.lapidary.stained_glass_fabricator": "Stained Glass Fabricator",
+
+  "tooltip.lapidary.custom_stained_glass.size": "%s × %s blocks",
+  "tooltip.lapidary.custom_stained_glass.background": "Background: %s",
+
+  "button.lapidary.window.clear": "Clear",
+  "button.lapidary.window.load_template": "Load Template",
+  "button.lapidary.window.fabricate": "Fabricate",
+
+  "label.lapidary.window.width": "Width: %s",
+  "label.lapidary.window.height": "Height: %s",
+  "label.lapidary.window.palette": "Glass Colors",
+  "label.lapidary.window.template": "Template",
+  "label.lapidary.window.more_materials": "+ %s more",
+
+  "message.lapidary.window.missing_material": "Missing %2$s × %1$s",
+  "message.lapidary.window.fabricated": "Stained-glass design fabricated."
+
 }

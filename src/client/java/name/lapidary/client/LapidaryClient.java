@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.entity.FoxRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
 import name.lapidary.client.screen.MageBackpackScreen;
+import name.lapidary.client.screen.StainedGlassFabricatorScreen;
 
 public class LapidaryClient implements ClientModInitializer {
 	@Override
@@ -123,5 +124,10 @@ public class LapidaryClient implements ClientModInitializer {
 				ModMenus.MAGE_BACKPACK,
 				MageBackpackScreen::new
 		);
+		MenuScreens.register(
+				ModMenus.STAINED_GLASS_FABRICATOR,
+				StainedGlassFabricatorScreen::new
+		);
+
 	}
 }

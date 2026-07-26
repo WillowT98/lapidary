@@ -7,6 +7,7 @@ import name.lapidary.magic.PlayerMagic;
 import name.lapidary.magic.SpellCasting;
 import name.lapidary.progression.LapidaryInsight;
 import name.lapidary.progression.tome.TomeProgression;
+import name.lapidary.screen.StainedGlassFabricatorMenu;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -56,6 +57,43 @@ public final class ModNetworking {
                 OpenSpellRadialPayload.TYPE,
                 OpenSpellRadialPayload.STREAM_CODEC
         );
+        PayloadTypeRegistry.playC2S().register(
+                FabricateWindowPayload.TYPE,
+                FabricateWindowPayload.STREAM_CODEC
+        );
+        ServerPlayNetworking.registerGlobalReceiver(
+                FabricateWindowPayload.TYPE,
+                (
+                        payload,
+                        context
+                ) -> {
+                    ServerPlayer player =
+                            context.player();
+
+                    if (!(player.containerMenu
+                            instanceof StainedGlassFabricatorMenu menu)) {
+
+                        return;
+                    }
+
+                    if (menu.getContainerIdValue()
+                            != payload.containerId()) {
+
+                        return;
+                    }
+
+                    payload.toDesign()
+                            .ifPresent(
+                                    design ->
+                                            menu.fabricate(
+                                                    player,
+                                                    design
+                                            )
+                            );
+                }
+        );
+
+
 
         /*
          * Backpack interaction.

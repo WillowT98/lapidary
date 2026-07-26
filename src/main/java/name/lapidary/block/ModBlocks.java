@@ -115,6 +115,16 @@ public final class ModBlocks {
                     new Item.Properties()
                             .stacksTo(1)
             );
+    public static final Block STAINED_GLASS_FABRICATOR =
+            register(
+                    "stained_glass_fabricator",
+                    new StainedGlassFabricatorBlock(
+                            BlockBehaviour.Properties.ofFullCopy(
+                                    Blocks.CRAFTING_TABLE
+                            )
+                    )
+            );
+
 
     private static Block registerBlockOnly(
             String name,

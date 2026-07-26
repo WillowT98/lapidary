@@ -255,6 +255,16 @@ public final class ModItems {
                                     .durability(100)
                     )
             );
+    public static final Item CUSTOM_STAINED_GLASS =
+            register(
+                    "custom_stained_glass",
+                    new CustomStainedGlassItem(
+                            new Item.Properties()
+                                    .stacksTo(1)
+                    )
+            );
+
+
 
 
     private ModItems() {

@@ -136,6 +136,9 @@ public final class ModCreativeTabs {
                                             add.accept(ModItems.HEARTROOT);
                                             add.accept(ModItems.PEARL);
                                             add.accept(ModItems.FISH_STICK);
+                                            add.accept(ModBlocks.STAINED_GLASS_FABRICATOR);
+                                            add.accept(ModItems.CUSTOM_STAINED_GLASS);
+
                                         }
                                 )
                                 .build()

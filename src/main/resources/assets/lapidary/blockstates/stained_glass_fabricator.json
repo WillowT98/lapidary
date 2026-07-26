@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lapidary:block/stained_glass_fabricator"
+    }
+  }
+}

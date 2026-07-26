@@ -51,6 +51,19 @@ public final class ModMenus {
                             FeatureFlags.DEFAULT_FLAGS
                     )
             );
+    public static final MenuType<StainedGlassFabricatorMenu>
+            STAINED_GLASS_FABRICATOR =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    Lapidary.id(
+                            "stained_glass_fabricator"
+                    ),
+                    new MenuType<>(
+                            StainedGlassFabricatorMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
+
 
     private ModMenus() {
     }
