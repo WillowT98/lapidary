@@ -124,13 +124,12 @@ dependencies {
 		exclude group: "com.terraformersmc", module: "modmenu"
 	}
 
-	// Compile against the dedicated LambDynamicLights API.
-// Disable transitives because Lapidary only needs the API classes here.
+// Compile against the dedicated LambDynamicLights API.
+// Its API dependencies must remain transitive because public API
+// signatures reference Yumi Commons Event.
 	modCompileOnly(
 			"dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambDynamicLightsVersion}"
-	) {
-		transitive = false
-	}
+	)
 
 // Load the complete official LambDynamicLights release in the dev client.
 // Exact Modrinth coordinates for 4.8.10+1.21.1.
