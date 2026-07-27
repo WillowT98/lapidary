@@ -5,36 +5,38 @@ import dev.lambdaurora.lambdynlights.api.DynamicLightsInitializer;
 import dev.lambdaurora.lambdynlights.api.entity.luminance.EntityLuminance;
 import dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager;
 import name.lapidary.Lapidary;
+import name.lapidary.client.origin.ClientOriginState;
+import name.lapidary.origin.OriginKind;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Registers Lapidary's client-side dynamic light sources.
+ * Registers Lapidary's custom dynamic light sources.
  */
+@SuppressWarnings({
+        "deprecation",
+        "removal"
+})
 public final class LapidaryDynamicLights
         implements DynamicLightsInitializer {
 
-    /*
-     * LambDynamicLights accepts values from 0 through 15.
-     *
-     * 12 is bright enough to make the Fairy clearly luminous without
-     * making her equivalent to a full-strength light block.
+    /**
+     * Dynamic-light values range from 0 through 15.
      */
-    private static final int FAIRY_LIGHT_LEVEL = 12;
+    private static final int FAIRY_LIGHT_LEVEL =
+            15;
 
-    private static final FairyPlayerLuminance FAIRY_PLAYER_LUMINANCE =
+    private static final FairyPlayerLuminance FAIRY_LUMINANCE =
             new FairyPlayerLuminance();
 
-    /*
-     * Every EntityLuminance implementation needs a registered type,
-     * even though this implementation is registered directly through
-     * Java rather than loaded from a JSON file.
-     */
-    public static final EntityLuminance.Type FAIRY_PLAYER_LUMINANCE_TYPE =
+    public static final EntityLuminance.Type FAIRY_LUMINANCE_TYPE =
             EntityLuminance.Type.registerSimple(
-                    Lapidary.id("fairy_player"),
-                    FAIRY_PLAYER_LUMINANCE
+                    Lapidary.id(
+                            "fairy_player"
+                    ),
+                    FAIRY_LUMINANCE
             );
 
     @Override
@@ -43,25 +45,32 @@ public final class LapidaryDynamicLights
     ) {
         context.entityLightSourceManager()
                 .onRegisterEvent()
-                .register(registrationContext ->
-                        registrationContext.register(
-                                EntityType.PLAYER,
-                                FAIRY_PLAYER_LUMINANCE
-                        )
+                .register(
+                        registrationContext ->
+                                registrationContext.register(
+                                        EntityType.PLAYER,
+                                        FAIRY_LUMINANCE
+                                )
                 );
     }
 
-    /*
-     * LambDynamicLights 4.8.10 still retains this older abstract
-     * initializer method for compatibility. The context-based method
-     * above is the one we actually need.
+    /**
+     * LambDynamicLights 4.8.10 for Minecraft 1.21.1 still requires
+     * this legacy method, despite marking it for future removal.
+     *
+     * Dynamic-light registration is performed through the newer
+     * context-based method above.
      */
     @Override
-    @SuppressWarnings({"deprecation", "removal"})
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings({
+            "deprecation",
+            "removal"
+    })
     public void onInitializeDynamicLights(
-            ItemLightSourceManager itemLightSourceManager
+            ItemLightSourceManager ignored
     ) {
-        // Nothing to register for held items.
+        // Required compatibility method for the 1.21.1 API.
     }
 
     private static final class FairyPlayerLuminance
@@ -72,7 +81,7 @@ public final class LapidaryDynamicLights
 
         @Override
         public Type type() {
-            return FAIRY_PLAYER_LUMINANCE_TYPE;
+            return FAIRY_LUMINANCE_TYPE;
         }
 
         @Override
@@ -80,19 +89,36 @@ public final class LapidaryDynamicLights
                 ItemLightSourceManager itemLightSourceManager,
                 Entity entity
         ) {
-            /*
-             * fairy_self_glow already causes Fairy players to satisfy
-             * Minecraft's client-side glowing check. Reusing that state
-             * avoids duplicating the origin-detection system or adding
-             * another network packet.
-             */
-            if (entity instanceof Player
-                    && entity.isCurrentlyGlowing()) {
-
-                return FAIRY_LIGHT_LEVEL;
+            if (!(entity instanceof Player player)) {
+                return 0;
             }
 
-            return 0;
+            Minecraft client =
+                    Minecraft.getInstance();
+
+            /*
+             * ClientOriginState is explicitly synchronized by
+             * OriginStatePayload and reliably identifies the local
+             * player's origin.
+             */
+            boolean isLocalFairy =
+                    player == client.player
+                            && ClientOriginState.originKind()
+                            == OriginKind.FAIRY.ordinal();
+
+            /*
+             * This may also identify remote Fairy players when their
+             * origin marker tag is available on the client.
+             */
+            boolean hasFairyMarker =
+                    OriginKind.FAIRY.matches(
+                            player
+                    );
+
+            return isLocalFairy
+                    || hasFairyMarker
+                    ? FAIRY_LIGHT_LEVEL
+                    : 0;
         }
     }
 }
