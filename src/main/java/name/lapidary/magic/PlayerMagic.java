@@ -1,13 +1,19 @@
 package name.lapidary.magic;
 
 import name.lapidary.magic.spell.ModSpells;
-import name.lapidary.magic.spell.SpellDefinition;
 import name.lapidary.network.MagicStatePayload;
 import name.lapidary.progression.ModAttachments;
+import name.lapidary.progression.tome.TomeTree;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class PlayerMagic {
     private PlayerMagic() {
@@ -23,53 +29,167 @@ public final class PlayerMagic {
     }
 
     /**
-     * Testing pass: grant every registered ordinary spell.
-     * Mage Light remains the only spell auto-prepared when all slots are empty.
+     * Replaces the old testing-pass auto-grant with authoritative Tome
+     * ownership reconciliation. Mage Light is the universal starting spell
+     * and is restored here if older data or a progression reset removed it.
      */
     public static boolean ensureStartingSpells(ServerPlayer player) {
-        PlayerMagicData current = get(player);
-        PlayerMagicData updated = current;
-        boolean changed = false;
+        List<String> purchasedNodeIds = player.getAttachedOrCreate(
+                ModAttachments.TOME_PURCHASED_NODES
+        );
 
-        for (SpellDefinition spell : ModSpells.values()) {
-            if (!updated.knowsSpell(spell.id())) {
-                updated = updated.withKnownSpell(spell.id());
-                changed = true;
+        List<ResourceLocation> earnedSpellIds = new ArrayList<>();
+        for (String nodeId : purchasedNodeIds) {
+            ResourceLocation reward = TomeTree.getSpellReward(nodeId);
+            if (reward != null) {
+                earnedSpellIds.add(reward);
             }
         }
 
-        boolean hasPreparedSpell = updated.preparedSpells().stream()
-                .anyMatch(value -> value != null && !value.isBlank());
-        if (!hasPreparedSpell) {
-            updated = updated
-                    .withPreparedSpell(0, ModSpells.MAGE_LIGHT.id())
-                    .withSelectedSlot(0);
-            changed = true;
+        PlayerMagicData current = get(player);
+        PlayerMagicData updated = reconciledData(
+                current,
+                TomeTree.getManagedSpellIds(),
+                earnedSpellIds
+        );
+
+        if (updated.equals(current)) {
+            return false;
         }
 
-        if (changed) {
-            player.setAttached(ModAttachments.PLAYER_MAGIC, updated);
-        }
-        return changed;
+        /*
+         * Do not call set() here: set() calls sync(), and sync() calls this
+         * method. Write the attachment directly and let the current sync
+         * continue normally.
+         */
+        player.setAttached(ModAttachments.PLAYER_MAGIC, updated);
+        return true;
     }
 
-    public static boolean learnSpell(ServerPlayer player, ResourceLocation spellId) {
+    public static boolean learnSpell(
+            ServerPlayer player,
+            ResourceLocation spellId
+    ) {
         if (!ModSpells.contains(spellId)) {
             return false;
         }
+
         PlayerMagicData current = get(player);
         if (current.knowsSpell(spellId)) {
             return false;
         }
+
         set(player, current.withKnownSpell(spellId));
         return true;
     }
 
-    public static boolean learnRitual(ServerPlayer player, ResourceLocation ritualId) {
+    /**
+     * Reconciles the set of Tome-controlled spells with the player's actual
+     * Tome purchases.
+     *
+     * This removes the old testing-pass grants, learns all purchased rewards,
+     * and clears prepared slots containing a spell that is no longer owned.
+     * Spells not managed by the Tome are preserved.
+     */
+    public static boolean reconcileManagedSpells(
+            ServerPlayer player,
+            Collection<ResourceLocation> managedSpellIds,
+            Collection<ResourceLocation> earnedSpellIds
+    ) {
+        PlayerMagicData current = get(player);
+        PlayerMagicData updated = reconciledData(
+                current,
+                managedSpellIds,
+                earnedSpellIds
+        );
+
+        if (updated.equals(current)) {
+            return false;
+        }
+
+        set(player, updated);
+        return true;
+    }
+
+    private static PlayerMagicData reconciledData(
+            PlayerMagicData current,
+            Collection<ResourceLocation> managedSpellIds,
+            Collection<ResourceLocation> earnedSpellIds
+    ) {
+        Set<String> managed = new LinkedHashSet<>();
+        for (ResourceLocation spellId : managedSpellIds) {
+            if (spellId != null) {
+                managed.add(spellId.toString());
+            }
+        }
+
+        Set<String> earned = new LinkedHashSet<>();
+        for (ResourceLocation spellId : earnedSpellIds) {
+            if (spellId != null
+                    && managed.contains(spellId.toString())
+                    && ModSpells.contains(spellId)) {
+                earned.add(spellId.toString());
+            }
+        }
+
+        /*
+         * Mage Light is universal rather than Tome-controlled. A linked set
+         * prevents duplicates while preserving the player's existing order.
+         */
+        String mageLightId = ModSpells.MAGE_LIGHT.id().toString();
+        Set<String> known = new LinkedHashSet<>();
+        for (String knownSpell : current.knownSpells()) {
+            if (!managed.contains(knownSpell)
+                    || knownSpell.equals(mageLightId)) {
+                known.add(knownSpell);
+            }
+        }
+        known.add(mageLightId);
+        known.addAll(earned);
+
+        boolean mageLightWasKnown =
+                current.knownSpells().contains(mageLightId);
+
+        List<String> prepared = new ArrayList<>(current.preparedSpells());
+        for (int slot = 0; slot < prepared.size(); slot++) {
+            String preparedSpell = prepared.get(slot);
+            if (managed.contains(preparedSpell)
+                    && !earned.contains(preparedSpell)) {
+                prepared.set(slot, PlayerMagicData.EMPTY_SLOT);
+            }
+        }
+
+        int selectedSlot = current.selectedSlot();
+        boolean hasPreparedSpell = prepared.stream()
+                .anyMatch(value -> value != null && !value.isBlank());
+
+        /*
+         * Preserve the original starter behavior: the first time Mage Light
+         * is granted, prepare it in slot zero only when the player has not
+         * already configured any prepared spell.
+         */
+        if (!mageLightWasKnown && !hasPreparedSpell) {
+            prepared.set(0, mageLightId);
+            selectedSlot = 0;
+        }
+
+        return new PlayerMagicData(
+                List.copyOf(known),
+                current.knownRituals(),
+                List.copyOf(prepared),
+                selectedSlot
+        );
+    }
+
+    public static boolean learnRitual(
+            ServerPlayer player,
+            ResourceLocation ritualId
+    ) {
         PlayerMagicData current = get(player);
         if (current.knowsRitual(ritualId)) {
             return false;
         }
+
         set(player, current.withKnownRitual(ritualId));
         return true;
     }
@@ -83,27 +203,35 @@ public final class PlayerMagic {
                 || !ModSpells.contains(spellId)) {
             return false;
         }
+
         PlayerMagicData current = get(player);
         if (!current.knowsSpell(spellId)) {
             return false;
         }
+
         PlayerMagicData updated = current.withPreparedSpell(slot, spellId);
         if (updated.equals(current)) {
             return false;
         }
+
         set(player, updated);
         return true;
     }
 
-    public static boolean clearPreparedSlot(ServerPlayer player, int slot) {
+    public static boolean clearPreparedSlot(
+            ServerPlayer player,
+            int slot
+    ) {
         if (!PlayerMagicData.isValidSlot(slot)) {
             return false;
         }
+
         PlayerMagicData current = get(player);
         PlayerMagicData updated = current.withoutPreparedSpell(slot);
         if (updated.equals(current)) {
             return false;
         }
+
         set(player, updated);
         return true;
     }
@@ -117,32 +245,43 @@ public final class PlayerMagic {
                 || !PlayerMagicData.isValidSlot(secondSlot)) {
             return false;
         }
+
         PlayerMagicData current = get(player);
         PlayerMagicData updated = current.withSwappedSlots(firstSlot, secondSlot);
         if (updated.equals(current)) {
             return false;
         }
+
         set(player, updated);
         return true;
     }
 
-    public static boolean selectSlot(ServerPlayer player, int slot) {
+    public static boolean selectSlot(
+            ServerPlayer player,
+            int slot
+    ) {
         if (!PlayerMagicData.isValidSlot(slot)) {
             return false;
         }
+
         PlayerMagicData current = get(player);
         PlayerMagicData updated = current.withSelectedSlot(slot);
         if (updated.equals(current)) {
             return false;
         }
+
         set(player, updated);
         return true;
     }
 
     public static void sync(ServerPlayer player) {
         ensureStartingSpells(player);
+
         if (ServerPlayNetworking.canSend(player, MagicStatePayload.TYPE)) {
-            ServerPlayNetworking.send(player, new MagicStatePayload(get(player)));
+            ServerPlayNetworking.send(
+                    player,
+                    new MagicStatePayload(get(player))
+            );
         }
     }
 }
