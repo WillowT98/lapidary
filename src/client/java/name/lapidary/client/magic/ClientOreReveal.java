@@ -1,5 +1,6 @@
 package name.lapidary.client.magic;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import name.lapidary.network.RevealOresPayload;
@@ -13,8 +14,47 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Optional;
+
 /** Client-only temporary ore outlines for the Reveal Ores spell. */
 public final class ClientOreReveal {
+    private static final RenderType VANILLA_LINES = RenderType.lines();
+
+    /**
+     * Uses the ordinary Minecraft line shader and vertex format, but disables
+     * depth testing and depth writes while this batch is drawn. That makes the
+     * ore boxes visible through intervening blocks without disturbing the
+     * world's depth buffer for later render passes.
+     */
+    private static final RenderType THROUGH_WALL_LINES = new RenderType(
+            "lapidary_reveal_ores_through_walls",
+            VANILLA_LINES.format(),
+            VANILLA_LINES.mode(),
+            VANILLA_LINES.bufferSize(),
+            VANILLA_LINES.affectsCrumbling(),
+            VANILLA_LINES.sortOnUpload(),
+            () -> {
+                VANILLA_LINES.setupRenderState();
+                RenderSystem.disableDepthTest();
+                RenderSystem.depthMask(false);
+            },
+            () -> {
+                VANILLA_LINES.clearRenderState();
+                RenderSystem.depthMask(true);
+                RenderSystem.enableDepthTest();
+            }
+    ) {
+        @Override
+        public Optional<RenderType> outline() {
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean isOutline() {
+            return false;
+        }
+    };
+
     private static long[] positions = new long[0];
     private static long expiresAt;
     private static boolean initialized;
@@ -64,7 +104,7 @@ public final class ClientOreReveal {
         }
 
         Vec3 camera = context.camera().getPosition();
-        VertexConsumer lines = consumers.getBuffer(RenderType.lines());
+        VertexConsumer lines = consumers.getBuffer(THROUGH_WALL_LINES);
 
         poseStack.pushPose();
         poseStack.translate(
