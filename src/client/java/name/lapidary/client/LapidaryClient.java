@@ -42,6 +42,15 @@ public class LapidaryClient implements ClientModInitializer {
 
 
 		BlockRenderLayerMap.INSTANCE.putBlock(
+				ModBlocks.REINFORCED_GLASS,
+				RenderType.translucent()
+		);
+		BlockRenderLayerMap.INSTANCE.putBlock(
+				ModBlocks.HARD_LIGHT_BLOCK,
+				RenderType.translucent()
+		);
+
+		BlockRenderLayerMap.INSTANCE.putBlock(
 				ModBlocks.SEA_GLASS_BLOCK,
 				RenderType.translucent()
 		);

@@ -961,6 +961,34 @@ public final class TomeScreen extends Screen {
         );
     }
 
+    @Override
+    public boolean mouseScrolled(
+            double mouseX,
+            double mouseY,
+            double scrollX,
+            double scrollY
+    ) {
+        if (isCalibrationPage()
+                && calibrationPanel.mouseScrolled(
+                mouseX,
+                mouseY,
+                scrollY,
+                getCalibrationLeft(),
+                getCalibrationTop(),
+                getCalibrationRight(),
+                getCalibrationBottom()
+        )) {
+            return true;
+        }
+
+        return super.mouseScrolled(
+                mouseX,
+                mouseY,
+                scrollX,
+                scrollY
+        );
+    }
+
     private String findTabIdAt(
             double mouseX,
             double mouseY

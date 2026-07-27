@@ -1,9 +1,11 @@
 package name.lapidary.client.network;
 
 import name.lapidary.client.magic.ClientMagicData;
+import name.lapidary.client.magic.ClientOreReveal;
 import name.lapidary.client.origin.ClientOriginState;
 import name.lapidary.client.progression.ClientInsightData;
 import name.lapidary.client.screen.TomeScreen;
+import name.lapidary.magic.HardenedBlocks;
 import name.lapidary.magic.PlayerMagicData;
 import name.lapidary.network.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -18,6 +20,23 @@ public final class ClientNetworking {
     }
 
     public static void initialize() {
+        ClientPlayNetworking.registerGlobalReceiver(
+                RevealOresPayload.TYPE,
+                (payload, context) ->
+                        context.client().execute(
+                                () -> ClientOreReveal.apply(payload)
+                        )
+        );
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                HardenedBlockSyncPayload.TYPE,
+                (payload, context) ->
+                        context.client().execute(
+                                () -> HardenedBlocks.applyClient(payload)
+                        )
+        );
+
+
         ClientPlayNetworking.registerGlobalReceiver(
                 OriginStatePayload.TYPE,
                 (
@@ -170,6 +189,9 @@ public final class ClientNetworking {
                 (handler, client) -> {
                     ClientInsightData.reset();
                     ClientMagicData.reset();
+                    HardenedBlocks.clearClient();
+                    ClientOreReveal.clear();
+
                 }
         );
     }
