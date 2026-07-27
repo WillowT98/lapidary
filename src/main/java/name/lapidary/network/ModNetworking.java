@@ -50,9 +50,20 @@ public final class ModNetworking {
         );
 
         PayloadTypeRegistry.playS2C().register(
+                RevealOresPayload.TYPE,
+                RevealOresPayload.STREAM_CODEC
+        );
+
+
+        PayloadTypeRegistry.playS2C().register(
                 MagicStatePayload.TYPE,
                 MagicStatePayload.STREAM_CODEC
         );
+        PayloadTypeRegistry.playS2C().register(
+                HardenedBlockSyncPayload.TYPE,
+                HardenedBlockSyncPayload.STREAM_CODEC
+        );
+
         PayloadTypeRegistry.playS2C().register(
                 OpenSpellRadialPayload.TYPE,
                 OpenSpellRadialPayload.STREAM_CODEC
@@ -104,6 +115,20 @@ public final class ModNetworking {
                 CastSelectedSpellPayload.TYPE,
                 CastSelectedSpellPayload.STREAM_CODEC
         );
+        PayloadTypeRegistry.playC2S().register(
+                ChannelSelectedSpellPayload.TYPE,
+                ChannelSelectedSpellPayload.STREAM_CODEC
+        );
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                ChannelSelectedSpellPayload.TYPE,
+                (payload, context) ->
+                        SpellCasting.castSelected(
+                                context.player(),
+                                true
+                        )
+        );
+
 
         ServerPlayNetworking.registerGlobalReceiver(
                 CastSelectedSpellPayload.TYPE,

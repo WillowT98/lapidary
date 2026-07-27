@@ -14,29 +14,18 @@ public record SpellDefinition(
         ResourceLocation id,
         long manaCost,
         Supplier<ItemStack> iconSupplier,
+        SpellCastingMode castingMode,
         SpellEffect effect
 ) {
-
     public SpellDefinition {
-        Objects.requireNonNull(
-                id,
-                "Spell ID cannot be null"
-        );
-
-        Objects.requireNonNull(
-                iconSupplier,
-                "Spell icon supplier cannot be null"
-        );
-
-        Objects.requireNonNull(
-                effect,
-                "Spell effect cannot be null"
-        );
+        Objects.requireNonNull(id, "Spell ID cannot be null");
+        Objects.requireNonNull(iconSupplier, "Spell icon supplier cannot be null");
+        Objects.requireNonNull(castingMode, "Spell casting mode cannot be null");
+        Objects.requireNonNull(effect, "Spell effect cannot be null");
 
         if (manaCost < 0L) {
             throw new IllegalArgumentException(
-                    "Spell mana cost cannot be negative: "
-                            + manaCost
+                    "Spell mana cost cannot be negative: " + manaCost
             );
         }
     }
@@ -45,27 +34,19 @@ public record SpellDefinition(
         return "spell."
                 + id.getNamespace()
                 + "."
-                + id.getPath()
-                .replace('/', '.');
+                + id.getPath().replace('/', '.');
     }
 
     public Component displayName() {
-        return Component.translatable(
-                translationKey()
-        );
+        return Component.translatable(translationKey());
     }
 
-    /**
-     * Returns a fresh stack for GUI rendering.
-     */
+    /** Returns a fresh stack for GUI rendering. */
     public ItemStack iconStack() {
-        ItemStack stack =
-                iconSupplier.get();
-
+        ItemStack stack = iconSupplier.get();
         if (stack == null || stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
-
         return stack.copy();
     }
 }

@@ -185,6 +185,10 @@ public final class CanisterBlock
         CanisterFluidStorage storage =
                 canister.getStorage();
 
+        /*
+         * This may be a full bucket or only the remaining fraction of
+         * capacity when the canister is nearly full.
+         */
         long insertable =
                 storage.insert(
                         insertedLiquid,
@@ -192,13 +196,12 @@ public final class CanisterBlock
                         true
                 );
 
-        if (insertable
-                < CanisterFluidStorage.BUCKET) {
-
+        /*
+         * Reject only when none of the bucket can be accepted.
+         */
+        if (insertable <= 0L) {
             if (!storage.isEmpty()
-                    && !storage.contains(
-                    insertedLiquid
-            )) {
+                    && !storage.contains(insertedLiquid)) {
 
                 player.displayClientMessage(
                         Component.translatable(
@@ -219,9 +222,13 @@ public final class CanisterBlock
             return ItemInteractionResult.FAIL;
         }
 
+        /*
+         * Insert as much of the bucket as will fit. Any excess is lost,
+         * but the filled bucket is still consumed as requested.
+         */
         storage.insert(
                 insertedLiquid,
-                CanisterFluidStorage.BUCKET,
+                insertable,
                 false
         );
 
@@ -231,9 +238,7 @@ public final class CanisterBlock
         if (!player.getAbilities().instabuild) {
             player.setItemInHand(
                     hand,
-                    new ItemStack(
-                            Items.BUCKET
-                    )
+                    new ItemStack(Items.BUCKET)
             );
         }
 

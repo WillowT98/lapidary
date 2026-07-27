@@ -19,6 +19,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Calibration page for dragging known spells into the prepared spell slots.
+ *
+ * <p>The known-spell area is a single scrollable column. The list is clipped
+ * to its viewport so a large temporary test spell list cannot draw beyond the
+ * Tome panel.</p>
+ */
 public final class TomeCalibrationPanel {
 
     private static final int TEXT_COLOR =
@@ -42,9 +49,14 @@ public final class TomeCalibrationPanel {
     private static final int SLOT_SELECTED_COLOR =
             0xFF84558F;
 
-    private static final int KNOWN_COLUMNS = 2;
     private static final int KNOWN_CARD_HEIGHT = 22;
     private static final int CARD_GAP = 4;
+    private static final int KNOWN_ROW_HEIGHT =
+            KNOWN_CARD_HEIGHT + CARD_GAP;
+
+    private static final int SCROLLBAR_WIDTH = 6;
+    private static final int SCROLLBAR_GAP = 4;
+    private static final int MIN_SCROLL_THUMB_HEIGHT = 12;
 
     private static final int SLOT_COLUMNS = 4;
     private static final int SLOT_SIZE = 26;
@@ -53,9 +65,9 @@ public final class TomeCalibrationPanel {
     private final BlockPos tablePosition;
 
     private PlayerMagicData data;
-
     private ResourceLocation draggedSpell;
     private int draggedPreparedSlot = -1;
+    private int knownScroll;
 
     public TomeCalibrationPanel(
             BlockPos tablePosition,
@@ -91,6 +103,9 @@ public final class TomeCalibrationPanel {
         int knownRight =
                 preparedLeft - 12;
 
+        int knownTop =
+                top + 15;
+
         graphics.drawString(
                 font,
                 Component.translatable(
@@ -125,8 +140,9 @@ public final class TomeCalibrationPanel {
                 graphics,
                 font,
                 left,
-                top + 15,
+                knownTop,
                 knownRight,
+                bottom,
                 mouseX,
                 mouseY
         );
@@ -192,7 +208,6 @@ public final class TomeCalibrationPanel {
                 && data.preparedSpell(
                 preparedSlot
         ).isPresent()) {
-
             applyOptimistic(
                     data.withoutPreparedSpell(
                             preparedSlot
@@ -242,7 +257,8 @@ public final class TomeCalibrationPanel {
                         mouseY,
                         left,
                         top + 15,
-                        knownRight
+                        knownRight,
+                        bottom
                 );
 
         if (knownSpell != null) {
@@ -269,7 +285,6 @@ public final class TomeCalibrationPanel {
     ) {
         if (button != 0
                 || draggedSpell == null) {
-
             return false;
         }
 
@@ -288,7 +303,6 @@ public final class TomeCalibrationPanel {
             if (draggedPreparedSlot >= 0) {
                 if (draggedPreparedSlot
                         != targetSlot) {
-
                     int sourceSlot =
                             draggedPreparedSlot;
 
@@ -329,6 +343,77 @@ public final class TomeCalibrationPanel {
         }
 
         clearDrag();
+        return true;
+    }
+
+    /**
+     * Scrolls the known-spell list when the pointer is over that pane.
+     */
+    public boolean mouseScrolled(
+            double mouseX,
+            double mouseY,
+            double scrollY,
+            int left,
+            int top,
+            int right,
+            int bottom
+    ) {
+        int preparedLeft =
+                getPreparedLeft(right);
+
+        int knownRight =
+                preparedLeft - 12;
+
+        int knownTop =
+                top + 15;
+
+        if (!isInside(
+                mouseX,
+                mouseY,
+                left,
+                knownTop,
+                knownRight - left,
+                bottom - knownTop
+        )) {
+            return false;
+        }
+
+        List<ResourceLocation> knownSpells =
+                getRegisteredKnownSpells();
+
+        int maximumScroll =
+                getMaximumKnownScroll(
+                        knownSpells.size(),
+                        knownTop,
+                        bottom
+                );
+
+        if (maximumScroll <= 0) {
+            knownScroll = 0;
+            return true;
+        }
+
+        int scrollAmount =
+                Math.max(
+                        1,
+                        (int) Math.round(
+                                Math.abs(scrollY)
+                                        * KNOWN_ROW_HEIGHT
+                        )
+                );
+
+        if (scrollY > 0.0D) {
+            knownScroll -= scrollAmount;
+        } else if (scrollY < 0.0D) {
+            knownScroll += scrollAmount;
+        }
+
+        knownScroll =
+                clamp(
+                        knownScroll,
+                        0,
+                        maximumScroll
+                );
 
         return true;
     }
@@ -339,6 +424,7 @@ public final class TomeCalibrationPanel {
             int left,
             int top,
             int right,
+            int bottom,
             int mouseX,
             int mouseY
     ) {
@@ -346,6 +432,8 @@ public final class TomeCalibrationPanel {
                 getRegisteredKnownSpells();
 
         if (knownSpells.isEmpty()) {
+            knownScroll = 0;
+
             graphics.drawCenteredString(
                     font,
                     Component.translatable(
@@ -359,40 +447,53 @@ public final class TomeCalibrationPanel {
             return;
         }
 
+        int maximumScroll =
+                getMaximumKnownScroll(
+                        knownSpells.size(),
+                        top,
+                        bottom
+                );
+
+        knownScroll =
+                clamp(
+                        knownScroll,
+                        0,
+                        maximumScroll
+                );
+
         int cardWidth =
                 getKnownCardWidth(
                         left,
                         right
                 );
 
+        graphics.enableScissor(
+                left,
+                top,
+                right,
+                bottom
+        );
+
         for (int index = 0;
              index < knownSpells.size();
              index++) {
-
-            int column =
-                    index % KNOWN_COLUMNS;
-
-            int row =
-                    index / KNOWN_COLUMNS;
-
             int x =
-                    left
-                            + column
-                            * (
-                            cardWidth
-                                    + CARD_GAP
-                    );
+                    left;
 
             int y =
                     top
-                            + row
-                            * (
-                            KNOWN_CARD_HEIGHT
-                                    + CARD_GAP
-                    );
+                            + index * KNOWN_ROW_HEIGHT
+                            - knownScroll;
+
+            if (y + KNOWN_CARD_HEIGHT <= top
+                    || y >= bottom) {
+                continue;
+            }
 
             boolean hovered =
-                    isInside(
+                    mouseY >= top
+                            && mouseY < bottom
+                            && isInside(
                             mouseX,
                             mouseY,
                             x,
@@ -445,6 +546,91 @@ public final class TomeCalibrationPanel {
                     false
             );
         }
+
+        graphics.disableScissor();
+
+        if (maximumScroll > 0) {
+            renderKnownScrollbar(
+                    graphics,
+                    knownSpells.size(),
+                    right,
+                    top,
+                    bottom,
+                    maximumScroll
+            );
+        }
+    }
+
+    private void renderKnownScrollbar(
+            GuiGraphics graphics,
+            int spellCount,
+            int right,
+            int top,
+            int bottom,
+            int maximumScroll
+    ) {
+        int viewportHeight =
+                Math.max(
+                        1,
+                        bottom - top
+                );
+
+        int contentHeight =
+                getKnownContentHeight(
+                        spellCount
+                );
+
+        int scrollbarLeft =
+                right - SCROLLBAR_WIDTH;
+
+        graphics.fill(
+                scrollbarLeft,
+                top,
+                right,
+                bottom,
+                SLOT_COLOR
+        );
+
+        int thumbHeight =
+                Math.max(
+                        MIN_SCROLL_THUMB_HEIGHT,
+                        viewportHeight
+                                * viewportHeight
+                                / Math.max(
+                                1,
+                                contentHeight
+                        )
+                );
+
+        thumbHeight =
+                Math.min(
+                        viewportHeight,
+                        thumbHeight
+                );
+
+        int thumbTravel =
+                viewportHeight - thumbHeight;
+
+        int thumbTop =
+                top;
+
+        if (maximumScroll > 0
+                && thumbTravel > 0) {
+            thumbTop +=
+                    (int) Math.round(
+                            (double) knownScroll
+                                    / maximumScroll
+                                    * thumbTravel
+                    );
+        }
+
+        graphics.fill(
+                scrollbarLeft,
+                thumbTop,
+                right,
+                thumbTop + thumbHeight,
+                BORDER_COLOR
+        );
     }
 
     private void renderPreparedSlots(
@@ -456,11 +642,8 @@ public final class TomeCalibrationPanel {
             int mouseY
     ) {
         for (int slot = 0;
-             slot
-                     < PlayerMagicData
-                     .PREPARED_SLOT_COUNT;
+             slot < PlayerMagicData.PREPARED_SLOT_COUNT;
              slot++) {
-
             int x =
                     getPreparedSlotX(
                             left,
@@ -519,7 +702,9 @@ public final class TomeCalibrationPanel {
             );
 
             Optional<ResourceLocation> spell =
-                    data.preparedSpell(slot);
+                    data.preparedSpell(
+                            slot
+                    );
 
             if (spell.isEmpty()) {
                 continue;
@@ -597,8 +782,20 @@ public final class TomeCalibrationPanel {
             double mouseY,
             int left,
             int top,
-            int right
+            int right,
+            int bottom
     ) {
+        if (!isInside(
+                mouseX,
+                mouseY,
+                left,
+                top,
+                right - left,
+                bottom - top
+        )) {
+            return null;
+        }
+
         List<ResourceLocation> knownSpells =
                 getRegisteredKnownSpells();
 
@@ -608,45 +805,32 @@ public final class TomeCalibrationPanel {
                         right
                 );
 
-        for (int index = 0;
-             index < knownSpells.size();
-             index++) {
-
-            int column =
-                    index % KNOWN_COLUMNS;
-
-            int row =
-                    index / KNOWN_COLUMNS;
-
-            int x =
-                    left
-                            + column
-                            * (
-                            cardWidth
-                                    + CARD_GAP
-                    );
-
-            int y =
-                    top
-                            + row
-                            * (
-                            KNOWN_CARD_HEIGHT
-                                    + CARD_GAP
-                    );
-
-            if (isInside(
-                    mouseX,
-                    mouseY,
-                    x,
-                    y,
-                    cardWidth,
-                    KNOWN_CARD_HEIGHT
-            )) {
-                return knownSpells.get(index);
-            }
+        if (mouseX >= left + cardWidth) {
+            return null;
         }
 
-        return null;
+        int localY =
+                (int) Math.floor(mouseY)
+                        - top
+                        + knownScroll;
+
+        if (localY < 0) {
+            return null;
+        }
+
+        int index =
+                localY / KNOWN_ROW_HEIGHT;
+
+        int withinRow =
+                localY % KNOWN_ROW_HEIGHT;
+
+        if (index < 0
+                || index >= knownSpells.size()
+                || withinRow >= KNOWN_CARD_HEIGHT) {
+            return null;
+        }
+
+        return knownSpells.get(index);
     }
 
     private int findPreparedSlotAt(
@@ -656,11 +840,8 @@ public final class TomeCalibrationPanel {
             int top
     ) {
         for (int slot = 0;
-             slot
-                     < PlayerMagicData
-                     .PREPARED_SLOT_COUNT;
+             slot < PlayerMagicData.PREPARED_SLOT_COUNT;
              slot++) {
-
             int x =
                     getPreparedSlotX(
                             left,
@@ -688,14 +869,12 @@ public final class TomeCalibrationPanel {
         return -1;
     }
 
-    private List<ResourceLocation>
-    getRegisteredKnownSpells() {
+    private List<ResourceLocation> getRegisteredKnownSpells() {
         List<ResourceLocation> result =
                 new ArrayList<>();
 
         for (String rawId :
                 data.knownSpells()) {
-
             ResourceLocation spellId =
                     ResourceLocation.tryParse(
                             rawId
@@ -708,7 +887,9 @@ public final class TomeCalibrationPanel {
                 continue;
             }
 
-            result.add(spellId);
+            result.add(
+                    spellId
+            );
         }
 
         result.sort(
@@ -717,16 +898,19 @@ public final class TomeCalibrationPanel {
                 )
         );
 
-        return List.copyOf(result);
+        return List.copyOf(
+                result
+        );
     }
 
     private String getDisplayName(
             ResourceLocation spellId
     ) {
-        return ModSpells.get(spellId)
+        return ModSpells.get(
+                        spellId
+                )
                 .map(
-                        SpellDefinition
-                                ::displayName
+                        SpellDefinition::displayName
                 )
                 .orElseGet(
                         () ->
@@ -744,12 +928,15 @@ public final class TomeCalibrationPanel {
                 spellId.getPath();
 
         String[] words =
-                path.split("[_/]");
+                path.split(
+                        "[_/]"
+                );
 
         StringBuilder result =
                 new StringBuilder();
 
-        for (String word : words) {
+        for (String word :
+                words) {
             if (!word.isEmpty()) {
                 result.append(
                         Character.toUpperCase(
@@ -795,9 +982,7 @@ public final class TomeCalibrationPanel {
         int preparedWidth =
                 SLOT_COLUMNS
                         * SLOT_SIZE
-                        + (
-                        SLOT_COLUMNS - 1
-                )
+                        + (SLOT_COLUMNS - 1)
                         * SLOT_GAP;
 
         return right - preparedWidth;
@@ -809,11 +994,41 @@ public final class TomeCalibrationPanel {
     ) {
         return Math.max(
                 1,
-                (
-                        right
-                                - left
-                                - CARD_GAP
-                ) / KNOWN_COLUMNS
+                right
+                        - left
+                        - SCROLLBAR_GAP
+                        - SCROLLBAR_WIDTH
+        );
+    }
+
+    private static int getKnownContentHeight(
+            int spellCount
+    ) {
+        if (spellCount <= 0) {
+            return 0;
+        }
+
+        return spellCount
+                * KNOWN_ROW_HEIGHT
+                - CARD_GAP;
+    }
+
+    private static int getMaximumKnownScroll(
+            int spellCount,
+            int top,
+            int bottom
+    ) {
+        int viewportHeight =
+                Math.max(
+                        0,
+                        bottom - top
+                );
+
+        return Math.max(
+                0,
+                getKnownContentHeight(
+                        spellCount
+                ) - viewportHeight
         );
     }
 
@@ -826,10 +1041,7 @@ public final class TomeCalibrationPanel {
 
         return left
                 + column
-                * (
-                SLOT_SIZE
-                        + SLOT_GAP
-        );
+                * (SLOT_SIZE + SLOT_GAP);
     }
 
     private static int getPreparedSlotY(
@@ -841,9 +1053,20 @@ public final class TomeCalibrationPanel {
 
         return top
                 + row
-                * (
-                SLOT_SIZE
-                        + SLOT_GAP
+                * (SLOT_SIZE + SLOT_GAP);
+    }
+
+    private static int clamp(
+            int value,
+            int minimum,
+            int maximum
+    ) {
+        return Math.max(
+                minimum,
+                Math.min(
+                        maximum,
+                        value
+                )
         );
     }
 
