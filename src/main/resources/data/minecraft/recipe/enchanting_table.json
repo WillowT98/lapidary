@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " G ",
+    "DOD",
+    "OOO"
+  ],
+  "key": {
+    "G": {
+      "tag": "minecraft:book"
+    },
+    "D": {
+      "tag": "lapidary:gems"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "id": "lapidary:tome_table",
+    "count": 1
+  }
+}

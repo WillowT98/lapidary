@@ -2,12 +2,12 @@
   "replace": false,
   "values": [
     "lapidary:sea_glass",
-    "lapidary:purified_lapis",
+    "lapidary:pure_lapis",
     "lapidary:fulgurite",
     "lapidary:bismuth_shard",
     "lapidary:heartroot",
     "lapidary:pearl",
-    "minecraft_emerald",
+    "minecraft:emerald",
     "minecraft:diamond",
     "minecraft:amethyst_shard",
     "minecraft:ender_pearl"

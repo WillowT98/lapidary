@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "   ",
+    "SCT",
+    " B "
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:chain"
+    },
+    "S": {
+      "item": "minecraft:shears"
+    },
+    "T": {
+      "item": "minecraft:redstone_torch"
+    },
+    "B": {
+      "item": "minecraft:crafting_table"
+    }
+  },
+  "result": {
+    "id": "lapidary:jewelers_table",
+    "count": 1
+  }
+}
