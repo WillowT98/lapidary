@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "lapidary:bismuth_shard"
+    }
+  },
+  "result": {
+    "id": "lapidary:bismuth_block",
+    "count": 9
+  }
+}

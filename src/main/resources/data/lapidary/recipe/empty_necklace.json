@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " F ",
+    "F F",
+    " B "
+  ],
+  "key": {
+    "F": {
+      "item": "lapidary:mana_fur"
+    },
+    "B": {
+      "item": "minecraft:gold_block"
+    }
+  },
+  "result": {
+    "id": "lapidary:empty_necklace",
+    "count": 1
+  }
+}

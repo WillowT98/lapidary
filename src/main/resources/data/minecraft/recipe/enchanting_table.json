@@ -8,10 +8,10 @@
   ],
   "key": {
     "G": {
-      "tag": "minecraft:book"
+      "item": "minecraft:book"
     },
     "D": {
-      "tag": "lapidary:gems"
+      "item": "minecraft:diamond"
     },
     "O": {
       "item": "minecraft:obsidian"

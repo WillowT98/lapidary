@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " B ",
+    "IMI",
+    " I "
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:gold_block"
+    },
+    "I": {
+      "item": "minecraft:gold_ingot"
+    },
+    "M": {
+      "item": "lapidary:mana_bucket"
+    }
+  },
+  "result": {
+    "id": "lapidary:empty_ring",
+    "count": 1
+  }
+}
