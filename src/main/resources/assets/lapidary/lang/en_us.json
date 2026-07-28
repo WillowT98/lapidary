@@ -77,11 +77,9 @@
   "message.lapidary.no_mage_backpack": "You do not have a Mage Backpack equipped.",
   "container.lapidary.mage_backpack.canister": "Canister Mount",
   "item.lapidary.staff": "Staff",
-
   "block.lapidary.frosted_obsidian": "Frosted Obsidian",
   "block.lapidary.reinforced_glass": "Reinforced Glass",
   "block.lapidary.hard_light_block": "Hard Light",
-
   "screen.lapidary.tome.title": "Tome of Insight",
   "screen.lapidary.tome.insight": "Insight: %s",
   "tome.lapidary.page.calibration": "Staff Calibration",
@@ -89,7 +87,6 @@
   "screen.lapidary.tome.calibration.prepared": "Prepared Spells",
   "screen.lapidary.tome.calibration.empty": "No spells have been learned yet.",
   "screen.lapidary.tome.calibration.hint": "Right-click to clear",
-
   "item.lapidary.mage_light_orb": "Mage Light",
   "entity.lapidary.mage_light": "Mage Light",
   "spell.lapidary.mage_light": "Mage Light",
@@ -130,7 +127,6 @@
   "spell.lapidary.lit_tnt": "Conjure Lit TNT",
   "spell.lapidary.erase_matching": "Erase Matching Blocks",
   "spell.lapidary.gravity": "Gravity",
-
   "message.lapidary.magic.no_selected_spell": "No spell is prepared in the selected slot.",
   "message.lapidary.magic.unknown_spell": "That prepared spell is no longer available.",
   "message.lapidary.magic.invalid_target": "That spell cannot be cast here.",
@@ -144,7 +140,6 @@
   "screen.lapidary.spell_radial.empty": "Empty Slot",
   "screen.lapidary.spell_radial.release": "Release right-click to select",
   "screen.lapidary.spell_radial.cancel": "Move toward a spell, or release to cancel",
-
   "screen.lapidary.tome.status.root": "The origin of the tree.",
   "screen.lapidary.tome.status.purchased": "Purchased",
   "screen.lapidary.tome.status.locked": "Purchase the preceding node first.",
@@ -154,7 +149,6 @@
   "screen.lapidary.tome.button.purchased": "Purchased",
   "screen.lapidary.tome.button.locked": "Locked",
   "screen.lapidary.tome.button.purchase": "Purchase: %s",
-
   "tome.lapidary.page.schools": "Schools",
   "tome.lapidary.page.summoning": "Summoning",
   "tome.lapidary.page.command": "Command",
@@ -166,7 +160,6 @@
   "tome.lapidary.page.passage": "Passage",
   "tome.lapidary.page.griefing": "Griefing",
   "tome.lapidary.page.necromancy": "Necromancy",
-
   "tome.lapidary.node.schools.root": "Central Insight",
   "tome.lapidary.node.schools.summoning": "School of Summoning",
   "tome.lapidary.node.schools.command": "School of Command",
@@ -178,64 +171,53 @@
   "tome.lapidary.node.schools.passage": "School of Passage",
   "tome.lapidary.node.schools.griefing": "School of Griefing",
   "tome.lapidary.node.schools.necromancy": "School of Necromancy",
-
   "tome.lapidary.node.summoning.root": "Summoning",
   "tome.lapidary.node.summoning.summon_chicken": "Summon Chicken",
   "tome.lapidary.node.summoning.summon_cow": "Summon Cow",
   "tome.lapidary.node.summoning.summon_wolf": "Summon Wolf",
   "tome.lapidary.node.summoning.summon_horse": "Summon Horse",
-
   "tome.lapidary.node.command.root": "Command",
   "tome.lapidary.node.command.disarm": "Disarm",
   "tome.lapidary.node.command.appease": "Appease",
   "tome.lapidary.node.command.pacify": "Pacify",
   "tome.lapidary.node.command.control_hostile": "Control Hostile",
-
   "tome.lapidary.node.nature.root": "Nature",
   "tome.lapidary.node.nature.accelerate_growth": "Accelerate Growth",
   "tome.lapidary.node.nature.flower_field": "Flower Field",
   "tome.lapidary.node.nature.big_tree": "Big Tree",
-
   "tome.lapidary.node.transmutation.root": "Transmutation",
   "tome.lapidary.node.transmutation.unoxidize": "Unoxidize",
   "tome.lapidary.node.transmutation.repair": "Repair",
   "tome.lapidary.node.transmutation.chisel": "Chisel",
   "tome.lapidary.node.transmutation.ore_recomposition": "Ore Recomposition",
-
   "tome.lapidary.node.warding.root": "Warding",
   "tome.lapidary.node.warding.harden_block": "Harden Block",
   "tome.lapidary.node.warding.harden_glass": "Harden Glass",
   "tome.lapidary.node.warding.fire_protection": "Fire Protection",
-
   "tome.lapidary.node.divination.root": "Divination",
   "tome.lapidary.node.divination.reveal_mobs": "Reveal Creatures",
   "tome.lapidary.node.divination.reveal_ores": "Reveal Ores",
   "tome.lapidary.node.divination.night_vision": "Night Vision",
-
   "tome.lapidary.node.illusion.root": "Illusion",
   "tome.lapidary.node.illusion.invisibility": "Invisibility",
   "tome.lapidary.node.illusion.hard_light": "Hard Light",
-
   "tome.lapidary.node.passage.root": "Passage",
   "tome.lapidary.node.passage.speed": "Fleetness",
   "tome.lapidary.node.passage.auto_step": "Sure Step",
   "tome.lapidary.node.passage.blink": "Blink",
   "tome.lapidary.node.passage.frost_walker": "Frost Walker",
   "tome.lapidary.node.passage.lava_walker": "Lava Walker",
-
   "tome.lapidary.node.griefing.root": "Griefing",
   "tome.lapidary.node.griefing.ghast_fireball": "Ghast Fireball",
   "tome.lapidary.node.griefing.lit_tnt": "Conjure Lit TNT",
   "tome.lapidary.node.griefing.erase_matching": "Erase Matching Blocks",
   "tome.lapidary.node.griefing.gravity": "Gravity",
-
   "tome.lapidary.node.necromancy.root": "Necromancy",
   "tome.lapidary.node.necromancy.summon_skeleton": "Summon Skeleton",
   "tome.lapidary.node.necromancy.flense": "Flense",
   "tome.lapidary.node.necromancy.cleanse_villager": "Cleanse Villager",
   "tome.lapidary.node.necromancy.change_undead": "Change Undead",
   "tome.lapidary.node.necromancy.skeleton_steed": "Skeleton Steed",
-
   "block.lapidary.stained_glass_fabricator": "Stained Glass Fabricator",
   "item.lapidary.custom_stained_glass": "Custom Stained Glass",
   "container.lapidary.stained_glass_fabricator": "Stained Glass Fabricator",
@@ -263,7 +245,6 @@
   "block.lapidary.custom_window_controller": "Custom Stained-Glass Window",
   "block.lapidary.custom_window_segment": "Custom Stained-Glass Window",
   "message.lapidary.window.not_enough_space": "The full window does not fit here.",
-
   "origin.lapidary.feline.name": "Feline",
   "origin.lapidary.feline.description": "A towering, powerful hunter whose body and magic are strongest on dry land and beneath the night sky.",
   "origin.lapidary.moth.name": "Moth",
@@ -287,5 +268,7 @@
   "message.lapidary.origin.night_only": "This magic can only be invoked at night.",
   "message.lapidary.origin.feline_transformed": "Night magic swells through your body.",
   "message.lapidary.origin.armor_too_heavy": "That armor is too heavy for your origin.",
-  "message.lapidary.origin.moth_magic_unset": "The Moth mana ability has not been defined yet."
+  "message.lapidary.origin.moth_magic_unset": "The Moth mana ability has not been defined yet.",
+  "message.lapidary.guidebook.new_entry": "New field note recorded: %s",
+  "message.lapidary.guidebook.received": "A strange field journal has appeared among my belongings."
 }
