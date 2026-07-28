@@ -24,7 +24,7 @@ public abstract class ItemEntityMixin {
             method = "tick",
             at = @At("TAIL")
     )
-    private void lapidary$transformLoamInMana(
+    private void lapidary$transformItemsInMana(
             CallbackInfo callbackInfo
     ) {
         ItemEntity itemEntity =
@@ -41,9 +41,16 @@ public abstract class ItemEntityMixin {
         ItemStack currentStack =
                 itemEntity.getItem();
 
-        if (!currentStack.is(
-                ModBlocks.LOAM.asItem()
-        )) {
+        boolean isLoam =
+                currentStack.is(ModBlocks.LOAM.asItem());
+
+        boolean isSableFur =
+                currentStack.is(ModItems.SABLE_FUR);
+
+        /*
+         * Ordinary dropped items stop here without checking fluids.
+         */
+        if (!isLoam && !isSableFur) {
             return;
         }
 
@@ -51,9 +58,7 @@ public abstract class ItemEntityMixin {
             return;
         }
 
-        if (!lapidary$isTouchingMana(
-                itemEntity
-        )) {
+        if (!lapidary$isTouchingMana(itemEntity)) {
             return;
         }
 
@@ -63,15 +68,15 @@ public abstract class ItemEntityMixin {
          * Reusing the existing ItemEntity preserves its position,
          * velocity, age, and pickup delay.
          */
-        ItemStack heartrootStack =
+        ItemStack transformedStack =
                 new ItemStack(
-                        ModItems.HEARTROOT,
+                        isLoam
+                                ? ModItems.HEARTROOT
+                                : ModItems.MANA_FUR,
                         currentStack.getCount()
                 );
 
-        itemEntity.setItem(
-                heartrootStack
-        );
+        itemEntity.setItem(transformedStack);
     }
 
     /**
@@ -90,9 +95,7 @@ public abstract class ItemEntityMixin {
                                 itemEntity.blockPosition()
                         );
 
-        if (currentFluid.is(
-                ModFluidTags.MANA
-        )) {
+        if (currentFluid.is(ModFluidTags.MANA)) {
             return true;
         }
 
@@ -103,8 +106,6 @@ public abstract class ItemEntityMixin {
                                         .below()
                         );
 
-        return fluidBelow.is(
-                ModFluidTags.MANA
-        );
+        return fluidBelow.is(ModFluidTags.MANA);
     }
 }

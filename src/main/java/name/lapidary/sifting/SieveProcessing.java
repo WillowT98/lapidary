@@ -4,6 +4,7 @@ import name.lapidary.block.ModBlocks;
 import name.lapidary.item.ModItems;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -16,6 +17,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class SieveProcessing {
+
+    private static final float SEA_GLASS_DROP_CHANCE =
+            0.30F;
 
     /*
      * A player can only actively finish breaking one block at a time.
@@ -38,7 +42,10 @@ public final class SieveProcessing {
                             player.getMainHandItem();
 
                     SiftingResult result =
-                            getSiftingResult(state);
+                            getSiftingResult(
+                                    state,
+                                    level.random
+                            );
 
                     if (!heldItem.is(ModItems.SIEVE)
                             || result == null) {
@@ -110,8 +117,9 @@ public final class SieveProcessing {
 
                     /*
                      * Spawn any item produced by the sifting operation.
-                     * A copy prevents the stored result stack from being
-                     * modified by Minecraft's item-spawning code.
+                     *
+                     * Sand can therefore become fine sand while also
+                     * producing sea glass.
                      */
                     if (!result.droppedItem().isEmpty()) {
                         Block.popResource(
@@ -133,12 +141,20 @@ public final class SieveProcessing {
     }
 
     private static SiftingResult getSiftingResult(
-            BlockState input
+            BlockState input,
+            RandomSource random
     ) {
         if (input.is(Blocks.SAND)) {
-            return replaceWith(
+            ItemStack seaGlassDrop =
+                    random.nextFloat()
+                            < SEA_GLASS_DROP_CHANCE
+                            ? new ItemStack(ModItems.SEA_GLASS)
+                            : ItemStack.EMPTY;
+
+            return new SiftingResult(
                     ModBlocks.FINE_SAND
-                            .defaultBlockState()
+                            .defaultBlockState(),
+                    seaGlassDrop
             );
         }
 

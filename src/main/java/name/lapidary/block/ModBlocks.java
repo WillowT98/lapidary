@@ -42,7 +42,8 @@ public final class ModBlocks {
     public static final Block BISMUTH_BLOCK = register(
             "bismuth_block",
             new BismuthBlock(
-                    BlockBehaviour.Properties.of()
+                    BlockBehaviour.Properties
+                            .ofFullCopy(Blocks.IRON_ORE)
                             .sound(SoundType.COPPER)
             )
     );
