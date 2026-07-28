@@ -1,0 +1,18 @@
+{
+  "name": "A Reservoir Carried",
+  "icon": "lapidary:mage_backpack",
+  "category": "lapidary:mana_spellcraft",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Mage Backpack provides ordinary storage plus a dedicated slot that accepts a Canister. The mounted Canister appears beneath the pack, including the visible level of its contents.$(br2)Another backpack cannot be nested inside it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Spellcasting draws mana from the Canister installed in the equipped Mage Backpack. A full backpack without a Canister supplies no mana; a Canister elsewhere in ordinary inventory is not the active reservoir.$(br2)The next requirement is a focus: a Staff.",
+      "title": "Supplying a Spell"
+    }
+  ],
+  "advancement": "lapidary:guide/mage_backpack",
+  "secret": true
+}

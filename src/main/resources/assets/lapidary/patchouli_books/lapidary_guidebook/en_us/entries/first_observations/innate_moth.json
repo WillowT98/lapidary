@@ -1,0 +1,14 @@
+{
+  "name": "An Innate Art Unformed",
+  "icon": "minecraft:amethyst_shard",
+  "category": "lapidary:first_observations",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Mana answers many forms of magic, but I still cannot draw a distinct origin art through $(bold)G$(). The faculty feels absent or unfinished rather than merely unfueled.$(br2)My wingbeats, dive, bright-light healing, and natural cry require no mana."
+    }
+  ],
+  "advancement": "lapidary:guide/innate/moth",
+  "secret": true,
+  "sortnum": 2
+}

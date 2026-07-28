@@ -1,0 +1,19 @@
+{
+  "name": "Harden Glass",
+  "icon": "minecraft:glass",
+  "category": "lapidary:tome/warding",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can transform fragile glass into a reusable defensive material."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at an ordinary Glass block within eight blocks. It becomes Reinforced Glass with very high blast resistance. Unlike ordinary glass, Reinforced Glass drops itself when broken regardless of Silk Touch.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/harden_glass",
+  "secret": true,
+  "sortnum": 17
+}

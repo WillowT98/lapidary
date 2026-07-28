@@ -1,0 +1,19 @@
+{
+  "name": "Sables",
+  "icon": "lapidary:sable_fur",
+  "category": "lapidary:ecology",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Sables establish caches beneath trees and defend them as personal property. Damaging or stealing from a wild cache provokes its owner.$(br2)They show a peculiar appreciation for smooth stones."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Offering a Smooth Stone causes a wild Sable to return a forest gift and carry the pebble to its cache. After four accepted pebbles, the giver of the fourth becomes its owner.$(br2)A tamed adult can be brushed for Sable Fur once per day. It follows when its owner carries Smooth Stone, and ordinary suitable meat can heal or breed it.",
+      "title": "Earning Trust"
+    }
+  ],
+  "advancement": "lapidary:guide/creature/sable",
+  "secret": true,
+  "priority": true
+}

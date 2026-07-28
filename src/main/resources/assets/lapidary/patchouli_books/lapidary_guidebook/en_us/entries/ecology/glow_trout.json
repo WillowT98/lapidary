@@ -1,0 +1,13 @@
+{
+  "name": "Glow Trout",
+  "icon": "lapidary:glow_trout_bucket",
+  "category": "lapidary:ecology",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Glow Trout use the cod body and habits as a foundation, but follow nearby underwater players. While both fish and player are in water, a Glow Trout grants Night Vision within five blocks.$(br2)Brushing one yields Glow Lichen, after which that individual must recover for ten minutes."
+    }
+  ],
+  "advancement": "lapidary:guide/mana",
+  "secret": true
+}

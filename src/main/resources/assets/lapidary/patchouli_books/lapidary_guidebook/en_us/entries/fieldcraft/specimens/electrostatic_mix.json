@@ -1,0 +1,14 @@
+{
+  "name": "Electrostatic Mix",
+  "icon": "lapidary:electrostatic_mix",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "This mixture prickles against my fingers and gathers a persistent static charge.$(br2)It seems less like a finished material than a prepared reagent for something that needs stored electrical potential."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/electrostatic_mix",
+  "secret": true,
+  "sortnum": 10
+}

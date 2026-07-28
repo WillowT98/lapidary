@@ -1,0 +1,19 @@
+{
+  "name": "Gravity",
+  "icon": "minecraft:anvil",
+  "category": "lapidary:tome/griefing",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can release selected structural materials from the world’s support."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 1 bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at an eligible block within eight blocks. Every block in the lapidary:gravity_affected tag inside a four-block sphere becomes a Falling Block entity. Logs and leaves are included; block entities and unsafe special blocks are excluded. The falling entities do not create item drops.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/gravity",
+  "secret": true,
+  "sortnum": 35
+}

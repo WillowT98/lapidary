@@ -1,0 +1,19 @@
+{
+  "name": "Fire Protection",
+  "icon": "minecraft:magma_cream",
+  "category": "lapidary:tome/warding",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can ward my body against heat."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Cast without a target to gain Fire Resistance for five minutes. This protects against ordinary fire and lava damage for the duration.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/fire_protection",
+  "secret": true,
+  "sortnum": 16
+}

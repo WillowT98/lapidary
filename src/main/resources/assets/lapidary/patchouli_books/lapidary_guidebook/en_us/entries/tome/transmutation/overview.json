@@ -1,0 +1,14 @@
+{
+  "name": "Transmutation",
+  "icon": "minecraft:stonecutter",
+  "category": "lapidary:tome/transmutation",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Transmutation acts upon materials in my hands or beneath my sight. Several of these arts use the offhand as the selected subject, allowing the Staff to remain in my casting hand."
+    }
+  ],
+  "advancement": "lapidary:guide/school/transmutation",
+  "secret": true,
+  "priority": true
+}

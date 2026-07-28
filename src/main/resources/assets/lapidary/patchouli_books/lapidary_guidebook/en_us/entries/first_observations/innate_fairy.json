@@ -1,0 +1,14 @@
+{
+  "name": "An Innate Art: Restorative Burst",
+  "icon": "minecraft:glistering_melon_slice",
+  "category": "lapidary:first_observations",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Pressing $(bold)G$() consumes one full bucket of mana from my carried supply. Other nearby players receive Regeneration II for eight seconds.$(br2)The spell does not heal me directly; it is an outward gift. I must be close enough to those I intend to aid."
+    }
+  ],
+  "advancement": "lapidary:guide/innate/fairy",
+  "secret": true,
+  "sortnum": 2
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Passage",
+  "description": "The art of crossing distance and hostile terrain.",
+  "icon": "minecraft:ender_pearl",
+  "sortnum": 47,
+  "parent": "lapidary:tome",
+  "secret": true
+}

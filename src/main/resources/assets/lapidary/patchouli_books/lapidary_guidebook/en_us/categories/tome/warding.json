@@ -1,0 +1,8 @@
+{
+  "name": "Warding",
+  "description": "Protection placed upon the body or fixed into matter.",
+  "icon": "minecraft:shield",
+  "sortnum": 45,
+  "parent": "lapidary:tome",
+  "secret": true
+}

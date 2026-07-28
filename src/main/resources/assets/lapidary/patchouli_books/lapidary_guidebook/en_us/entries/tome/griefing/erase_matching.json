@@ -1,0 +1,19 @@
+{
+  "name": "Erase Matching Blocks",
+  "icon": "minecraft:netherite_pickaxe",
+  "category": "lapidary:tome/griefing",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can erase every nearby block matching the one I choose."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 1 bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a block within eight blocks. The spell searches a true four-block sphere around that target and removes every block of the exact same type without drops. There is no arbitrary count cap. Block entities, unbreakable blocks, and protected technical blocks are excluded; neighbor and fluid updates still occur.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/erase_matching",
+  "secret": true,
+  "sortnum": 37
+}

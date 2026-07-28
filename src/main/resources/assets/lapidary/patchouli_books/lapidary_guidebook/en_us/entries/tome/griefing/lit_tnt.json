@@ -1,0 +1,19 @@
+{
+  "name": "Conjure Lit TNT",
+  "icon": "minecraft:tnt",
+  "category": "lapidary:tome/griefing",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can create a live explosive without first placing a block."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a valid placement within eight blocks. A normally fused Primed TNT entity is created immediately and follows vanilla explosion behavior.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/lit_tnt",
+  "secret": true,
+  "sortnum": 36
+}

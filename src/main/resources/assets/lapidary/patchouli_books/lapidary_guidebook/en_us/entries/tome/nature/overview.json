@@ -1,0 +1,14 @@
+{
+  "name": "Nature",
+  "icon": "minecraft:oak_sapling",
+  "category": "lapidary:tome/nature",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Nature magic does not merely imitate machines. It accelerates living growth, introduces plants from distant climates, and creates large organic structures directly in the world."
+    }
+  ],
+  "advancement": "lapidary:guide/school/nature",
+  "secret": true,
+  "priority": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Transmutation",
+  "description": "The alteration, restoration, and recomposition of material things.",
+  "icon": "minecraft:stonecutter",
+  "sortnum": 44,
+  "parent": "lapidary:tome",
+  "secret": true
+}

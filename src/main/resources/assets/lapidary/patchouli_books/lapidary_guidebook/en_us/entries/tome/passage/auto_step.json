@@ -1,0 +1,19 @@
+{
+  "name": "Sure Step",
+  "icon": "minecraft:oak_stairs",
+  "category": "lapidary:tome/passage",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can step over full blocks without jumping."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)Cast without a target to increase step height for three minutes. The temporary attribute modifier is removed when the duration expires.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/auto_step",
+  "secret": true,
+  "sortnum": 23
+}

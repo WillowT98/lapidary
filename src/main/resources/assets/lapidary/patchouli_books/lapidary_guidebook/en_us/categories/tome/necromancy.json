@@ -1,0 +1,8 @@
+{
+  "name": "Necromancy",
+  "description": "The binding, transformation, and restoration of the undead.",
+  "icon": "minecraft:skeleton_skull",
+  "sortnum": 49,
+  "parent": "lapidary:tome",
+  "secret": true
+}

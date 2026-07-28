@@ -1,0 +1,19 @@
+{
+  "name": "A Strange Awakening",
+  "icon": "lapidary:lapidary_guidebook",
+  "category": "lapidary:first_observations",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I awoke today to find myself in a world somewhat different from the one I came from. Magic fills the air, and I have a strange sense that there is more to learn about this world.$(br2)I will record observations I discover as I go. There are unexpected gaps in my memories, so first, I should give myself a once-over."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "This journal seems to respond to discovery. New notes appear only after I have personally encountered, made, or understood the thing they concern.$(br2)Another person’s discoveries do not become mine. Whatever this book is, it records my memory alone.",
+      "title": "A Personal Record"
+    }
+  ],
+  "advancement": "lapidary:guide/root",
+  "secret": true,
+  "priority": true
+}

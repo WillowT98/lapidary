@@ -1,0 +1,8 @@
+{
+  "name": "Collected Specimens",
+  "description": "Notes on unfamiliar substances I have personally handled.",
+  "icon": "lapidary:sea_glass",
+  "sortnum": 11,
+  "parent": "lapidary:fieldcraft",
+  "secret": true
+}

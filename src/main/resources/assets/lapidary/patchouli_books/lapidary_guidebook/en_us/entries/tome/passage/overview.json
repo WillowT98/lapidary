@@ -1,0 +1,14 @@
+{
+  "name": "Passage",
+  "icon": "minecraft:ender_pearl",
+  "category": "lapidary:tome/passage",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Passage changes how I move through space and across surfaces. Its effects range from ordinary speed to safe short-range teleportation and temporary paths across water or lava."
+    }
+  ],
+  "advancement": "lapidary:guide/school/passage",
+  "secret": true,
+  "priority": true
+}

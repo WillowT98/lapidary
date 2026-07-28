@@ -1,0 +1,14 @@
+{
+  "name": "Sable Fur",
+  "icon": "lapidary:sable_fur",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The fur is exceptionally soft and retains a trace of the Sable’s woodland scent.$(br2)It can be collected by brushing a tamed adult Sable, though the same animal needs a full day before it can provide more."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/sable_fur",
+  "secret": true,
+  "sortnum": 9
+}

@@ -1,0 +1,14 @@
+{
+  "name": "An Innate Art: Night Form",
+  "icon": "minecraft:moon_phase_banner_pattern",
+  "category": "lapidary:first_observations",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Mana provides the missing force behind my nocturnal transformation. At night, pressing $(bold)G$() consumes two full buckets of mana and transforms me until dawn.$(br2)While transformed I become twice normal human scale, gain four additional attack damage, and move another twenty-five percent faster. The art fails during the day."
+    }
+  ],
+  "advancement": "lapidary:guide/innate/feline",
+  "secret": true,
+  "sortnum": 2
+}

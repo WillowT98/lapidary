@@ -1,0 +1,14 @@
+{
+  "name": "Warding",
+  "icon": "minecraft:shield",
+  "category": "lapidary:tome/warding",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Warding protects either the caster or matter itself. Some wards are temporary effects; others leave persistent records upon particular block positions."
+    }
+  ],
+  "advancement": "lapidary:guide/school/warding",
+  "secret": true,
+  "priority": true
+}

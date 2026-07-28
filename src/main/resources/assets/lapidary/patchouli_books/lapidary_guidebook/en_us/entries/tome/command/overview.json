@@ -1,0 +1,14 @@
+{
+  "name": "Command",
+  "icon": "minecraft:chain",
+  "category": "lapidary:tome/command",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Command works upon creatures that already exist. Appeasement is personal restraint; pacification suppresses all hostility; control turns hostility outward at a continuing cost to my own health."
+    }
+  ],
+  "advancement": "lapidary:guide/school/command",
+  "secret": true,
+  "priority": true
+}

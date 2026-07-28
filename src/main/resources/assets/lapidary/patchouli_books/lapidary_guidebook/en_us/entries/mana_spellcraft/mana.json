@@ -1,0 +1,19 @@
+{
+  "name": "Mana, Made Tangible",
+  "icon": "lapidary:mana_bucket",
+  "category": "lapidary:mana_spellcraft",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I have finally obtained mana in a tangible form. It behaves as a luminous fluid: it can occupy the world, fill a bucket, and be stored by volume.$(br2)Spells measure their costs against this liquid. A bucket is therefore not merely a container but a useful unit of magical capacity."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The source I envision is a $(thing)Mana Percolator$(), which should gather mana through water and cut gems. Its construction is not yet complete. Until then, any mana I obtain by other means can still teach me how this fluid behaves.",
+      "title": "Current Limitation"
+    }
+  ],
+  "advancement": "lapidary:guide/mana",
+  "secret": true,
+  "priority": true
+}

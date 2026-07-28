@@ -1,0 +1,14 @@
+{
+  "name": "Summoning",
+  "icon": "minecraft:chicken_spawn_egg",
+  "category": "lapidary:tome/summoning",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Summoning produces permanent vanilla creatures. They breed, drop ordinary loot, accept names, and otherwise behave as naturally spawned members of their species. Their costs therefore reflect not only the creature itself but the resources and offspring it may provide."
+    }
+  ],
+  "advancement": "lapidary:guide/school/summoning",
+  "secret": true,
+  "priority": true
+}

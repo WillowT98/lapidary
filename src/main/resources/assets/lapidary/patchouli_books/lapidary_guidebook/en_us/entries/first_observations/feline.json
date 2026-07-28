@@ -1,0 +1,19 @@
+{
+  "name": "A Feline Once-Over",
+  "icon": "minecraft:cat_spawn_egg",
+  "category": "lapidary:first_observations",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I am unmistakably feline—larger and stronger than an ordinary person, with fourteen hearts of vitality. My body moves about twenty percent faster, leaps higher, reaches two blocks farther, and lands safely from any fall.$(br2)Water is another matter. Immersion leaves me weak and clumsy, and exertion makes me hungry more quickly than I remember."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "My diet is carnivorous; other foods do not sustain me.$(br2)$(bold)V$() sharpens my claws against a nearby natural log, stripping its bark and granting two additional attack damage until dawn.$(br2)$(bold)N$() produces a purr. I also sense a stronger nocturnal faculty behind $(bold)G$(), but I cannot yet identify what it consumes.",
+      "title": "Abilities and Instincts"
+    }
+  ],
+  "advancement": "lapidary:guide/origin/feline",
+  "secret": true,
+  "sortnum": 1
+}

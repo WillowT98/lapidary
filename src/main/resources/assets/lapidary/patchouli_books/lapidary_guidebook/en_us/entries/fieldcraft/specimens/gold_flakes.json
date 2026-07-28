@@ -1,0 +1,14 @@
+{
+  "name": "Gold Flakes",
+  "icon": "lapidary:gold_flakes",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Tiny fragments of gold settle in river sediment. They are proof that gold remains in this world even where familiar ore veins do not.$(br2)Enough flakes should be refinable into forms useful for jewelry and machinery."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/gold_flakes",
+  "secret": true,
+  "sortnum": 3
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Griefing",
+  "description": "Violent magic that destroys or destabilizes the physical world.",
+  "icon": "minecraft:tnt",
+  "sortnum": 50,
+  "parent": "lapidary:tome",
+  "secret": true
+}

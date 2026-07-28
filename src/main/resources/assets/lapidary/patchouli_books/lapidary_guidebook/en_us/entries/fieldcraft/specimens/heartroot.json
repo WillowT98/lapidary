@@ -1,0 +1,14 @@
+{
+  "name": "Heartroot",
+  "icon": "lapidary:heartroot",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "This root carries a warm pulse of living vigor. It is botanical, yet possesses the concentrated character of a gemstone.$(br2)Its affinity seems tied to health and living bodies."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/heartroot",
+  "secret": true,
+  "sortnum": 7
+}

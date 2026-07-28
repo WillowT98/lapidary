@@ -1,0 +1,7 @@
+{
+  "name": "The Lapidary Workshop",
+  "description": "Gem cutting, Insight, jewelry, and the machines that lead toward magic.",
+  "icon": "lapidary:gem_cutter",
+  "sortnum": 20,
+  "secret": true
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Unfamiliar Absences",
+  "icon": "lapidary:gold_pan",
+  "category": "lapidary:fieldcraft",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "In my explorations below the ground, some materials still elude me. Perhaps they are different in this world. An idea struck me for tools I have never needed before, but which may prove useful.$(br2)A $(item)Sieve$() should let me work through loose earth and sand. A shallow $(item)Gold Pan$() should separate heavy flakes from river sediment."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The shapes are clear in my mind, but the exact measurements are not. I will leave space here for proper crafting diagrams once I have settled the materials.$(br2)For now, I know only their purposes: the Sieve should separate useful fragments from common earth, while the Gold Pan should recover heavy material from moving water.",
+      "title": "Unfinished Schematics"
+    }
+  ],
+  "advancement": "lapidary:guide/fieldcraft",
+  "secret": true,
+  "priority": true
+}

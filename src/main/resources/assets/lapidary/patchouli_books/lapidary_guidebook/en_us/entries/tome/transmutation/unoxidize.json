@@ -1,0 +1,19 @@
+{
+  "name": "Unoxidize",
+  "icon": "minecraft:copper_ingot",
+  "category": "lapidary:tome/transmutation",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can reverse one stage of copper oxidation throughout a carried stack."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ⅛ bucket$(br)$(bold)Mode:$() Instant$(br2)Hold an unwaxed oxidized copper block stack in the offhand. One cast converts the entire stack one stage backward while preserving its block family: blocks, cut blocks, stairs, slabs, doors, trapdoors, grates, chiseled copper, and bulbs are supported.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/unoxidize",
+  "secret": true,
+  "sortnum": 14
+}

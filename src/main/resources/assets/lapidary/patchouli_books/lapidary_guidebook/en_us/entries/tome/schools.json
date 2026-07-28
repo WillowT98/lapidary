@@ -1,0 +1,19 @@
+{
+  "name": "The Ten Schools",
+  "icon": "minecraft:enchanted_book",
+  "category": "lapidary:tome",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Summoning creates ordinary living creatures.$(li)Command alters the behavior of existing creatures.$(li)Nature directs growth.$(li)Transmutation changes matter.$(li)Warding protects bodies and blocks."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Divination reveals what is hidden.$(li)Passage changes movement and traversal.$(li)Illusion conceals or creates temporary unreality.$(li)Necromancy manipulates undead states.$(li)Griefing destroys or destabilizes the world.",
+      "title": "The Remaining Schools"
+    }
+  ],
+  "advancement": "lapidary:guide/tome",
+  "secret": true,
+  "sortnum": 1
+}

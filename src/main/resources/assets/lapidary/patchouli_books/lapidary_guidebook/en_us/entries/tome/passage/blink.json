@@ -1,0 +1,19 @@
+{
+  "name": "Blink",
+  "icon": "minecraft:ender_pearl",
+  "category": "lapidary:tome/passage",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can cross a short distance along my line of sight."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim forward and cast. The spell searches for a safe loaded destination with enough room for my body and teleports me there, preserving my orientation and clearing fall distance. It refuses unsafe or obstructed destinations.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/blink",
+  "secret": true,
+  "sortnum": 24
+}

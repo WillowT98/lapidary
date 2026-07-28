@@ -1,0 +1,19 @@
+{
+  "name": "Change Undead",
+  "icon": "minecraft:wither_rose",
+  "category": "lapidary:tome/necromancy",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can shift a compatible undead creature into another related state."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a supported undead within twelve blocks. The spell follows its curated transformation cycle, replacing the entity while preserving position and selected common data. Unsupported undead cannot be targeted.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/change_undead",
+  "secret": true,
+  "sortnum": 32
+}

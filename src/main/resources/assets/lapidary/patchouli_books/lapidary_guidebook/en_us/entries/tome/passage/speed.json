@@ -1,0 +1,19 @@
+{
+  "name": "Fleetness",
+  "icon": "minecraft:sugar",
+  "category": "lapidary:tome/passage",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can lend my body sustained swiftness."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)Cast without a target to gain Speed II for three minutes.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/speed",
+  "secret": true,
+  "sortnum": 22
+}

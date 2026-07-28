@@ -1,0 +1,19 @@
+{
+  "name": "A Moth Once-Over",
+  "icon": "minecraft:phantom_membrane",
+  "category": "lapidary:first_observations",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I am small and exceptionally light, with only six hearts of vitality. I move about forty-five percent faster than an ordinary person, descend slowly through the air, and cannot bear heavy armor.$(br2)Bright surroundings restore my body, though the process consumes hunger."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "My diet is fibrous rather than ordinary food.$(br2)While airborne, $(bold)Space$() gives me one of six powerful wingbeats; touching the ground restores them. $(bold)V$() begins a dive, and striking a creature during it adds five damage and throws me upward again.$(br2)$(bold)N$() produces my natural cry. I feel no understood mana art within $(bold)G$() yet.",
+      "title": "Abilities and Instincts"
+    }
+  ],
+  "advancement": "lapidary:guide/origin/moth",
+  "secret": true,
+  "sortnum": 1
+}

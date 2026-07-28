@@ -1,0 +1,18 @@
+{
+  "name": "Insight",
+  "icon": "minecraft:experience_bottle",
+  "category": "lapidary:workshop",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "When the unfamiliar cut was completed, the result felt inevitable—as though I had remembered something rather than learned it. The sensation has remained with me. I have begun to think of it as $(thing)Insight$()."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Insight belongs to me personally. New discoveries add to it; repetition does not. My current total is synchronized to the Insight display.$(br2)I cannot spend it at the Gem Cutter. It will matter later, when I find a way to organize these fragments into schools of magic.",
+      "title": "A Lasting Understanding"
+    }
+  ],
+  "advancement": "lapidary:guide/insight",
+  "secret": true
+}

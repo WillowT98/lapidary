@@ -1,0 +1,19 @@
+{
+  "name": "Accelerate Growth",
+  "icon": "minecraft:bone_meal",
+  "category": "lapidary:tome/nature",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can pour mana continuously into nearby life."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 1⁄40 bucket per pulse$(br)$(bold)Mode:$() Channelled$(br2)This is channelled. Each paid pulse selects up to six valid bonemealable blocks within four horizontal blocks and two vertical blocks of me, then attempts ordinary bonemeal growth. Release the cast or exhaust mana to stop.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/accelerate_growth",
+  "secret": true,
+  "sortnum": 9
+}

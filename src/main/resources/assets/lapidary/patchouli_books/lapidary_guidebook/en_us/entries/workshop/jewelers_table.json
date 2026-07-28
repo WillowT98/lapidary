@@ -1,0 +1,18 @@
+{
+  "name": "The Jeweler’s Table",
+  "icon": "lapidary:jewelers_table",
+  "category": "lapidary:workshop",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Jeweler’s Table combines a compatible cut gem with an empty ring or necklace setting. The finished jewelry can then be equipped in its appropriate accessory slot.$(br2)The table will refuse combinations for which no finished jewelry form exists."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Cut gems do not merely hold power. They seem to encourage it to gather. With water, a suitable vessel, and sustained contact, perhaps that power could be drawn out in liquid form.$(br2)I will call the machine I imagine a $(thing)Mana Percolator$(). Its design remains beyond me for the moment, but the principle feels sound.",
+      "title": "A Method of Percolation"
+    }
+  ],
+  "advancement": "lapidary:guide/jewelers_table",
+  "secret": true
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Pure Lapis",
+  "icon": "lapidary:pure_lapis",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Removing the duller inclusions from lapis reveals a clearer, more responsive blue.$(br2)The purified stone seems better suited to precision cutting than ordinary lapis lazuli."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/pure_lapis",
+  "secret": true,
+  "sortnum": 5
+}

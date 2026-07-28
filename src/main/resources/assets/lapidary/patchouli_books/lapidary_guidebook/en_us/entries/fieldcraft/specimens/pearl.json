@@ -1,0 +1,14 @@
+{
+  "name": "Pearl",
+  "icon": "lapidary:pearl",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The surface is soft and lustrous rather than crystalline, but it still answers to careful inspection like a gem.$(br2)I should test whether the cutter can shape it without destroying its layered structure."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/pearl",
+  "secret": true,
+  "sortnum": 6
+}

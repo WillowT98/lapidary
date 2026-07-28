@@ -1,0 +1,19 @@
+{
+  "name": "Something Within the Stone",
+  "icon": "minecraft:amethyst_shard",
+  "category": "lapidary:workshop",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The gem is beautiful, but its color is not what caught my attention. Something within it seems to answer the light. I cannot explain the sensation, though I find myself imagining how it might look if cut with greater precision."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A dedicated $(item)Gem Cutter$() would need to hold a gem securely and present a selection of deliberate cuts. I have not yet settled its exact construction materials, so I will leave the schematic unfinished for now.",
+      "title": "A Cutter in Mind"
+    }
+  ],
+  "advancement": "lapidary:guide/gem",
+  "secret": true,
+  "priority": true
+}

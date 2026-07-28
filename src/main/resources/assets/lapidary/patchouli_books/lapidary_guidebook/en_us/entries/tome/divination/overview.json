@@ -1,0 +1,14 @@
+{
+  "name": "Divination",
+  "icon": "minecraft:spyglass",
+  "category": "lapidary:tome/divination",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Divination extends perception. It can alter my own sight, mark living creatures, or send hidden ore positions to my personal view without exposing them to anyone else."
+    }
+  ],
+  "advancement": "lapidary:guide/school/divination",
+  "secret": true,
+  "priority": true
+}

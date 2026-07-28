@@ -1,0 +1,19 @@
+{
+  "name": "Frost Walker",
+  "icon": "minecraft:blue_ice",
+  "category": "lapidary:tome/passage",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can carry a temporary path across water."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)For two minutes, nearby suitable water surfaces beneath me become vanilla Frosted Ice and are scheduled to melt. The effect follows my movement.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/frost_walker",
+  "secret": true,
+  "sortnum": 25
+}

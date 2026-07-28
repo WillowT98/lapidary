@@ -1,0 +1,19 @@
+{
+  "name": "Harden Block",
+  "icon": "minecraft:obsidian",
+  "category": "lapidary:tome/warding",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can attach a persistent ward to a precise block position."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a non-air block without a block entity within eight blocks. The position becomes four times slower to mine. The ward is removed when the block is successfully broken or replaced, and repeated casts do not stack.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/harden_block",
+  "secret": true,
+  "sortnum": 18
+}

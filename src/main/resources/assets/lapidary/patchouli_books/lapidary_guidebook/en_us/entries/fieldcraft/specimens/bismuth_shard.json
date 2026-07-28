@@ -1,0 +1,14 @@
+{
+  "name": "Bismuth Shard",
+  "icon": "lapidary:bismuth_shard",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The stepped colors of this shard look almost deliberately constructed. Heat may reveal more of its nature.$(br2)Its unusual crystal form also suggests that it may be cut or set into jewelry."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/bismuth_shard",
+  "secret": true,
+  "sortnum": 8
+}

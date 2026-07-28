@@ -1,0 +1,13 @@
+{
+  "name": "Sea Glass",
+  "icon": "lapidary:sea_glass",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "This glass has been worn smooth, yet something within it catches light with unusual clarity. It feels less like refuse than an unfinished gem.$(br2)Its first obvious use is as a material worthy of precise cutting."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/sea_glass",
+  "secret": true
+}

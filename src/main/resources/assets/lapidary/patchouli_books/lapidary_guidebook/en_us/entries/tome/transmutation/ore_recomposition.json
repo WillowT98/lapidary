@@ -1,0 +1,19 @@
+{
+  "name": "Ore Recomposition",
+  "icon": "minecraft:raw_iron",
+  "category": "lapidary:tome/transmutation",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can sacrifice quantity to force a material upward through a curated chain."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)The offhand item chooses the source; matching items may be drawn from the rest of inventory. Each cast consumes ten and creates one: Coal→Raw Copper→Raw Iron→Lapis→Redstone→Diamond→Emerald. Gold is excluded. The cast fails without ten inputs or room for the output.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/ore_recomposition",
+  "secret": true,
+  "sortnum": 15
+}

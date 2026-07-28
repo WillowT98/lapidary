@@ -1,0 +1,18 @@
+{
+  "name": "Working the Sieve",
+  "icon": "lapidary:sieve",
+  "category": "lapidary:fieldcraft",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Sieve is used as a tool against placed materials rather than through a separate inventory. I should hold it and work the appropriate block until the material is processed.$(br2)Loose materials can yield refined substances that ordinary mining never exposes. Sea Glass is intended to be one possible chance result of sifting."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Only blocks included in the sieve-compatible block tag respond to the tool. The exact result table belongs here once every siftable material and percentage has been finalized.$(br2)The tool’s durability is consumed through use; ordinary Silk Touch expectations do not apply.",
+      "title": "Practical Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/sieve",
+  "secret": true
+}

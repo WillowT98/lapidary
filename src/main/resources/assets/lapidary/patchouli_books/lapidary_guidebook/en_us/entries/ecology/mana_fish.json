@@ -1,0 +1,19 @@
+{
+  "name": "Mana-Touched Fish",
+  "icon": "lapidary:mana_bucket",
+  "category": "lapidary:ecology",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Living creatures respond strongly to mana. Common fish appear resilient enough to survive transformation in it.$(br2)The resulting species can be collected in buckets, emit light, and possess behaviors or renewable brushed materials absent from their mundane forms."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The transformations are discovered through exposing the corresponding ordinary fish to mana. Each transformed fish has its own ten-minute brushing cooldown.$(br2)The three forms I can now investigate are Glow Trout, Bright Salmon, and Amefysh.",
+      "title": "A Cautious Experiment"
+    }
+  ],
+  "advancement": "lapidary:guide/mana",
+  "secret": true,
+  "priority": true
+}

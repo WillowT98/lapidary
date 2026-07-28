@@ -1,0 +1,19 @@
+{
+  "name": "Appease",
+  "icon": "minecraft:poppy",
+  "category": "lapidary:tome/command",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can persuade one hostile creature to cease treating me as its enemy."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ⅛ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a hostile creature within twelve blocks. For sixty seconds it cannot successfully attack me, though it may still attack others.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/appease",
+  "secret": true,
+  "sortnum": 5
+}

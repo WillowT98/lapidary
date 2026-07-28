@@ -1,0 +1,19 @@
+{
+  "name": "Repair",
+  "icon": "minecraft:anvil",
+  "category": "lapidary:tome/transmutation",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can feed mana continuously into a damaged object."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 1⁄40 bucket per pulse$(br)$(bold)Mode:$() Channelled$(br2)Hold a damaged, damageable item in the offhand and channel. Each paid pulse restores eight durability. Casting ends naturally when the item is fully repaired, removed, or mana runs out.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/repair",
+  "secret": true,
+  "sortnum": 13
+}

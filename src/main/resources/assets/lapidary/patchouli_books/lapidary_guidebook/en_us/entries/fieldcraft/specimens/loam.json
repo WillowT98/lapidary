@@ -1,0 +1,14 @@
+{
+  "name": "Loam",
+  "icon": "lapidary:loam",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A dark, rich mixture of soil and organic matter. It holds moisture and life more readily than ordinary dirt.$(br2)Its presence suggests that sifting can reveal useful growing media as well as minerals."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/loam",
+  "secret": true,
+  "sortnum": 2
+}

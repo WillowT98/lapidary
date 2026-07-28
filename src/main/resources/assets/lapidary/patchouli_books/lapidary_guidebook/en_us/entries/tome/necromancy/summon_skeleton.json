@@ -1,0 +1,19 @@
+{
+  "name": "Summon Skeleton",
+  "icon": "minecraft:skeleton_skull",
+  "category": "lapidary:tome/necromancy",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can raise a persistent skeleton bound to me."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 1 bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a valid open placement within eight blocks. The skeleton is permanently spawned, marked persistent, and bound to follow me and attack uncontrolled hostile creatures rather than its owner.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/summon_skeleton",
+  "secret": true,
+  "sortnum": 29
+}

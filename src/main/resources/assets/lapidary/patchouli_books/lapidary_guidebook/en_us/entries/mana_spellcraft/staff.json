@@ -1,0 +1,24 @@
+{
+  "name": "A Focus for Magic",
+  "icon": "lapidary:staff",
+  "category": "lapidary:mana_spellcraft",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "With a Staff, an equipped Mage Backpack, and mana in its Canister, I can finally express a spell. Left-click casts the currently selected spell. Holding right-click opens the radial selection; releasing it chooses the highlighted prepared slot."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mage Light$() was already present in my memory, though useless without a focus. It costs one full bucket of mana and launches a lasting luminous orb.$(br2)Only calibrated spells appear in the radial menu. Failed casts preserve mana when their target or conditions are invalid.",
+      "title": "Mage Light and Calibration"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "I have not yet settled the Staff's exact construction diagram, though its requirements are clear: it must be a deliberate magical focus rather than an ordinary tool.$(br2)Insight now feels as though it could be arranged into a structure. A Tome Table may allow that organization.",
+      "title": "Toward the Tome"
+    }
+  ],
+  "advancement": "lapidary:guide/staff",
+  "secret": true,
+  "priority": true
+}

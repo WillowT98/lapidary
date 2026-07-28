@@ -1,0 +1,18 @@
+{
+  "name": "Mana Canisters",
+  "icon": "lapidary:canister",
+  "category": "lapidary:mana_spellcraft",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A Canister holds eight buckets of a single fluid and displays its fill level through the glass. A bucket can insert or withdraw fluid directly, provided the stored liquid is compatible."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A nearly full Canister still accepts a full compatible bucket. It takes only the amount needed to reach eight buckets, consumes the filled bucket normally, and loses the excess.$(br2)A completely full Canister rejects insertion; a Canister holding a different liquid rejects mixing.",
+      "title": "Topping Off"
+    }
+  ],
+  "advancement": "lapidary:guide/canister",
+  "secret": true
+}

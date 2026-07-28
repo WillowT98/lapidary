@@ -1,0 +1,19 @@
+{
+  "name": "The Tome of Insight",
+  "icon": "lapidary:tome_table",
+  "category": "lapidary:tome",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The fragments of understanding I have gathered do not feel random. They form paths—branches of thought that lead toward entire disciplines of magic.$(br2)At the Tome Table, Insight can unlock a school and then purchase spell nodes whose prerequisites have been met."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Mage Light stands outside the schools and is always known. School spells are learned when their nodes are purchased.$(br2)Resetting the Tome refunds purchased nodes and removes their usable spells, but these journal notes remain: forgetting how to cast is not the same as erasing what I once discovered.",
+      "title": "Learning and Forgetting"
+    }
+  ],
+  "advancement": "lapidary:guide/tome",
+  "secret": true,
+  "priority": true
+}

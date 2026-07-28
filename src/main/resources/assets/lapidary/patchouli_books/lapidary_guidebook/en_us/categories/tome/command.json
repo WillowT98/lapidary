@@ -1,0 +1,8 @@
+{
+  "name": "Command",
+  "description": "The restraint, redirection, and domination of existing creatures.",
+  "icon": "minecraft:chain",
+  "sortnum": 42,
+  "parent": "lapidary:tome",
+  "secret": true
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Necromancy",
+  "icon": "minecraft:skeleton_skull",
+  "category": "lapidary:tome/necromancy",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Necromancy creates bound undead, transforms one undead state into another, reverses zombie-villager conversion, and maintains a unique supernatural steed."
+    }
+  ],
+  "advancement": "lapidary:guide/school/necromancy",
+  "secret": true,
+  "priority": true
+}

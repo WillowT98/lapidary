@@ -1,0 +1,19 @@
+{
+  "name": "A Fairy Once-Over",
+  "icon": "minecraft:allay_spawn_egg",
+  "category": "lapidary:first_observations",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I am tiny and fragile, with only three hearts of vitality, but my body is capable of true flight. I can remain aloft for ten seconds before resting on the ground to recover. I cannot rise more than eight blocks above supporting ground; over a cliff I descend gently until the land draws near again.$(br2)Heavy armor is far beyond my strength."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Hostile creatures near me become outlined, and my own body softly illuminates its surroundings. $(bold)V$() lets me perch upon another person’s head; pressing it again dismounts. $(bold)N$() produces a chiming call.$(br2)I also feel a restorative faculty behind $(bold)G$(), but its source is still unknown to me.",
+      "title": "Abilities and Instincts"
+    }
+  ],
+  "advancement": "lapidary:guide/origin/fairy",
+  "secret": true,
+  "sortnum": 1
+}

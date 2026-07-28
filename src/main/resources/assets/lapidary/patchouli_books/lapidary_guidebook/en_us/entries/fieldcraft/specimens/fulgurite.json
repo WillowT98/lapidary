@@ -1,0 +1,14 @@
+{
+  "name": "Fulgurite",
+  "icon": "lapidary:fulgurite",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "This glassy material bears the unmistakable violence of lightning. Its internal paths seem frozen in the instant of the strike.$(br2)It may accept a cut, or preserve some affinity for electrical force."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/fulgurite",
+  "secret": true,
+  "sortnum": 4
+}

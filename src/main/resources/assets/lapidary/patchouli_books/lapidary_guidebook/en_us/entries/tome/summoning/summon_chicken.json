@@ -1,0 +1,19 @@
+{
+  "name": "Summon Chicken",
+  "icon": "minecraft:chicken_spawn_egg",
+  "category": "lapidary:tome/summoning",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can create an ordinary chicken permanently."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a valid open placement within eight blocks and cast. The chicken is finalized like a normal summoned mob, persists, breeds, lays eggs, and drops ordinary loot.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/summon_chicken",
+  "secret": true,
+  "sortnum": 1
+}

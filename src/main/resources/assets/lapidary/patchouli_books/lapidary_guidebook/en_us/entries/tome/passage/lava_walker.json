@@ -1,0 +1,19 @@
+{
+  "name": "Lava Walker",
+  "icon": "minecraft:obsidian",
+  "category": "lapidary:tome/passage",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can impose a temporary obsidian path upon lava."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 1 bucket$(br)$(bold)Mode:$() Instant$(br2)For two minutes, nearby lava surfaces beneath me become temporary Frosted Obsidian. The custom block records and later restores the local lava state rather than permanently consuming the lava.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/lava_walker",
+  "secret": true,
+  "sortnum": 26
+}

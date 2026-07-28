@@ -1,0 +1,18 @@
+{
+  "name": "Panning a River",
+  "icon": "lapidary:gold_pan",
+  "category": "lapidary:fieldcraft",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Gold does not appear in the veins I remember. It survives instead as heavy flakes carried and concentrated by rivers.$(br2)To pan, I must stand in water within a river biome, aim at water, and hold the pan in use for four seconds."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A successful attempt produces between five and fifteen Gold Flakes and costs one durability from the pan.$(br2)Standing beside water is not enough: I must be immersed, the biome must count as a river, and my aim must remain upon water.",
+      "title": "Conditions"
+    }
+  ],
+  "advancement": "lapidary:guide/gold_pan",
+  "secret": true
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Hard Light",
+  "icon": "minecraft:light_blue_stained_glass",
+  "category": "lapidary:tome/illusion",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can leave a temporary luminous road beneath my feet."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ⅛ bucket$(br)$(bold)Mode:$() Instant$(br2)One cast activates the trail for sixty seconds. As I move, the runtime places a narrow Hard Light block directly beneath me when the position is replaceable. Each block is solid, luminous, produces no item, and removes itself after about thirty seconds.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/hard_light",
+  "secret": true,
+  "sortnum": 28
+}

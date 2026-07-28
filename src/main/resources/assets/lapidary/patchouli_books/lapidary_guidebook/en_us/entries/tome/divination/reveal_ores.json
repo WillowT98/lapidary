@@ -1,0 +1,19 @@
+{
+  "name": "Reveal Ores",
+  "icon": "minecraft:raw_copper",
+  "category": "lapidary:tome/divination",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can perceive hidden ore positions through intervening stone."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)For twenty seconds, the server rescans a twelve-block sphere around me twice per second and sends the matching ore positions only to my client. Cyan wireframes render through walls. The scan includes the ore families in Lapidary’s aggregated ore tag.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/reveal_ores",
+  "secret": true,
+  "sortnum": 21
+}

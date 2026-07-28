@@ -1,0 +1,8 @@
+{
+  "name": "Nature",
+  "description": "The encouragement of growth and the shaping of living landscapes.",
+  "icon": "minecraft:oak_sapling",
+  "sortnum": 43,
+  "parent": "lapidary:tome",
+  "secret": true
+}

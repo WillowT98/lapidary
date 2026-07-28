@@ -1,0 +1,14 @@
+{
+  "name": "Fine Sand",
+  "icon": "lapidary:fine_sand",
+  "category": "lapidary:fieldcraft/specimens",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "This sand is noticeably finer and more uniform than ordinary grains. The Sieve separates it from rougher material.$(br2)Its uses appear material rather than magical, but it is distinct enough to record."
+    }
+  ],
+  "advancement": "lapidary:guide/specimen/fine_sand",
+  "secret": true,
+  "sortnum": 1
+}

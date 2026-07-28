@@ -1,0 +1,19 @@
+{
+  "name": "Flense",
+  "icon": "minecraft:bone",
+  "category": "lapidary:tome/necromancy",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can strip the flesh from a zombie without merely killing it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a Zombie within twelve blocks. It is replaced by a Skeleton at the same location and additional Rotten Flesh is produced. The transformation avoids also granting the zombie’s ordinary death loot.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/flense",
+  "secret": true,
+  "sortnum": 30
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Night Vision",
+  "icon": "minecraft:golden_carrot",
+  "category": "lapidary:tome/divination",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can extend my own sight through darkness."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)Cast without a target to gain Night Vision for eight minutes.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/night_vision",
+  "secret": true,
+  "sortnum": 19
+}

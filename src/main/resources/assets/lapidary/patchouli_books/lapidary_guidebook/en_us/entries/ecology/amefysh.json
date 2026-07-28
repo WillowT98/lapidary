@@ -1,0 +1,13 @@
+{
+  "name": "Amefysh",
+  "icon": "lapidary:amefysh_bucket",
+  "category": "lapidary:ecology",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Amefysh resonate with budding amethyst. Every five seconds, one searches within six blocks and attempts an additional growth step on nearby budding-amethyst crystals.$(br2)They can be transported in buckets like the other mana-touched fish."
+    }
+  ],
+  "advancement": "lapidary:guide/mana",
+  "secret": true
+}

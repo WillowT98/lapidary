@@ -1,0 +1,19 @@
+{
+  "name": "Ghast Fireball",
+  "icon": "minecraft:fire_charge",
+  "category": "lapidary:tome/griefing",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can launch an explosive projectile like a Ghast."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Cast to fire a Large Fireball from my view direction. Its explosion power is one; it can damage entities and blocks according to the world’s ordinary explosion rules.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/ghast_fireball",
+  "secret": true,
+  "sortnum": 34
+}

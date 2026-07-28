@@ -1,0 +1,14 @@
+{
+  "name": "Illusion",
+  "icon": "minecraft:light_blue_stained_glass",
+  "category": "lapidary:tome/illusion",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Illusion presently contains simple concealment and hard-light construction. Hard Light is not a static wall: it follows my movement by creating temporary footing beneath me."
+    }
+  ],
+  "advancement": "lapidary:guide/school/illusion",
+  "secret": true,
+  "priority": true
+}

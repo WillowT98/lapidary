@@ -1,0 +1,19 @@
+{
+  "name": "Pacify",
+  "icon": "minecraft:white_wool",
+  "category": "lapidary:tome/command",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can suppress a hostile creature’s violence entirely."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a hostile creature within twelve blocks. For thirty seconds its target is repeatedly cleared and its hostile damage is cancelled against everyone.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/pacify",
+  "secret": true,
+  "sortnum": 7
+}

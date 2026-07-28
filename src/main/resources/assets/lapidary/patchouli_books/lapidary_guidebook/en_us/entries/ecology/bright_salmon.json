@@ -1,0 +1,13 @@
+{
+  "name": "Bright Salmon",
+  "icon": "lapidary:bright_salmon_bucket",
+  "category": "lapidary:ecology",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Bright Salmon are luminous mana variants of ordinary salmon.$(br2)Brushing one yields Glowstone Dust. Each fish can be brushed only once every ten minutes."
+    }
+  ],
+  "advancement": "lapidary:guide/mana",
+  "secret": true
+}

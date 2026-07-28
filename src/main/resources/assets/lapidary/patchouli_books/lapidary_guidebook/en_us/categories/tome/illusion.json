@@ -1,0 +1,8 @@
+{
+  "name": "Illusion",
+  "description": "The concealment of reality and the construction of temporary unreality.",
+  "icon": "minecraft:light_blue_stained_glass",
+  "sortnum": 48,
+  "parent": "lapidary:tome",
+  "secret": true
+}

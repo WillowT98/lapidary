@@ -1,0 +1,19 @@
+{
+  "name": "Control Hostile",
+  "icon": "minecraft:chain",
+  "category": "lapidary:tome/command",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can force one hostile creature into temporary service, but the bond feeds upon me."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket to bind$(br)$(bold)Mode:$() Sustained after casting$(br2)Aim at a hostile within twelve blocks. It follows me and attacks uncontrolled hostiles. Once each second, I take one point of magic damage. Binding a new hostile replaces my previous controlled target; death or loss of either participant ends the bond.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/control_hostile",
+  "secret": true,
+  "sortnum": 8
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Disarm",
+  "icon": "minecraft:iron_sword",
+  "category": "lapidary:tome/command",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can tear a weapon from a creature’s grasp."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at a mob within twelve blocks that holds an item in its main hand. The item is removed from the equipment slot and dropped normally into the world.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/disarm",
+  "secret": true,
+  "sortnum": 6
+}

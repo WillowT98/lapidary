@@ -1,0 +1,7 @@
+{
+  "name": "The Tome of Insight",
+  "description": "The organization of Insight into schools, spells, and calibrated practice.",
+  "icon": "lapidary:tome_table",
+  "sortnum": 40,
+  "secret": true
+}

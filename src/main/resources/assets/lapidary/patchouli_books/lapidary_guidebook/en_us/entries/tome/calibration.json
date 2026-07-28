@@ -1,0 +1,19 @@
+{
+  "name": "Calibrating a Staff",
+  "icon": "lapidary:staff",
+  "category": "lapidary:tome",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Known spells appear in a single scrollable column. I can drag them into any of eight radial slots. A spell cannot occupy more than one slot, and slots may remain empty.$(br2)The arrangement belongs to me, not to an individual Staff."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Mage Light may be moved or removed from the radial menu, but it remains known. Selecting a wedge changes the spell cast by left-click.$(br2)Channelled spells continue while the casting input is held and consume their listed pulse cost repeatedly.",
+      "title": "Prepared Practice"
+    }
+  ],
+  "advancement": "lapidary:guide/tome",
+  "secret": true,
+  "sortnum": 2
+}

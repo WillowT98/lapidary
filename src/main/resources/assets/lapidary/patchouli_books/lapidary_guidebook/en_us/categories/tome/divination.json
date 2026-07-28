@@ -1,0 +1,8 @@
+{
+  "name": "Divination",
+  "description": "The extension of sight beyond ordinary limits.",
+  "icon": "minecraft:spyglass",
+  "sortnum": 46,
+  "parent": "lapidary:tome",
+  "secret": true
+}

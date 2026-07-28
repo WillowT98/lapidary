@@ -1,0 +1,19 @@
+{
+  "name": "Reveal Creatures",
+  "icon": "minecraft:spyglass",
+  "category": "lapidary:tome/divination",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can mark living creatures across a broad area."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ¼ bucket$(br)$(bold)Mode:$() Instant$(br2)Every living Mob within thirty-two blocks receives Glowing for thirty seconds. The effect is placed on the creatures themselves and may therefore be visible to other observers.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/reveal_mobs",
+  "secret": true,
+  "sortnum": 20
+}

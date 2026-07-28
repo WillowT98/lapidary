@@ -1,0 +1,14 @@
+{
+  "name": "Griefing",
+  "icon": "minecraft:tnt",
+  "category": "lapidary:tome/griefing",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Griefing is intentionally destructive. Its spells create explosions, erase matching blocks without drops, or release selected materials to gravity."
+    }
+  ],
+  "advancement": "lapidary:guide/school/griefing",
+  "secret": true,
+  "priority": true
+}

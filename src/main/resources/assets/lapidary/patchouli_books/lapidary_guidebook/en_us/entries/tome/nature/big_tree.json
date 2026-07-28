@@ -1,0 +1,19 @@
+{
+  "name": "Big Tree",
+  "icon": "minecraft:oak_sapling",
+  "category": "lapidary:tome/nature",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can raise an enormous oak directly from open ground."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 2 buckets$(br)$(bold)Mode:$() Instant$(br2)Aim at ground within eight blocks with at least eighteen blocks of replaceable vertical clearance. The spell procedurally creates a thirteen-to-seventeen-block drifting trunk, lower trunk thickness, four large branches, and irregular leaf crowns.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/big_tree",
+  "secret": true,
+  "sortnum": 11
+}

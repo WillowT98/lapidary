@@ -1,0 +1,8 @@
+{
+  "name": "Summoning",
+  "description": "The permanent creation of ordinary living creatures.",
+  "icon": "minecraft:chicken_spawn_egg",
+  "sortnum": 41,
+  "parent": "lapidary:tome",
+  "secret": true
+}

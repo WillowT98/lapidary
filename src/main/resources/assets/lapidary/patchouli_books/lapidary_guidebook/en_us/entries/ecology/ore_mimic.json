@@ -1,0 +1,19 @@
+{
+  "name": "Ore Mimics",
+  "icon": "minecraft:raw_iron",
+  "category": "lapidary:ecology",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Some apparent ore deposits are living ambush predators. An Ore Mimic remains motionless against stone until it notices prey, then unfolds into a two-block humanoid shape.$(br2)Movement is the surest confirmation. Once active, it should be treated as a hostile creature rather than a block."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Its disguise is meant to exploit the expectation that ore is harmless. I should approach exposed deposits with enough space to retreat, particularly where a shape or placement seems unnatural.",
+      "title": "Field Caution"
+    }
+  ],
+  "advancement": "lapidary:guide/creature/ore_mimic",
+  "secret": true,
+  "priority": true
+}

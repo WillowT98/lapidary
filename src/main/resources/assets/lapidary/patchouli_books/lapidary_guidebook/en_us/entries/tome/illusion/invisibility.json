@@ -1,0 +1,19 @@
+{
+  "name": "Invisibility",
+  "icon": "minecraft:fermented_spider_eye",
+  "category": "lapidary:tome/illusion",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can hide my body from ordinary sight."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Cast without a target to gain vanilla Invisibility for three minutes. Visible equipment and other vanilla clues behave exactly as ordinary invisibility does.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/invisibility",
+  "secret": true,
+  "sortnum": 27
+}

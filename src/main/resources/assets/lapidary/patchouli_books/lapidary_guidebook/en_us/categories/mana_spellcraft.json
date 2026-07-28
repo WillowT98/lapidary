@@ -1,0 +1,7 @@
+{
+  "name": "Mana & Spellcraft",
+  "description": "The gathering, storage, carriage, and practical use of liquid magic.",
+  "icon": "lapidary:mana_bucket",
+  "sortnum": 30,
+  "secret": true
+}

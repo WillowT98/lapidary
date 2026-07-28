@@ -1,0 +1,7 @@
+{
+  "name": "Fieldcraft & Materials",
+  "description": "Tools, raw materials, and practical methods discovered away from the workshop.",
+  "icon": "lapidary:sieve",
+  "sortnum": 10,
+  "secret": true
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Chisel",
+  "icon": "minecraft:stonecutter",
+  "category": "lapidary:tome/transmutation",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can cycle a carried stack through related stone forms."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 1⁄20 bucket$(br)$(bold)Mode:$() Instant$(br2)Hold a supported block stack in the offhand and cast. The entire stack advances one step: Stone→Andesite→Diorite→Granite; Cobblestone→Stone Bricks→Cracked→Mossy; Deepslate→Cobbled→Polished→Bricks→Tiles; or the Sandstone and Red Sandstone families. Each family loops.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/chisel",
+  "secret": true,
+  "sortnum": 12
+}

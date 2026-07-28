@@ -1,0 +1,19 @@
+{
+  "name": "Cleanse Villager",
+  "icon": "minecraft:golden_apple",
+  "category": "lapidary:tome/necromancy",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can force a Zombie Villager through its ordinary cure immediately."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() 2 buckets$(br)$(bold)Mode:$() Instant$(br2)Aim at a Zombie Villager within twelve blocks. The spell invokes vanilla conversion with an almost immediate completion time, preserving the normal villager data, cure attribution, and resulting behavior rather than spawning a generic replacement.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/cleanse_villager",
+  "secret": true,
+  "sortnum": 31
+}

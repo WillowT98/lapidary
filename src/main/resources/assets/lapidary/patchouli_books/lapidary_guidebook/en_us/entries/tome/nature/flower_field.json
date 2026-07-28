@@ -1,0 +1,19 @@
+{
+  "name": "Flower Field",
+  "icon": "minecraft:allium",
+  "category": "lapidary:tome/nature",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "I can scatter flowers that do not belong to the local climate."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Mana:$() ½ bucket$(br)$(bold)Mode:$() Instant$(br2)Aim at terrain within eight blocks. The spell tests positions in a six-block sphere and randomly places valid flowers with a twenty-two percent chance per eligible position. The candidate list includes ordinary flowers from many biomes and Torchflowers.",
+      "title": "Method and Limits"
+    }
+  ],
+  "advancement": "lapidary:guide/spell/flower_field",
+  "secret": true,
+  "sortnum": 10
+}
