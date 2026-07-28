@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "#S#",
+    "S#S",
+    "#S#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "lapidary:fine_sand"
+    }
+  },
+  "result": {
+    "id": "lapidary:electrostatic_mix",
+    "count": 1
+  }
+}

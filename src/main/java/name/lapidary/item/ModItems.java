@@ -173,6 +173,10 @@ public final class ModItems {
             "sable_fur",
             new Item(new Item.Properties())
     );
+    public static final Item MANA_FUR = register(
+            "mana_fur",
+            new Item(new Item.Properties())
+    );
 
     public static final Item GLOW_TROUT_BUCKET =
             register(

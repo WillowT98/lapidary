@@ -104,6 +104,7 @@ public final class ModCreativeTabs {
                                             add.accept(ModItems.RING_PEARL);
                                             add.accept(ModItems.RING_SEAGLASS);
                                             add.accept(ModItems.SABLE_FUR);
+                                            add.accept(ModItems.MANA_FUR);
                                             add.accept(ModItems.GLOW_TROUT_BUCKET);
                                             add.accept(ModItems.BRIGHT_SALMON_BUCKET);
                                             add.accept(ModItems.AMEFYSH_BUCKET);
