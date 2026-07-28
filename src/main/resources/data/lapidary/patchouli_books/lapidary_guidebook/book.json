@@ -4,7 +4,7 @@
   "subtitle": "A Field Journal",
   "version": "1",
   "use_resource_pack": true,
-  "dont_generate_book": false,
+  "dont_generate_book": true,
   "custom_book_item": "lapidary:lapidary_guidebook",
   "show_progress": false,
   "book_texture": "patchouli:textures/gui/book_cyan.png"
