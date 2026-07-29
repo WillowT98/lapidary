@@ -129,6 +129,11 @@ public class LapidaryClient implements ClientModInitializer {
 				CanisterBlockEntityRenderer::new
 		);
 		BlockEntityRendererRegistry.register(
+				ModBlockEntities.MANA_PERCOLATOR,
+				ManaPercolatorBlockEntityRenderer::new
+		);
+
+		BlockEntityRendererRegistry.register(
 				ModBlockEntities.CUSTOM_WINDOW_CONTROLLER,
 				CustomWindowRenderer::new
 		);

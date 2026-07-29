@@ -131,6 +131,7 @@ public final class ModCreativeTabs {
                                             add.accept(ModBlocks.JEWELERS_TABLE);
                                             add.accept(ModBlocks.TOME_TABLE);
                                             add.accept(ModBlocks.CANISTER);
+                                            add.accept(ModBlocks.MANA_PERCOLATOR);
                                             add.accept(ModItems.MAGE_BACKPACK);
                                             add.accept(ModItems.STAFF);
                                             add.accept(ModItems.BISMUTH_SHARD);

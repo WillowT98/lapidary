@@ -37,6 +37,24 @@ public final class ModBlockEntities {
                             )
                             .build(null)
             );
+
+    public static final BlockEntityType<ManaPercolatorBlockEntity>
+            MANA_PERCOLATOR =
+            Registry.register(
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(
+                            Lapidary.MOD_ID,
+                            "mana_percolator"
+                    ),
+                    BlockEntityType.Builder
+                            .of(
+                                    ManaPercolatorBlockEntity::new,
+                                    ModBlocks.MANA_PERCOLATOR
+                            )
+                            .build(null)
+            );
+
+
     public static final BlockEntityType<
             CustomWindowControllerBlockEntity
             > CUSTOM_WINDOW_CONTROLLER =

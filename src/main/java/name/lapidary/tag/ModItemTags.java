@@ -8,6 +8,12 @@ import net.minecraft.world.item.Item;
 
 public final class ModItemTags {
 
+    public static final TagKey<Item> GEMS =
+            create(
+                    "gems"
+            );
+
+
     public static final TagKey<Item> SHOWS_INSIGHT_BAR =
             create(
                     "shows_insight_bar"

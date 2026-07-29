@@ -7,6 +7,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
+/**
+ * Reads and changes the liquid preserved on a canister ItemStack.
+ *
+ * Mounted percolator canisters remain ordinary canister items, so this
+ * helper bridges their BLOCK_ENTITY_DATA component and machine automation.
+ */
 public final class CanisterItemContents {
 
     private CanisterItemContents() {
@@ -61,12 +67,10 @@ public final class CanisterItemContents {
     }
 
     /**
-     * Extracts exactly the requested amount from a canister ItemStack.
-     *
-     * The stack remains unchanged unless the canister contains the
-     * requested liquid and the complete requested amount.
+     * Atomically removes exactly the requested amount when available.
+     * Partial transfers are deliberately rejected.
      */
-    public static boolean tryExtract(
+    public static boolean tryExtractExact(
             ItemStack stack,
             CanisterLiquid requestedLiquid,
             long requestedAmount
@@ -77,18 +81,68 @@ public final class CanisterItemContents {
             return false;
         }
 
-        Contents contents =
-                read(stack);
+        Contents contents = read(stack);
 
-        if (contents.isEmpty()
-                || contents.liquid()
-                != requestedLiquid
-                || contents.amount()
-                < requestedAmount) {
+        if (contents.liquid() != requestedLiquid
+                || contents.amount() < requestedAmount) {
 
             return false;
         }
 
+        write(
+                stack,
+                requestedLiquid,
+                contents.amount() - requestedAmount
+        );
+
+        return true;
+    }
+
+    /**
+     * Atomically inserts exactly the requested amount when the canister
+     * is empty or already contains the same liquid and has enough room.
+     */
+    public static boolean tryInsertExact(
+            ItemStack stack,
+            CanisterLiquid insertedLiquid,
+            long insertedAmount
+    ) {
+        if (!stack.is(ModBlocks.CANISTER.asItem())
+                || insertedLiquid == null
+                || insertedAmount <= 0L) {
+
+            return false;
+        }
+
+        Contents contents = read(stack);
+
+        if (!contents.isEmpty()
+                && contents.liquid() != insertedLiquid) {
+
+            return false;
+        }
+
+        if (CanisterFluidStorage.CAPACITY
+                - contents.amount()
+                < insertedAmount) {
+
+            return false;
+        }
+
+        write(
+                stack,
+                insertedLiquid,
+                contents.amount() + insertedAmount
+        );
+
+        return true;
+    }
+
+    private static void write(
+            ItemStack stack,
+            CanisterLiquid liquid,
+            long amount
+    ) {
         CustomData existingData =
                 stack.get(
                         DataComponents.BLOCK_ENTITY_DATA
@@ -99,41 +153,48 @@ public final class CanisterItemContents {
                         ? new CompoundTag()
                         : existingData.copyTag();
 
-        long remainingAmount =
-                contents.amount()
-                        - requestedAmount;
+        long clampedAmount =
+                Math.max(
+                        0L,
+                        Math.min(
+                                amount,
+                                CanisterFluidStorage.CAPACITY
+                        )
+                );
 
         tag.putLong(
                 CanisterBlockEntity.AMOUNT_KEY,
-                remainingAmount
+                clampedAmount
         );
 
-        if (remainingAmount <= 0L) {
-            tag.putString(
-                    CanisterBlockEntity.LIQUID_KEY,
-                    ""
-            );
-        } else {
-            tag.putString(
-                    CanisterBlockEntity.LIQUID_KEY,
-                    requestedLiquid.id()
-                            .toString()
-            );
-        }
+        tag.putString(
+                CanisterBlockEntity.LIQUID_KEY,
+                clampedAmount <= 0L || liquid == null
+                        ? ""
+                        : liquid.id().toString()
+        );
 
-        stack.set(
+        /*
+         * BLOCK_ENTITY_DATA must identify which block entity owns the
+         * stored data. ItemStack serialization rejects the component
+         * when this id is absent.
+         */
+        tag.putString(
+                "id",
+                "lapidary:canister"
+        );
+
+        CustomData.set(
                 DataComponents.BLOCK_ENTITY_DATA,
-                CustomData.of(tag)
+                stack,
+                tag
         );
-
-        return true;
     }
 
     public record Contents(
             CanisterLiquid liquid,
             long amount
     ) {
-
         public static final Contents EMPTY =
                 new Contents(
                         null,

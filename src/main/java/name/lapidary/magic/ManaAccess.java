@@ -86,7 +86,7 @@ public final class ManaAccess {
                 mountedCanister.copy();
 
         boolean extracted =
-                CanisterItemContents.tryExtract(
+                CanisterItemContents.tryExtractExact(
                         updatedCanister,
                         CanisterLiquid.MANA,
                         requestedAmount

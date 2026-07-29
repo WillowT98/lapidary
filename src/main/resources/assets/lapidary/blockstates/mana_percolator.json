@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lapidary:block/mana_percolator",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "lapidary:block/mana_percolator",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "lapidary:block/mana_percolator"
+    },
+    "facing=west": {
+      "model": "lapidary:block/mana_percolator",
+      "y": 90
+    }
+  }
+}

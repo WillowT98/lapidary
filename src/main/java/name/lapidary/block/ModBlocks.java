@@ -103,6 +103,20 @@ public final class ModBlocks {
             ),
             new Item.Properties().stacksTo(1)
     );
+
+    public static final Block MANA_PERCOLATOR = register(
+            "mana_percolator",
+            new ManaPercolatorBlock(
+                    BlockBehaviour.Properties
+                            .ofFullCopy(Blocks.CAULDRON)
+                            .strength(2.0F)
+                            .sound(SoundType.METAL)
+                            .noOcclusion()
+                            .pushReaction(PushReaction.BLOCK)
+            )
+    );
+
+
     public static final Block STAINED_GLASS_FABRICATOR = register(
             "stained_glass_fabricator",
             new StainedGlassFabricatorBlock(
