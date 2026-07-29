@@ -2,12 +2,12 @@
 	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"1": "canister_glass",
-		"3": "canister textures/stacking_plate_top",
-		"4": "stacking_plate_sides",
-		"5": "capacity_mark",
-		"6": "block/canister_frame",
-		"particle": "block/canister_frame"
+		"1": "lapidary:block/canister_glass",
+		"3": "lapidary:block/stacking_plate_top",
+		"4": "lapidary:block/stacking_plate_sides",
+		"5": "lapidary:block/capacity_mark",
+		"6": "lapidary:block/canister_frame",
+		"particle": "lapidary:block/canister_frame"
 	},
 	"elements": [
 		{
@@ -241,8 +241,7 @@
 				"east": {"uv": [0, 9.2, 13.4, 12.65], "texture": "#4"},
 				"south": {"uv": [0, 9.1, 13.5, 12.85], "texture": "#4"},
 				"west": {"uv": [0, 10, 13.5, 6.3], "texture": "#4"},
-				"up": {"uv": [16, 16, 0, 0], "texture": "#3"},
-				"down": {"uv": [21, 1, 15, 7], "texture": "#missing"}
+				"up": {"uv": [16, 16, 0, 0], "texture": "#3"}
 			}
 		},
 		{
