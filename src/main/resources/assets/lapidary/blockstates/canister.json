@@ -1,7 +1,29 @@
 {
   "variants": {
-    "": {
+    "facing=down": {
       "model": "lapidary:block/canister"
+    },
+    "facing=up": {
+      "model": "lapidary:block/canister",
+      "x": 180
+    },
+    "facing=north": {
+      "model": "lapidary:block/canister",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "lapidary:block/canister",
+      "x": 90,
+      "y": 90
+    },
+    "facing=south": {
+      "model": "lapidary:block/canister",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "lapidary:block/canister",
+      "x": 90,
+      "y": 270
     }
   }
 }

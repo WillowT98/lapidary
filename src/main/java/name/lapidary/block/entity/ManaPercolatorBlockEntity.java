@@ -1,10 +1,13 @@
 package name.lapidary.block.entity;
 
+import name.lapidary.block.CanisterBlock;
+import name.lapidary.block.ManaPercolatorBlock;
+import name.lapidary.block.ModBlocks;
 import name.lapidary.fluid.CanisterFluidStorage;
-import name.lapidary.fluid.CanisterItemContents;
 import name.lapidary.fluid.CanisterLiquid;
 import name.lapidary.tag.ModItemTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -17,11 +20,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Menu-free storage and processing logic for the mana percolator.
+ * Controller state for the three-block mana percolator.
  *
- * The chamber holds one logical bucket at a time. Mounted canisters are
- * stored as their actual ItemStacks so their existing block-entity item
- * data is preserved when mounted, changed, removed, or dropped.
+ * The controller stores only the gem, one-bucket chamber, and progress.
+ * Input and output are neighboring real CanisterBlockEntity instances.
  */
 public final class ManaPercolatorBlockEntity
         extends BlockEntity {
@@ -35,10 +37,14 @@ public final class ManaPercolatorBlockEntity
     private static final String GEM_KEY =
             "Gem";
 
-    private static final String INPUT_CANISTER_KEY =
+    /*
+     * Retained only to migrate saves made by the earlier implementation,
+     * which stored mounted canisters inside this block entity.
+     */
+    private static final String LEGACY_INPUT_CANISTER_KEY =
             "InputCanister";
 
-    private static final String OUTPUT_CANISTER_KEY =
+    private static final String LEGACY_OUTPUT_CANISTER_KEY =
             "OutputCanister";
 
     private static final String GEM_COMMITTED_KEY =
@@ -56,10 +62,10 @@ public final class ManaPercolatorBlockEntity
     private ItemStack gem =
             ItemStack.EMPTY;
 
-    private ItemStack inputCanister =
+    private ItemStack legacyInputCanister =
             ItemStack.EMPTY;
 
-    private ItemStack outputCanister =
+    private ItemStack legacyOutputCanister =
             ItemStack.EMPTY;
 
     private boolean gemCommitted;
@@ -88,9 +94,11 @@ public final class ManaPercolatorBlockEntity
             BlockState state,
             ManaPercolatorBlockEntity percolator
     ) {
+        percolator.returnLegacyCanisters();
+
         /*
-         * Finished mana leaves first. This allows the same server tick
-         * to pull the next bucket of water and begin the following cycle.
+         * Finished mana leaves first. This permits the same tick to pull
+         * the next bucket of water and begin another cycle.
          */
         if (percolator.chamber == ChamberContents.MANA
                 && percolator.trySendManaToOutputCanister()) {
@@ -128,10 +136,6 @@ public final class ManaPercolatorBlockEntity
 
         percolator.processingTicks++;
 
-        /*
-         * Save progress once per second without sending a render packet
-         * every tick. The client only needs the start and finish states.
-         */
         if (percolator.processingTicks % 20 == 0) {
             percolator.setChanged();
         }
@@ -269,158 +273,173 @@ public final class ManaPercolatorBlockEntity
         return true;
     }
 
-    public boolean canMountInputCanister(
-            ItemStack testedStack
-    ) {
-        if (!inputCanister.isEmpty()) {
-            return false;
-        }
-
-        CanisterItemContents.Contents contents =
-                CanisterItemContents.read(
-                        testedStack
-                );
-
-        return contents.liquid()
-                == CanisterLiquid.WATER
-                && contents.amount()
-                >= CanisterFluidStorage.BUCKET;
-    }
-
-    public boolean mountInputCanister(
-            ItemStack mountedStack
-    ) {
-        if (!canMountInputCanister(mountedStack)) {
-            return false;
-        }
-
-        inputCanister =
-                singleCopy(mountedStack);
-
-        synchronize();
-
-        return true;
-    }
-
-    public boolean canMountOutputCanister(
-            ItemStack testedStack
-    ) {
-        if (!outputCanister.isEmpty()) {
-            return false;
-        }
-
-        if (!testedStack.is(
-                name.lapidary.block.ModBlocks
-                        .CANISTER.asItem()
-        )) {
-            return false;
-        }
-
-        CanisterItemContents.Contents contents =
-                CanisterItemContents.read(
-                        testedStack
-                );
-
-        if (!contents.isEmpty()
-                && contents.liquid()
-                != CanisterLiquid.MANA) {
-
-            return false;
-        }
-
-        return CanisterFluidStorage.CAPACITY
-                - contents.amount()
-                >= CanisterFluidStorage.BUCKET;
-    }
-
-    public boolean mountOutputCanister(
-            ItemStack mountedStack
-    ) {
-        if (!canMountOutputCanister(mountedStack)) {
-            return false;
-        }
-
-        outputCanister =
-                singleCopy(mountedStack);
-
-        synchronize();
-
-        return true;
-    }
-
-    public ItemStack removeInputCanister() {
-        if (inputCanister.isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-
-        ItemStack removed =
-                inputCanister;
-
-        inputCanister =
-                ItemStack.EMPTY;
-
-        synchronize();
-
-        return removed;
-    }
-
-    public ItemStack removeOutputCanister() {
-        if (outputCanister.isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-
-        ItemStack removed =
-                outputCanister;
-
-        outputCanister =
-                ItemStack.EMPTY;
-
-        synchronize();
-
-        return removed;
-    }
-
     private boolean tryPullWaterFromInputCanister() {
-        if (inputCanister.isEmpty()) {
+        CanisterBlockEntity inputCanister =
+                getInputCanister();
+
+        if (inputCanister == null) {
             return false;
         }
 
-        return CanisterItemContents.tryExtractExact(
-                inputCanister,
+        CanisterFluidStorage storage =
+                inputCanister.getStorage();
+
+        long available =
+                storage.extract(
+                        CanisterLiquid.WATER,
+                        CanisterFluidStorage.BUCKET,
+                        true
+                );
+
+        if (available != CanisterFluidStorage.BUCKET) {
+            return false;
+        }
+
+        return storage.extract(
                 CanisterLiquid.WATER,
-                CanisterFluidStorage.BUCKET
-        );
+                CanisterFluidStorage.BUCKET,
+                false
+        ) == CanisterFluidStorage.BUCKET;
     }
 
     private boolean trySendManaToOutputCanister() {
-        if (outputCanister.isEmpty()) {
+        CanisterBlockEntity outputCanister =
+                getOutputCanister();
+
+        if (outputCanister == null) {
             return false;
         }
 
-        return CanisterItemContents.tryInsertExact(
-                outputCanister,
+        CanisterFluidStorage storage =
+                outputCanister.getStorage();
+
+        long insertable =
+                storage.insert(
+                        CanisterLiquid.MANA,
+                        CanisterFluidStorage.BUCKET,
+                        true
+                );
+
+        if (insertable != CanisterFluidStorage.BUCKET) {
+            return false;
+        }
+
+        return storage.insert(
                 CanisterLiquid.MANA,
-                CanisterFluidStorage.BUCKET
-        );
+                CanisterFluidStorage.BUCKET,
+                false
+        ) == CanisterFluidStorage.BUCKET;
     }
 
-    private static ItemStack singleCopy(
-            ItemStack source
-    ) {
-        ItemStack copied =
-                source.copy();
+    private CanisterBlockEntity getInputCanister() {
+        if (level == null) {
+            return null;
+        }
 
-        copied.setCount(1);
+        Direction facing =
+                getBlockState().getValue(
+                        ManaPercolatorBlock.FACING
+                );
 
-        return copied;
+        BlockPos canisterPosition =
+                worldPosition.relative(facing);
+
+        BlockState canisterState =
+                level.getBlockState(canisterPosition);
+
+        if (!canisterState.is(ModBlocks.CANISTER)
+                || canisterState.getValue(CanisterBlock.FACING)
+                != facing.getOpposite()) {
+
+            return null;
+        }
+
+        if (level.getBlockEntity(canisterPosition)
+                instanceof CanisterBlockEntity canister) {
+
+            return canister;
+        }
+
+        return null;
+    }
+
+    private CanisterBlockEntity getOutputCanister() {
+        if (level == null) {
+            return null;
+        }
+
+        BlockPos canisterPosition =
+                worldPosition.above();
+
+        BlockState canisterState =
+                level.getBlockState(canisterPosition);
+
+        if (!canisterState.is(ModBlocks.CANISTER)
+                || canisterState.getValue(CanisterBlock.FACING)
+                != Direction.DOWN) {
+
+            return null;
+        }
+
+        if (level.getBlockEntity(canisterPosition)
+                instanceof CanisterBlockEntity canister) {
+
+            return canister;
+        }
+
+        return null;
     }
 
     /**
-     * Drops mounted canisters and an unused gem when the block is broken.
-     *
-     * A committed gem is intentionally not dropped. Allowing it to become
-     * a normal portable gem again would reset its remaining eight-use
-     * budget and make gem consumption avoidable by breaking the machine.
+     * Old versions stored mounted canisters inside this block entity.
+     * Return those exact item stacks once after the updated chunk begins
+     * ticking, allowing the player to remount them as real blocks.
+     */
+    private void returnLegacyCanisters() {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+
+        boolean changed =
+                false;
+
+        if (!legacyInputCanister.isEmpty()) {
+            Block.popResource(
+                    level,
+                    worldPosition,
+                    legacyInputCanister
+            );
+
+            legacyInputCanister =
+                    ItemStack.EMPTY;
+
+            changed =
+                    true;
+        }
+
+        if (!legacyOutputCanister.isEmpty()) {
+            Block.popResource(
+                    level,
+                    worldPosition,
+                    legacyOutputCanister
+            );
+
+            legacyOutputCanister =
+                    ItemStack.EMPTY;
+
+            changed =
+                    true;
+        }
+
+        if (changed) {
+            synchronize();
+        }
+    }
+
+    /**
+     * Drops an unused gem when the controller is broken. A committed gem
+     * remains consumed by the machine so breaking the controller cannot
+     * reset its remaining-use budget.
      */
     public void dropStoredItems() {
         if (level == null || level.isClientSide) {
@@ -435,29 +454,29 @@ public final class ManaPercolatorBlockEntity
             );
         }
 
-        if (!inputCanister.isEmpty()) {
+        if (!legacyInputCanister.isEmpty()) {
             Block.popResource(
                     level,
                     worldPosition,
-                    inputCanister
+                    legacyInputCanister
             );
         }
 
-        if (!outputCanister.isEmpty()) {
+        if (!legacyOutputCanister.isEmpty()) {
             Block.popResource(
                     level,
                     worldPosition,
-                    outputCanister
+                    legacyOutputCanister
             );
         }
 
         gem =
                 ItemStack.EMPTY;
 
-        inputCanister =
+        legacyInputCanister =
                 ItemStack.EMPTY;
 
-        outputCanister =
+        legacyOutputCanister =
                 ItemStack.EMPTY;
 
         setChanged();
@@ -465,14 +484,6 @@ public final class ManaPercolatorBlockEntity
 
     public ItemStack getGem() {
         return gem;
-    }
-
-    public ItemStack getInputCanister() {
-        return inputCanister;
-    }
-
-    public ItemStack getOutputCanister() {
-        return outputCanister;
     }
 
     public ChamberContents getChamber() {
@@ -512,10 +523,7 @@ public final class ManaPercolatorBlockEntity
             CompoundTag tag,
             HolderLookup.Provider registries
     ) {
-        super.saveAdditional(
-                tag,
-                registries
-        );
+        super.saveAdditional(tag, registries);
 
         saveStack(
                 tag,
@@ -526,15 +534,15 @@ public final class ManaPercolatorBlockEntity
 
         saveStack(
                 tag,
-                INPUT_CANISTER_KEY,
-                inputCanister,
+                LEGACY_INPUT_CANISTER_KEY,
+                legacyInputCanister,
                 registries
         );
 
         saveStack(
                 tag,
-                OUTPUT_CANISTER_KEY,
-                outputCanister,
+                LEGACY_OUTPUT_CANISTER_KEY,
+                legacyOutputCanister,
                 registries
         );
 
@@ -564,10 +572,7 @@ public final class ManaPercolatorBlockEntity
             CompoundTag tag,
             HolderLookup.Provider registries
     ) {
-        super.loadAdditional(
-                tag,
-                registries
-        );
+        super.loadAdditional(tag, registries);
 
         gem = loadStack(
                 tag,
@@ -575,39 +580,33 @@ public final class ManaPercolatorBlockEntity
                 registries
         );
 
-        inputCanister = loadStack(
+        legacyInputCanister = loadStack(
                 tag,
-                INPUT_CANISTER_KEY,
+                LEGACY_INPUT_CANISTER_KEY,
                 registries
         );
 
-        outputCanister = loadStack(
+        legacyOutputCanister = loadStack(
                 tag,
-                OUTPUT_CANISTER_KEY,
+                LEGACY_OUTPUT_CANISTER_KEY,
                 registries
         );
 
         gemCommitted =
-                tag.getBoolean(
-                        GEM_COMMITTED_KEY
-                );
+                tag.getBoolean(GEM_COMMITTED_KEY);
 
         gemUsesRemaining =
                 Math.max(
                         0,
                         Math.min(
                                 CONVERSIONS_PER_GEM,
-                                tag.getInt(
-                                        GEM_USES_KEY
-                                )
+                                tag.getInt(GEM_USES_KEY)
                         )
                 );
 
         chamber =
                 ChamberContents.byName(
-                        tag.getString(
-                                CHAMBER_KEY
-                        )
+                        tag.getString(CHAMBER_KEY)
                 );
 
         processingTicks =
@@ -615,9 +614,7 @@ public final class ManaPercolatorBlockEntity
                         0,
                         Math.min(
                                 PROCESSING_DURATION_TICKS,
-                                tag.getInt(
-                                        PROCESSING_TICKS_KEY
-                                )
+                                tag.getInt(PROCESSING_TICKS_KEY)
                         )
                 );
 
@@ -694,19 +691,15 @@ public final class ManaPercolatorBlockEntity
     }
 
     @Override
-    public Packet<ClientGamePacketListener>
-    getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket
-                .create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag(
             HolderLookup.Provider registries
     ) {
-        return saveWithoutMetadata(
-                registries
-        );
+        return saveWithoutMetadata(registries);
     }
 
     public enum ChamberContents {
@@ -716,9 +709,7 @@ public final class ManaPercolatorBlockEntity
 
         private final String serializedName;
 
-        ChamberContents(
-                String serializedName
-        ) {
+        ChamberContents(String serializedName) {
             this.serializedName =
                     serializedName;
         }

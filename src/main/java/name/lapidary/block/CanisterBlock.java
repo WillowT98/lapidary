@@ -6,6 +6,7 @@ import name.lapidary.fluid.CanisterFluidStorage;
 import name.lapidary.fluid.CanisterLiquid;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -23,13 +24,19 @@ import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -40,36 +47,50 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.List;
 import java.util.Locale;
 
-public final class CanisterBlock
-        extends BaseEntityBlock {
+public final class CanisterBlock extends BaseEntityBlock {
 
     public static final MapCodec<CanisterBlock> CODEC =
-            simpleCodec(
-                    CanisterBlock::new
-            );
+            simpleCodec(CanisterBlock::new);
 
-    /*
-     * Includes the frame and the protruding capacity marks.
+    /**
+     * Direction from the canister body toward its bottom attachment plate.
+     *
+     * A normally placed upright canister points DOWN. The percolator places
+     * its horizontal input canister with this property pointing back toward
+     * the percolator nozzle.
      */
-    private static final VoxelShape SHAPE =
-            box(
-                    3.5D,
-                    1.0D,
-                    4.0D,
-                    12.0D,
-                    16.0D,
-                    12.0D
-            );
+    public static final DirectionProperty FACING =
+            BlockStateProperties.FACING;
 
-    public CanisterBlock(
-            BlockBehaviour.Properties properties
-    ) {
+    private static final VoxelShape DOWN_SHAPE =
+            box(3.5D, 1.0D, 4.0D, 12.0D, 16.0D, 12.0D);
+
+    private static final VoxelShape UP_SHAPE =
+            box(3.5D, 0.0D, 4.0D, 12.0D, 15.0D, 12.0D);
+
+    private static final VoxelShape NORTH_SHAPE =
+            box(3.5D, 4.0D, 0.0D, 12.0D, 12.0D, 15.0D);
+
+    private static final VoxelShape SOUTH_SHAPE =
+            box(3.5D, 4.0D, 1.0D, 12.0D, 12.0D, 16.0D);
+
+    private static final VoxelShape EAST_SHAPE =
+            box(1.0D, 4.0D, 3.5D, 16.0D, 12.0D, 12.0D);
+
+    private static final VoxelShape WEST_SHAPE =
+            box(0.0D, 4.0D, 3.5D, 15.0D, 12.0D, 12.0D);
+
+    public CanisterBlock(BlockBehaviour.Properties properties) {
         super(properties);
+
+        registerDefaultState(
+                stateDefinition.any()
+                        .setValue(FACING, Direction.DOWN)
+        );
     }
 
     @Override
-    protected MapCodec<? extends BaseEntityBlock>
-    codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -78,20 +99,11 @@ public final class CanisterBlock
             BlockPos position,
             BlockState state
     ) {
-        return new CanisterBlockEntity(
-                position,
-                state
-        );
+        return new CanisterBlockEntity(position, state);
     }
 
     @Override
-    protected RenderShape getRenderShape(
-            BlockState state
-    ) {
-        /*
-         * Keep rendering the existing JSON model. The block-entity
-         * renderer only adds the internal liquid.
-         */
+    protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -102,7 +114,55 @@ public final class CanisterBlock
             BlockPos position,
             CollisionContext context
     ) {
-        return SHAPE;
+        return switch (state.getValue(FACING)) {
+            case UP -> UP_SHAPE;
+            case NORTH -> NORTH_SHAPE;
+            case SOUTH -> SOUTH_SHAPE;
+            case EAST -> EAST_SHAPE;
+            case WEST -> WEST_SHAPE;
+            case DOWN -> DOWN_SHAPE;
+        };
+    }
+
+    /**
+     * Ordinary item placement always produces an upright canister.
+     * Horizontal states are created only by the mana percolator.
+     */
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return defaultBlockState()
+                .setValue(FACING, Direction.DOWN);
+    }
+
+    @Override
+    protected BlockState rotate(
+            BlockState state,
+            Rotation rotation
+    ) {
+        return state.setValue(
+                FACING,
+                rotation.rotate(state.getValue(FACING))
+        );
+    }
+
+    @Override
+    protected BlockState mirror(
+            BlockState state,
+            Mirror mirror
+    ) {
+        return state.rotate(
+                mirror.getRotation(state.getValue(FACING))
+        );
+    }
+
+    @Override
+    protected void createBlockStateDefinition(
+            StateDefinition.Builder<
+                    net.minecraft.world.level.block.Block,
+                    BlockState
+                    > builder
+    ) {
+        builder.add(FACING);
     }
 
     @Override
@@ -116,37 +176,22 @@ public final class CanisterBlock
             BlockHitResult hitResult
     ) {
         CanisterLiquid bucketLiquid =
-                CanisterLiquid
-                        .fromFilledBucket(
-                                heldStack
-                        );
+                CanisterLiquid.fromFilledBucket(heldStack);
 
         boolean holdingEmptyBucket =
-                heldStack.is(
-                        Items.BUCKET
-                );
+                heldStack.is(Items.BUCKET);
 
-        /*
-         * Let unrelated items perform their ordinary interactions.
-         */
-        if (bucketLiquid == null
-                && !holdingEmptyBucket) {
-
+        if (bucketLiquid == null && !holdingEmptyBucket) {
             return ItemInteractionResult
                     .PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        /*
-         * The client acknowledges the interaction immediately.
-         * Actual storage changes occur only on the server.
-         */
         if (level.isClientSide) {
             return ItemInteractionResult.SUCCESS;
         }
 
         if (!(level.getBlockEntity(position)
-                instanceof CanisterBlockEntity
-                canister)) {
+                instanceof CanisterBlockEntity canister)) {
 
             return ItemInteractionResult.FAIL;
         }
@@ -185,10 +230,6 @@ public final class CanisterBlock
         CanisterFluidStorage storage =
                 canister.getStorage();
 
-        /*
-         * This may be a full bucket or only the remaining fraction of
-         * capacity when the canister is nearly full.
-         */
         long insertable =
                 storage.insert(
                         insertedLiquid,
@@ -196,9 +237,6 @@ public final class CanisterBlock
                         true
                 );
 
-        /*
-         * Reject only when none of the bucket can be accepted.
-         */
         if (insertable <= 0L) {
             if (!storage.isEmpty()
                     && !storage.contains(insertedLiquid)) {
@@ -222,19 +260,12 @@ public final class CanisterBlock
             return ItemInteractionResult.FAIL;
         }
 
-        /*
-         * Insert as much of the bucket as will fit. Any excess is lost,
-         * but the filled bucket is still consumed as requested.
-         */
         storage.insert(
                 insertedLiquid,
                 insertable,
                 false
         );
 
-        /*
-         * Creative players retain the filled bucket.
-         */
         if (!player.getAbilities().instabuild) {
             player.setItemInHand(
                     hand,
@@ -282,20 +313,12 @@ public final class CanisterBlock
                         true
                 );
 
-        /*
-         * Partial amounts inserted by future machines cannot yet be
-         * removed using a bucket until at least one full bucket exists.
-         */
-        if (preview.amount()
-                < CanisterFluidStorage.BUCKET) {
-
+        if (preview.amount() < CanisterFluidStorage.BUCKET) {
             player.displayClientMessage(
                     Component.translatable(
                             storage.isEmpty()
-                                    ? "message.lapidary"
-                                    + ".canister.empty"
-                                    : "message.lapidary"
-                                    + ".canister"
+                                    ? "message.lapidary.canister.empty"
+                                    : "message.lapidary.canister"
                                     + ".not_enough"
                     ),
                     true
@@ -316,10 +339,6 @@ public final class CanisterBlock
                                 .filledBucketItem()
                 );
 
-        /*
-         * Handles bucket stacks, full inventories, and Creative mode
-         * using vanilla's ordinary filled-container behavior.
-         */
         ItemStack replacement =
                 ItemUtils.createFilledResult(
                         heldStack,
@@ -327,14 +346,10 @@ public final class CanisterBlock
                         filledBucket
                 );
 
-        player.setItemInHand(
-                hand,
-                replacement
-        );
+        player.setItemInHand(hand, replacement);
 
         SoundEvent sound =
-                extracted.liquid()
-                        .usesLavaSounds()
+                extracted.liquid().usesLavaSounds()
                         ? SoundEvents.BUCKET_FILL_LAVA
                         : SoundEvents.BUCKET_FILL;
 
@@ -356,9 +371,6 @@ public final class CanisterBlock
         return ItemInteractionResult.SUCCESS;
     }
 
-    /**
-     * Empty-hand interaction reports the contents.
-     */
     @Override
     protected InteractionResult useWithoutItem(
             BlockState state,
@@ -369,8 +381,7 @@ public final class CanisterBlock
     ) {
         if (!level.isClientSide
                 && level.getBlockEntity(position)
-                instanceof CanisterBlockEntity
-                canister) {
+                instanceof CanisterBlockEntity canister) {
 
             CanisterFluidStorage storage =
                     canister.getStorage();
@@ -397,6 +408,7 @@ public final class CanisterBlock
                 level.isClientSide
         );
     }
+
     @Override
     protected void tick(
             BlockState state,
@@ -404,23 +416,22 @@ public final class CanisterBlock
             BlockPos position,
             RandomSource random
     ) {
-        transferDownward(
-                level,
-                position
-        );
+        /*
+         * Only ordinary upright canisters participate in vertical
+         * canister stacking. A horizontal percolator input must not try
+         * to drain into the unrelated block geometrically beneath it.
+         */
+        if (state.getValue(FACING) == Direction.DOWN) {
+            transferDownward(level, position);
+        }
     }
-    /**
-     * Attempts to move as much liquid as possible from this canister
-     * into the canister immediately beneath it.
-     */
+
     private static void transferDownward(
             ServerLevel level,
             BlockPos upperPosition
     ) {
-        if (!(level.getBlockEntity(
-                upperPosition
-        ) instanceof CanisterBlockEntity
-                upperCanister)) {
+        if (!(level.getBlockEntity(upperPosition)
+                instanceof CanisterBlockEntity upperCanister)) {
 
             return;
         }
@@ -428,10 +439,13 @@ public final class CanisterBlock
         BlockPos lowerPosition =
                 upperPosition.below();
 
-        if (!(level.getBlockEntity(
-                lowerPosition
-        ) instanceof CanisterBlockEntity
-                lowerCanister)) {
+        BlockState lowerState =
+                level.getBlockState(lowerPosition);
+
+        if (!lowerState.is(ModBlocks.CANISTER)
+                || lowerState.getValue(FACING) != Direction.DOWN
+                || !(level.getBlockEntity(lowerPosition)
+                instanceof CanisterBlockEntity lowerCanister)) {
 
             return;
         }
@@ -451,14 +465,8 @@ public final class CanisterBlock
         CanisterLiquid upperLiquid =
                 upperStorage.getLiquid();
 
-        /*
-         * An empty lower canister can accept the upper liquid.
-         * A nonempty lower canister must contain the same liquid.
-         */
         if (!lowerStorage.isEmpty()
-                && !lowerStorage.contains(
-                upperLiquid
-        )) {
+                && !lowerStorage.contains(upperLiquid)) {
 
             return;
         }
@@ -485,30 +493,23 @@ public final class CanisterBlock
                 movedByPiston
         );
 
-        if (level.isClientSide) {
+        if (level.isClientSide
+                || state.getValue(FACING) != Direction.DOWN) {
+
             return;
         }
 
-        /*
-         * If this canister was placed above another, try draining this
-         * canister downward.
-         */
-        level.scheduleTick(
-                position,
-                this,
-                1
-        );
+        level.scheduleTick(position, this, 1);
 
-        /*
-         * If this canister was placed beneath an existing canister,
-         * schedule that upper canister too.
-         */
         BlockPos abovePosition =
                 position.above();
 
-        if (level.getBlockState(
-                abovePosition
-        ).is(this)) {
+        BlockState aboveState =
+                level.getBlockState(abovePosition);
+
+        if (aboveState.is(this)
+                && aboveState.getValue(FACING)
+                == Direction.DOWN) {
 
             level.scheduleTick(
                     abovePosition,
@@ -518,12 +519,6 @@ public final class CanisterBlock
         }
     }
 
-
-
-    /**
-     * Always creates the ordinary canister item, adding block-entity
-     * data when contents are present.
-     */
     @Override
     protected List<ItemStack> getDrops(
             BlockState state,
@@ -537,17 +532,9 @@ public final class CanisterBlock
                         LootContextParams.BLOCK_ENTITY
                 );
 
-        if (blockEntity
-                instanceof CanisterBlockEntity
-                canister
-                && !canister.getStorage()
-                .isEmpty()) {
+        if (blockEntity instanceof CanisterBlockEntity canister
+                && !canister.getStorage().isEmpty()) {
 
-            /*
-             * Stores the block entity's custom NBT in the item's
-             * BLOCK_ENTITY_DATA component. BlockItem restores that
-             * data when the canister is placed again.
-             */
             canister.saveToItem(
                     droppedCanister,
                     builder.getLevel()
@@ -555,14 +542,9 @@ public final class CanisterBlock
             );
         }
 
-        return List.of(
-                droppedCanister
-        );
+        return List.of(droppedCanister);
     }
 
-    /**
-     * Displays preserved contents while the canister is an item.
-     */
     @Override
     public void appendHoverText(
             ItemStack stack,
@@ -590,36 +572,26 @@ public final class CanisterBlock
 
         CanisterLiquid liquid =
                 CanisterLiquid.byId(
-                        blockEntityData
-                                .copyTag()
+                        blockEntityData.copyTag()
                                 .getString(
-                                        CanisterBlockEntity
-                                                .LIQUID_KEY
+                                        CanisterBlockEntity.LIQUID_KEY
                                 )
                 );
 
         long amount =
-                blockEntityData
-                        .copyTag()
+                blockEntityData.copyTag()
                         .getLong(
-                                CanisterBlockEntity
-                                        .AMOUNT_KEY
+                                CanisterBlockEntity.AMOUNT_KEY
                         );
 
-        if (liquid == null
-                || amount <= 0L) {
-
+        if (liquid == null || amount <= 0L) {
             return;
         }
 
         tooltip.add(
-                contentsComponent(
-                        liquid,
-                        amount
-                ).copy()
-                        .withStyle(
-                                ChatFormatting.GRAY
-                        )
+                contentsComponent(liquid, amount)
+                        .copy()
+                        .withStyle(ChatFormatting.GRAY)
         );
     }
 
@@ -634,20 +606,14 @@ public final class CanisterBlock
         );
     }
 
-    private static String formatBucketAmount(
-            long amount
-    ) {
+    private static String formatBucketAmount(long amount) {
         double buckets =
                 (double) amount
                         / CanisterFluidStorage.BUCKET;
 
-        if (amount
-                % CanisterFluidStorage.BUCKET
-                == 0L) {
-
+        if (amount % CanisterFluidStorage.BUCKET == 0L) {
             return Long.toString(
-                    amount
-                            / CanisterFluidStorage.BUCKET
+                    amount / CanisterFluidStorage.BUCKET
             );
         }
 

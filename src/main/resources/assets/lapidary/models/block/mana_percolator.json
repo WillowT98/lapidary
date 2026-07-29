@@ -96,8 +96,8 @@
 		},
 		{
 			"name": "nozzle",
-			"from": [5, 4, 15],
-			"to": [11, 10, 16],
+			"from": [5, 5, 14.99],
+			"to": [11, 11, 16],
 			"rotation": {"angle": 0, "axis": "x", "origin": [5, 10, 15]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},

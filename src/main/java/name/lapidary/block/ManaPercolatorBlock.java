@@ -1,8 +1,12 @@
 package name.lapidary.block;
 
 import com.mojang.serialization.MapCodec;
+import name.lapidary.block.entity.CanisterBlockEntity;
 import name.lapidary.block.entity.ManaPercolatorBlockEntity;
 import name.lapidary.block.entity.ModBlockEntities;
+import name.lapidary.fluid.CanisterFluidStorage;
+import name.lapidary.fluid.CanisterItemContents;
+import name.lapidary.fluid.CanisterLiquid;
 import name.lapidary.item.ModItems;
 import name.lapidary.tag.ModItemTags;
 import net.minecraft.core.BlockPos;
@@ -15,13 +19,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -40,32 +45,26 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Direct-interaction mana processor with no menu.
+ * Menu-free mana processor and controller for a three-block structure.
  *
- * Temporary targeting while no final model exists:
- * - top face: output canister mount;
- * - the block's visual-left face: water canister mount;
- * - every other face: chamber and gem interaction.
+ * The controller owns the gem and one-bucket chamber. Canisters are real
+ * neighboring canister blocks:
+ *
+ * - input: one block in front of the horizontal nozzle;
+ * - output: one block above the top nozzle.
  */
-public final class ManaPercolatorBlock
-        extends BaseEntityBlock {
+public final class ManaPercolatorBlock extends BaseEntityBlock {
 
     public static final MapCodec<ManaPercolatorBlock> CODEC =
-            simpleCodec(
-                    ManaPercolatorBlock::new
-            );
+            simpleCodec(ManaPercolatorBlock::new);
 
     public static final DirectionProperty FACING =
             BlockStateProperties.HORIZONTAL_FACING;
 
     private static final VoxelShape SHAPE =
             box(
-                    0.0D,
-                    0.0D,
-                    0.0D,
-                    16.0D,
-                    16.0D,
-                    16.0D
+                    0.0D, 0.0D, 0.0D,
+                    16.0D, 16.0D, 16.0D
             );
 
     public ManaPercolatorBlock(
@@ -75,16 +74,12 @@ public final class ManaPercolatorBlock
 
         registerDefaultState(
                 stateDefinition.any()
-                        .setValue(
-                                FACING,
-                                Direction.SOUTH
-                        )
+                        .setValue(FACING, Direction.SOUTH)
         );
     }
 
     @Override
-    protected MapCodec<? extends BaseEntityBlock>
-    codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -93,16 +88,12 @@ public final class ManaPercolatorBlock
             BlockPos position,
             BlockState state
     ) {
-        return new ManaPercolatorBlockEntity(
-                position,
-                state
-        );
+        return new ManaPercolatorBlockEntity(position, state);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity>
-    BlockEntityTicker<T> getTicker(
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level level,
             BlockState state,
             BlockEntityType<T> type
@@ -119,9 +110,7 @@ public final class ManaPercolatorBlock
     }
 
     @Override
-    protected RenderShape getRenderShape(
-            BlockState state
-    ) {
+    protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -154,9 +143,7 @@ public final class ManaPercolatorBlock
     ) {
         return state.setValue(
                 FACING,
-                rotation.rotate(
-                        state.getValue(FACING)
-                )
+                rotation.rotate(state.getValue(FACING))
         );
     }
 
@@ -166,9 +153,7 @@ public final class ManaPercolatorBlock
             Mirror mirror
     ) {
         return state.rotate(
-                mirror.getRotation(
-                        state.getValue(FACING)
-                )
+                mirror.getRotation(state.getValue(FACING))
         );
     }
 
@@ -193,21 +178,19 @@ public final class ManaPercolatorBlock
             BlockHitResult hitResult
     ) {
         if (!(level.getBlockEntity(position)
-                instanceof ManaPercolatorBlockEntity
-                percolator)) {
+                instanceof ManaPercolatorBlockEntity percolator)) {
 
             return ItemInteractionResult.FAIL;
         }
 
         if (heldStack.is(ModBlocks.CANISTER.asItem())) {
-            return handleCanisterInsertion(
+            return handleCanisterPlacement(
                     heldStack,
                     state,
                     level,
                     position,
                     player,
-                    hitResult,
-                    percolator
+                    hitResult
             );
         }
 
@@ -262,15 +245,10 @@ public final class ManaPercolatorBlock
                     ItemUtils.createFilledResult(
                             heldStack,
                             player,
-                            new ItemStack(
-                                    ModItems.MANA_BUCKET
-                            )
+                            new ItemStack(ModItems.MANA_BUCKET)
                     );
 
-            player.setItemInHand(
-                    hand,
-                    replacement
-            );
+            player.setItemInHand(hand, replacement);
 
             level.playSound(
                     null,
@@ -305,11 +283,7 @@ public final class ManaPercolatorBlock
                 heldStack.shrink(1);
             }
 
-            playMountSound(
-                    level,
-                    position,
-                    false
-            );
+            playMountSound(level, position, false);
 
             return ItemInteractionResult.SUCCESS;
         }
@@ -318,18 +292,17 @@ public final class ManaPercolatorBlock
                 .PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    private static ItemInteractionResult handleCanisterInsertion(
+    private static ItemInteractionResult handleCanisterPlacement(
             ItemStack heldStack,
-            BlockState state,
+            BlockState percolatorState,
             Level level,
-            BlockPos position,
+            BlockPos percolatorPosition,
             Player player,
-            BlockHitResult hitResult,
-            ManaPercolatorBlockEntity percolator
+            BlockHitResult hitResult
     ) {
         MountTarget target =
                 getMountTarget(
-                        state,
+                        percolatorState,
                         hitResult.getDirection()
                 );
 
@@ -337,16 +310,24 @@ public final class ManaPercolatorBlock
             return ItemInteractionResult.FAIL;
         }
 
-        boolean canMount =
+        CanisterItemContents.Contents contents =
+                CanisterItemContents.read(heldStack);
+
+        if (!isValidForTarget(target, contents)) {
+            return ItemInteractionResult.FAIL;
+        }
+
+        Direction percolatorFacing =
+                percolatorState.getValue(FACING);
+
+        BlockPos canisterPosition =
                 target == MountTarget.OUTPUT
-                        ? percolator.canMountOutputCanister(
-                                heldStack
-                        )
-                        : percolator.canMountInputCanister(
-                                heldStack
+                        ? percolatorPosition.above()
+                        : percolatorPosition.relative(
+                                percolatorFacing
                         );
 
-        if (!canMount) {
+        if (!level.isEmptyBlock(canisterPosition)) {
             return ItemInteractionResult.FAIL;
         }
 
@@ -354,17 +335,38 @@ public final class ManaPercolatorBlock
             return ItemInteractionResult.SUCCESS;
         }
 
-        boolean mounted =
+        Direction canisterAttachment =
                 target == MountTarget.OUTPUT
-                        ? percolator.mountOutputCanister(
-                                heldStack
-                        )
-                        : percolator.mountInputCanister(
-                                heldStack
+                        ? Direction.DOWN
+                        : percolatorFacing.getOpposite();
+
+        BlockState canisterState =
+                ModBlocks.CANISTER.defaultBlockState()
+                        .setValue(
+                                CanisterBlock.FACING,
+                                canisterAttachment
                         );
 
-        if (!mounted) {
+        boolean placed =
+                level.setBlock(
+                        canisterPosition,
+                        canisterState,
+                        Block.UPDATE_ALL
+                );
+
+        if (!placed
+                || !(level.getBlockEntity(canisterPosition)
+                instanceof CanisterBlockEntity canister)) {
+
             return ItemInteractionResult.FAIL;
+        }
+
+        if (!contents.isEmpty()) {
+            canister.getStorage().insert(
+                    contents.liquid(),
+                    contents.amount(),
+                    false
+            );
         }
 
         if (!player.getAbilities().instabuild) {
@@ -373,11 +375,38 @@ public final class ManaPercolatorBlock
 
         playMountSound(
                 level,
-                position,
+                canisterPosition,
                 false
         );
 
+        level.gameEvent(
+                player,
+                GameEvent.BLOCK_PLACE,
+                canisterPosition
+        );
+
         return ItemInteractionResult.SUCCESS;
+    }
+
+    private static boolean isValidForTarget(
+            MountTarget target,
+            CanisterItemContents.Contents contents
+    ) {
+        if (target == MountTarget.INPUT) {
+            return contents.liquid() == CanisterLiquid.WATER
+                    && contents.amount()
+                    >= CanisterFluidStorage.BUCKET;
+        }
+
+        if (target == MountTarget.OUTPUT) {
+            return (contents.isEmpty()
+                    || contents.liquid() == CanisterLiquid.MANA)
+                    && CanisterFluidStorage.CAPACITY
+                    - contents.amount()
+                    >= CanisterFluidStorage.BUCKET;
+        }
+
+        return false;
     }
 
     @Override
@@ -389,52 +418,37 @@ public final class ManaPercolatorBlock
             BlockHitResult hitResult
     ) {
         if (!(level.getBlockEntity(position)
-                instanceof ManaPercolatorBlockEntity
-                percolator)) {
+                instanceof ManaPercolatorBlockEntity percolator)) {
 
             return InteractionResult.PASS;
         }
 
-        MountTarget target =
-                getMountTarget(
-                        state,
-                        hitResult.getDirection()
-                );
+        /*
+         * Empty-hand clicks aimed at either nozzle do not reach into the
+         * chamber and accidentally remove the gem. Real canisters are
+         * interacted with directly at their own block positions.
+         */
+        if (getMountTarget(
+                state,
+                hitResult.getDirection()
+        ) != MountTarget.CHAMBER) {
+
+            return InteractionResult.sidedSuccess(
+                    level.isClientSide
+            );
+        }
 
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
 
-        ItemStack removedStack =
-                switch (target) {
-                    case INPUT ->
-                            percolator.removeInputCanister();
+        ItemStack removedGem =
+                percolator.removeGem();
 
-                    case OUTPUT ->
-                            percolator.removeOutputCanister();
-
-                    case CHAMBER ->
-                            percolator.removeGem();
-                };
-
-        if (removedStack.isEmpty()) {
-            /*
-             * A click aimed at a mount never falls through and removes
-             * the chamber gem by accident.
-             */
-            return InteractionResult.SUCCESS;
+        if (!removedGem.isEmpty()) {
+            giveOrDrop(player, removedGem);
+            playMountSound(level, position, true);
         }
-
-        giveOrDrop(
-                player,
-                removedStack
-        );
-
-        playMountSound(
-                level,
-                position,
-                true
-        );
 
         return InteractionResult.SUCCESS;
     }
@@ -444,10 +458,7 @@ public final class ManaPercolatorBlock
             ItemStack stack
     ) {
         if (!player.getInventory().add(stack)) {
-            player.drop(
-                    stack,
-                    false
-            );
+            player.drop(stack, false);
         }
     }
 
@@ -476,11 +487,7 @@ public final class ManaPercolatorBlock
             return MountTarget.OUTPUT;
         }
 
-        Direction visualLeft =
-                state.getValue(FACING)
-                        .getCounterClockWise();
-
-        if (clickedFace == visualLeft) {
+        if (clickedFace == state.getValue(FACING)) {
             return MountTarget.INPUT;
         }
 
@@ -495,8 +502,7 @@ public final class ManaPercolatorBlock
             RandomSource random
     ) {
         if (!(level.getBlockEntity(position)
-                instanceof ManaPercolatorBlockEntity
-                percolator)
+                instanceof ManaPercolatorBlockEntity percolator)
                 || !percolator.isProcessing()) {
 
             return;
@@ -511,21 +517,21 @@ public final class ManaPercolatorBlock
 
             double x =
                     position.getX()
-                            + 0.28D
+                            + 0.15D
                             + random.nextDouble()
-                            * 0.44D;
+                            * 0.70D;
 
             double y =
                     position.getY()
-                            + 0.36D
+                            + 0.20D
                             + random.nextDouble()
-                            * 0.30D;
+                            * 0.45D;
 
             double z =
                     position.getZ()
-                            + 0.28D
+                            + 0.15D
                             + random.nextDouble()
-                            * 0.44D;
+                            * 0.70D;
 
             level.addParticle(
                     ParticleTypes.BUBBLE_COLUMN_UP,
@@ -547,12 +553,37 @@ public final class ManaPercolatorBlock
             BlockState newState,
             boolean movedByPiston
     ) {
-        if (!state.is(newState.getBlock())
-                && level.getBlockEntity(position)
-                instanceof ManaPercolatorBlockEntity
-                percolator) {
+        if (!state.is(newState.getBlock())) {
+            if (level.getBlockEntity(position)
+                    instanceof ManaPercolatorBlockEntity percolator) {
 
-            percolator.dropStoredItems();
+                percolator.dropStoredItems();
+            }
+
+            /*
+             * The horizontal input state exists specifically because it
+             * is attached to this controller. Drop it safely if the
+             * controller disappears. The upright output canister remains
+             * as an ordinary independent canister block.
+             */
+            Direction facing =
+                    state.getValue(FACING);
+
+            BlockPos inputPosition =
+                    position.relative(facing);
+
+            BlockState inputState =
+                    level.getBlockState(inputPosition);
+
+            if (inputState.is(ModBlocks.CANISTER)
+                    && inputState.getValue(CanisterBlock.FACING)
+                    == facing.getOpposite()) {
+
+                level.destroyBlock(
+                        inputPosition,
+                        true
+                );
+            }
         }
 
         super.onRemove(
