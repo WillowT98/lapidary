@@ -17,20 +17,28 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Temporary dynamic-content renderer. All positions are centralized here
- * so they can be adjusted to the future Blockbench model without changing
- * the percolator's storage or processing code.
+ * Renders the percolator's dynamic contents:
+ *
+ * - the active gem,
+ * - the chamber fluid,
+ * - a horizontal, full-size water-input canister, and
+ * - an upright, full-size mana-output canister.
+ *
+ * Local coordinates assume that the unrotated percolator faces south.
+ * The outer facing transform rotates all dynamic contents together with
+ * the block model.
  */
 public final class ManaPercolatorBlockEntityRenderer
-        implements BlockEntityRenderer<
-        ManaPercolatorBlockEntity
-        > {
+        implements BlockEntityRenderer<ManaPercolatorBlockEntity> {
 
+    /*
+     * The new model's chamber floor is at y = 2 pixels.
+     */
     private static final double GEM_X =
             0.5D;
 
     private static final double GEM_Y =
-            0.285D;
+            2.15D / 16.0D;
 
     private static final double GEM_Z =
             0.5D;
@@ -39,32 +47,28 @@ public final class ManaPercolatorBlockEntityRenderer
             0.34F;
 
     /*
-     * Local coordinates assume the unrotated machine faces south.
-     * X near one is the machine's visual-left side.
+     * The input nozzle occupies:
+     *
+     * x = 5..11 pixels
+     * y = 4..10 pixels
+     * z = 15..16 pixels
+     *
+     * A canister rotated +90 degrees around X has its bottom stacking
+     * plate facing back toward the nozzle. Translating to y = 15/16
+     * aligns that six-pixel plate with the nozzle's y = 4..10 span.
      */
-    private static final double INPUT_CANISTER_X =
-            0.92D;
-
     private static final double INPUT_CANISTER_Y =
-            0.44D;
+            15.0D / 16.0D;
 
     private static final double INPUT_CANISTER_Z =
-            0.50D;
+            1.0D;
 
-    private static final float INPUT_CANISTER_SCALE =
-            0.42F;
-
-    private static final double OUTPUT_CANISTER_X =
-            0.50D;
-
+    /*
+     * The top nozzle reaches the top of the percolator block, so an
+     * upright canister begins exactly one block above the origin.
+     */
     private static final double OUTPUT_CANISTER_Y =
-            1.03D;
-
-    private static final double OUTPUT_CANISTER_Z =
-            0.50D;
-
-    private static final float OUTPUT_CANISTER_SCALE =
-            0.42F;
+            1.0D;
 
     public ManaPercolatorBlockEntityRenderer(
             BlockEntityRendererProvider.Context context
@@ -112,24 +116,16 @@ public final class ManaPercolatorBlockEntityRenderer
                 packedOverlay
         );
 
-        renderMountedCanister(
+        renderInputCanister(
                 percolator.getInputCanister(),
-                INPUT_CANISTER_X,
-                INPUT_CANISTER_Y,
-                INPUT_CANISTER_Z,
-                INPUT_CANISTER_SCALE,
                 percolator,
                 poseStack,
                 bufferSource,
                 packedLight
         );
 
-        renderMountedCanister(
+        renderOutputCanister(
                 percolator.getOutputCanister(),
-                OUTPUT_CANISTER_X,
-                OUTPUT_CANISTER_Y,
-                OUTPUT_CANISTER_Z,
-                OUTPUT_CANISTER_SCALE,
                 percolator,
                 poseStack,
                 bufferSource,
@@ -137,6 +133,18 @@ public final class ManaPercolatorBlockEntityRenderer
         );
 
         poseStack.popPose();
+    }
+
+    /**
+     * The mounted canisters extend beyond the percolator's normal
+     * one-block bounds. Keeping the renderer active outside those bounds
+     * prevents the attachments from disappearing at camera-edge angles.
+     */
+    @Override
+    public boolean shouldRenderOffScreen(
+            ManaPercolatorBlockEntity percolator
+    ) {
+        return true;
     }
 
     private static void rotateToFacing(
@@ -162,7 +170,7 @@ public final class ManaPercolatorBlockEntityRenderer
         );
     }
 
-    private void renderGem(
+    private static void renderGem(
             ManaPercolatorBlockEntity percolator,
             PoseStack poseStack,
             MultiBufferSource bufferSource,
@@ -240,12 +248,16 @@ public final class ManaPercolatorBlockEntityRenderer
         );
     }
 
-    private void renderMountedCanister(
+    /**
+     * Renders the water-input canister horizontally against the front
+     * nozzle of the south-facing base model.
+     *
+     * The canister model and its liquid are rendered under the same pose,
+     * so the liquid rotates with the container instead of responding to
+     * visual gravity.
+     */
+    private static void renderInputCanister(
             ItemStack canisterStack,
-            double x,
-            double y,
-            double z,
-            float scale,
             ManaPercolatorBlockEntity percolator,
             PoseStack poseStack,
             MultiBufferSource bufferSource,
@@ -258,23 +270,72 @@ public final class ManaPercolatorBlockEntityRenderer
         poseStack.pushPose();
 
         poseStack.translate(
-                x,
-                y,
-                z
+                0.0D,
+                INPUT_CANISTER_Y,
+                INPUT_CANISTER_Z
         );
 
-        poseStack.scale(
-                scale,
-                scale,
-                scale
+        poseStack.mulPose(
+                Axis.XP.rotationDegrees(
+                        90.0F
+                )
         );
+
+        renderCanisterAtOrigin(
+                canisterStack,
+                percolator,
+                poseStack,
+                bufferSource,
+                packedLight
+        );
+
+        poseStack.popPose();
+    }
+
+    /**
+     * Renders the mana-output canister upright on the top nozzle.
+     */
+    private static void renderOutputCanister(
+            ItemStack canisterStack,
+            ManaPercolatorBlockEntity percolator,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight
+    ) {
+        if (canisterStack.isEmpty()) {
+            return;
+        }
+
+        poseStack.pushPose();
 
         poseStack.translate(
-                -0.5D,
-                -0.5D,
-                -0.5D
+                0.0D,
+                OUTPUT_CANISTER_Y,
+                0.0D
         );
 
+        renderCanisterAtOrigin(
+                canisterStack,
+                percolator,
+                poseStack,
+                bufferSource,
+                packedLight
+        );
+
+        poseStack.popPose();
+    }
+
+    /**
+     * Renders a full-size canister block at the current pose origin,
+     * followed by its actual stored liquid and fill level.
+     */
+    private static void renderCanisterAtOrigin(
+            ItemStack canisterStack,
+            ManaPercolatorBlockEntity percolator,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight
+    ) {
         Minecraft.getInstance()
                 .getBlockRenderer()
                 .renderSingleBlock(
@@ -291,19 +352,19 @@ public final class ManaPercolatorBlockEntityRenderer
                         canisterStack
                 );
 
-        if (!contents.isEmpty()) {
-            CanisterLiquidRenderer.render(
-                    contents.liquid(),
-                    contents.amount(),
-                    percolator.getLevel(),
-                    percolator.getBlockPos(),
-                    poseStack,
-                    bufferSource,
-                    packedLight,
-                    OverlayTexture.NO_OVERLAY
-            );
+        if (contents.isEmpty()) {
+            return;
         }
 
-        poseStack.popPose();
+        CanisterLiquidRenderer.render(
+                contents.liquid(),
+                contents.amount(),
+                percolator.getLevel(),
+                percolator.getBlockPos(),
+                poseStack,
+                bufferSource,
+                packedLight,
+                OverlayTexture.NO_OVERLAY
+        );
     }
 }

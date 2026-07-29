@@ -13,28 +13,35 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 
 /**
- * Temporary chamber-fluid geometry for the placeholder percolator model.
- * Change only these bounds when the final Blockbench model is available.
+ * Renders the one-bucket contents of the mana percolator's glass chamber.
+ *
+ * The bounds sit slightly inside the new Blockbench model's chamber:
+ *
+ * x/z = 1..15 pixels
+ * y   = 2..12 pixels
+ *
+ * The small inset prevents the fluid and glass from occupying the exact
+ * same planes, which would produce z-fighting or dark translucent haze.
  */
 public final class PercolatorFluidRenderer {
 
     private static final float MIN_X =
-            3.35F / 16.0F;
+            1.05F / 16.0F;
 
     private static final float MAX_X =
-            12.65F / 16.0F;
+            14.95F / 16.0F;
 
     private static final float MIN_Y =
-            4.15F / 16.0F;
+            2.05F / 16.0F;
 
     private static final float MAX_Y =
-            11.85F / 16.0F;
+            11.95F / 16.0F;
 
     private static final float MIN_Z =
-            3.35F / 16.0F;
+            1.05F / 16.0F;
 
     private static final float MAX_Z =
-            12.65F / 16.0F;
+            14.95F / 16.0F;
 
     private PercolatorFluidRenderer() {
     }
@@ -95,6 +102,7 @@ public final class PercolatorFluidRenderer {
         float v0 = sprite.getV0();
         float v1 = sprite.getV1();
 
+        /* Top surface. */
         quad(
                 consumer,
                 pose,
@@ -112,6 +120,7 @@ public final class PercolatorFluidRenderer {
                 0.0F, 1.0F, 0.0F
         );
 
+        /* North face. */
         quad(
                 consumer,
                 pose,
@@ -129,6 +138,7 @@ public final class PercolatorFluidRenderer {
                 0.0F, 0.0F, -1.0F
         );
 
+        /* South face. */
         quad(
                 consumer,
                 pose,
@@ -146,6 +156,7 @@ public final class PercolatorFluidRenderer {
                 0.0F, 0.0F, 1.0F
         );
 
+        /* West face. */
         quad(
                 consumer,
                 pose,
@@ -163,6 +174,7 @@ public final class PercolatorFluidRenderer {
                 -1.0F, 0.0F, 0.0F
         );
 
+        /* East face. */
         quad(
                 consumer,
                 pose,

@@ -132,6 +132,10 @@ public class LapidaryClient implements ClientModInitializer {
 				ModBlockEntities.MANA_PERCOLATOR,
 				ManaPercolatorBlockEntityRenderer::new
 		);
+		BlockRenderLayerMap.INSTANCE.putBlock(
+				ModBlocks.MANA_PERCOLATOR,
+				RenderType.translucent()
+		);
 
 		BlockEntityRendererRegistry.register(
 				ModBlockEntities.CUSTOM_WINDOW_CONTROLLER,
