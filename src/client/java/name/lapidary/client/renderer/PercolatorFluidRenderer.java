@@ -85,11 +85,11 @@ public final class PercolatorFluidRenderer {
         int red = tint >> 16 & 255;
         int green = tint >> 8 & 255;
         int blue = tint & 255;
-        int alpha = liquid == CanisterLiquid.WATER ? 90 : 125;
+        int alpha = 215;
 
         VertexConsumer consumer =
                 bufferSource.getBuffer(
-                        RenderType.entityTranslucent(
+                        RenderType.entityTranslucentEmissive(
                                 TextureAtlas.LOCATION_BLOCKS
                         )
                 );

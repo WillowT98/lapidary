@@ -517,30 +517,39 @@ public final class ManaPercolatorBlock extends BaseEntityBlock {
 
             double x =
                     position.getX()
-                            + 0.20D
-                            + random.nextDouble()
-                            * 0.60D;
+                            + 0.18D
+                            + random.nextDouble() * 0.64D;
 
             double y =
                     position.getY()
-                            + 0.16D
-                            + random.nextDouble()
-                            * 0.52D;
+                            + 0.18D
+                            + random.nextDouble() * 0.46D;
 
             double z =
                     position.getZ()
-                            + 0.20D
-                            + random.nextDouble()
-                            * 0.60D;
+                            + 0.18D
+                            + random.nextDouble() * 0.64D;
+
+            double horizontalMotionX =
+                    (random.nextDouble() - 0.5D)
+                            * 0.008D;
+
+            double upwardMotion =
+                    0.025D
+                            + random.nextDouble() * 0.025D;
+
+            double horizontalMotionZ =
+                    (random.nextDouble() - 0.5D)
+                            * 0.008D;
 
             level.addParticle(
-                    ParticleTypes.BUBBLE_COLUMN_UP,
+                    ParticleTypes.BUBBLE_POP,
                     x,
                     y,
                     z,
-                    0.0D,
-                    0.06D,
-                    0.0D
+                    horizontalMotionX,
+                    upwardMotion,
+                    horizontalMotionZ
             );
         }
     }
