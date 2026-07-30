@@ -547,9 +547,9 @@ public final class ManaPercolatorBlock extends BaseEntityBlock {
                     x,
                     y,
                     z,
-                    0.0D,
-                    0.025D,
-                    0.0D
+                    horizontalMotionX,
+                    upwardMotion,
+                    horizontalMotionZ
             );
         }
     }
