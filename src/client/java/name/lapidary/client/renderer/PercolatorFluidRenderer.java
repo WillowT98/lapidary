@@ -85,7 +85,7 @@ public final class PercolatorFluidRenderer {
         int red = tint >> 16 & 255;
         int green = tint >> 8 & 255;
         int blue = tint & 255;
-        int alpha = 215;
+        int alpha = liquid == CanisterLiquid.WATER ? 90 : 125;
 
         VertexConsumer consumer =
                 bufferSource.getBuffer(

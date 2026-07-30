@@ -509,7 +509,7 @@ public final class ManaPercolatorBlock extends BaseEntityBlock {
         }
 
         int particleCount =
-                1 + random.nextInt(2);
+                4 + random.nextInt(3);
 
         for (int index = 0;
              index < particleCount;
@@ -517,21 +517,21 @@ public final class ManaPercolatorBlock extends BaseEntityBlock {
 
             double x =
                     position.getX()
-                            + 0.15D
+                            + 0.20D
                             + random.nextDouble()
-                            * 0.70D;
+                            * 0.60D;
 
             double y =
                     position.getY()
-                            + 0.20D
+                            + 0.16D
                             + random.nextDouble()
-                            * 0.45D;
+                            * 0.52D;
 
             double z =
                     position.getZ()
-                            + 0.15D
+                            + 0.20D
                             + random.nextDouble()
-                            * 0.70D;
+                            * 0.60D;
 
             level.addParticle(
                     ParticleTypes.BUBBLE_COLUMN_UP,
@@ -539,7 +539,7 @@ public final class ManaPercolatorBlock extends BaseEntityBlock {
                     y,
                     z,
                     0.0D,
-                    0.035D,
+                    0.06D,
                     0.0D
             );
         }

@@ -27,7 +27,7 @@ public final class ManaPercolatorBlockEntityRenderer
             0.5D;
 
     private static final double GEM_Y =
-            2.15D / 16.0D;
+            2.75D / 16.0D;
 
     private static final double GEM_Z =
             0.5D;
