@@ -89,7 +89,7 @@ public final class PercolatorFluidRenderer {
 
         VertexConsumer consumer =
                 bufferSource.getBuffer(
-                        RenderType.entityTranslucentEmissive(
+                        RenderType.entityTranslucent(
                                 TextureAtlas.LOCATION_BLOCKS
                         )
                 );
@@ -118,78 +118,6 @@ public final class PercolatorFluidRenderer {
                 packedLight,
                 packedOverlay,
                 0.0F, 1.0F, 0.0F
-        );
-
-        /* North face. */
-        quad(
-                consumer,
-                pose,
-                MAX_X, MIN_Y, MIN_Z,
-                MIN_X, MIN_Y, MIN_Z,
-                MIN_X, MAX_Y, MIN_Z,
-                MAX_X, MAX_Y, MIN_Z,
-                u0, v1,
-                u1, v1,
-                u1, v0,
-                u0, v0,
-                red, green, blue, alpha,
-                packedLight,
-                packedOverlay,
-                0.0F, 0.0F, -1.0F
-        );
-
-        /* South face. */
-        quad(
-                consumer,
-                pose,
-                MIN_X, MIN_Y, MAX_Z,
-                MAX_X, MIN_Y, MAX_Z,
-                MAX_X, MAX_Y, MAX_Z,
-                MIN_X, MAX_Y, MAX_Z,
-                u0, v1,
-                u1, v1,
-                u1, v0,
-                u0, v0,
-                red, green, blue, alpha,
-                packedLight,
-                packedOverlay,
-                0.0F, 0.0F, 1.0F
-        );
-
-        /* West face. */
-        quad(
-                consumer,
-                pose,
-                MIN_X, MIN_Y, MIN_Z,
-                MIN_X, MIN_Y, MAX_Z,
-                MIN_X, MAX_Y, MAX_Z,
-                MIN_X, MAX_Y, MIN_Z,
-                u0, v1,
-                u1, v1,
-                u1, v0,
-                u0, v0,
-                red, green, blue, alpha,
-                packedLight,
-                packedOverlay,
-                -1.0F, 0.0F, 0.0F
-        );
-
-        /* East face. */
-        quad(
-                consumer,
-                pose,
-                MAX_X, MIN_Y, MAX_Z,
-                MAX_X, MIN_Y, MIN_Z,
-                MAX_X, MAX_Y, MIN_Z,
-                MAX_X, MAX_Y, MAX_Z,
-                u0, v1,
-                u1, v1,
-                u1, v0,
-                u0, v0,
-                red, green, blue, alpha,
-                packedLight,
-                packedOverlay,
-                1.0F, 0.0F, 0.0F
         );
     }
 

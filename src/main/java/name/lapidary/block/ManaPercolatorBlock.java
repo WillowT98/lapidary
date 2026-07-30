@@ -542,14 +542,14 @@ public final class ManaPercolatorBlock extends BaseEntityBlock {
                     (random.nextDouble() - 0.5D)
                             * 0.008D;
 
-            level.addParticle(
-                    ParticleTypes.BUBBLE_POP,
+            level.addAlwaysVisibleParticle(
+                    ParticleTypes.END_ROD,
                     x,
                     y,
                     z,
-                    horizontalMotionX,
-                    upwardMotion,
-                    horizontalMotionZ
+                    0.0D,
+                    0.025D,
+                    0.0D
             );
         }
     }
