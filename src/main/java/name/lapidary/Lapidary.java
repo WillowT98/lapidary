@@ -9,6 +9,7 @@ import name.lapidary.guide.GuidebookProgression;
 import name.lapidary.item.ModCreativeTabs;
 import name.lapidary.item.ModItems;
 import name.lapidary.magic.spell.ModSpells;
+import name.lapidary.magic.spell.SpellRuntime;
 import name.lapidary.network.ModNetworking;
 import name.lapidary.origin.OriginManager;
 import name.lapidary.progression.ModAttachments;
@@ -33,6 +34,7 @@ public class Lapidary implements ModInitializer {
         ModFluids.initialize();
         ModItems.initialize();
         ModBlocks.initialize();
+        SpellRuntime.initialize();
         ModBlockEntities.initialize();
         ModEntities.initialize();
         ModWorldGeneration.initialize();
