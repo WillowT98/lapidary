@@ -89,7 +89,7 @@ public final class CanisterLiquidRenderer {
         int tint;
 
         if (liquid.usesWhiteRenderTint()) {
-            tint = 0xFFFFFFFF;
+            tint = 0x3F76E4;
         } else {
             tint =
                     FluidVariantRendering.getColor(

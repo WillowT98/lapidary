@@ -75,7 +75,7 @@ public final class PercolatorFluidRenderer {
 
         int tint =
                 liquid.usesWhiteRenderTint()
-                        ? 0xFFFFFFFF
+                        ? 0x3F76E4
                         : FluidVariantRendering.getColor(
                                 variant,
                                 level,
