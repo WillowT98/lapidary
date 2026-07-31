@@ -12,6 +12,7 @@ import name.lapidary.magic.spell.ModSpells;
 import name.lapidary.magic.spell.SpellRuntime;
 import name.lapidary.network.ModNetworking;
 import name.lapidary.origin.OriginManager;
+import name.lapidary.particle.ModParticles;
 import name.lapidary.progression.ModAttachments;
 import name.lapidary.screen.ModMenus;
 import name.lapidary.sifting.SieveProcessing;
@@ -22,18 +23,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Lapidary implements ModInitializer {
+
     public static final String MOD_ID = "lapidary";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Logger LOGGER =
+            LoggerFactory.getLogger(MOD_ID);
 
     @Override
     public void onInitialize() {
         LOGGER.info("Hello Fabric world!");
+
         ModAttachments.initialize();
         ModSpells.initialize();
         ModNetworking.initialize();
         ModFluids.initialize();
         ModItems.initialize();
         ModBlocks.initialize();
+        ModParticles.initialize();
         SpellRuntime.initialize();
         ModBlockEntities.initialize();
         ModEntities.initialize();
@@ -46,7 +51,12 @@ public class Lapidary implements ModInitializer {
         GuidebookProgression.initialize();
     }
 
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static ResourceLocation id(
+            String path
+    ) {
+        return ResourceLocation.fromNamespaceAndPath(
+                MOD_ID,
+                path
+        );
     }
 }

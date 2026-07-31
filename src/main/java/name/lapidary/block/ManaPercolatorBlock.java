@@ -495,6 +495,57 @@ public final class ManaPercolatorBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void animateTick(
+            BlockState state,
+            Level level,
+            BlockPos position,
+            RandomSource random
+    ) {
+        if (!(level.getBlockEntity(position)
+                instanceof ManaPercolatorBlockEntity percolator)
+                || !percolator.isProcessing()) {
+
+            return;
+        }
+
+        int particleCount =
+                1 + random.nextInt(2);
+
+        for (int index = 0;
+             index < particleCount;
+             index++) {
+
+            double x =
+                    position.getX()
+                            + 0.15D
+                            + random.nextDouble()
+                            * 0.70D;
+
+            double y =
+                    position.getY()
+                            + 0.20D
+                            + random.nextDouble()
+                            * 0.45D;
+
+            double z =
+                    position.getZ()
+                            + 0.15D
+                            + random.nextDouble()
+                            * 0.70D;
+
+            level.addParticle(
+                    ParticleTypes.BUBBLE_COLUMN_UP,
+                    x,
+                    y,
+                    z,
+                    0.0D,
+                    0.035D,
+                    0.0D
+            );
+        }
+    }
+
+    @Override
     protected void onRemove(
             BlockState state,
             Level level,
