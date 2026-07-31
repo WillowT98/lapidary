@@ -47,7 +47,7 @@ public final class PercolatorBubbleParticle
 
         this.sprites = sprites;
         this.maximumY =
-                Math.floor(y) + CHAMBER_TOP_OFFSET;
+                y + 9.0D / 16.0D;
         this.wobblePhase =
                 level.random.nextDouble()
                         * Math.PI
@@ -67,12 +67,16 @@ public final class PercolatorBubbleParticle
         this.lifetime =
                 24 + level.random.nextInt(13);
 
+        /*
+         * Start visibly rather than relying on the first client particle tick
+         * to raise the alpha from zero.
+         */
         this.quadSize =
-                0.045F
+                0.11F
                         + level.random.nextFloat()
-                        * 0.035F;
+                        * 0.05F;
 
-        this.alpha = 0.0F;
+        this.alpha = 1.0F;
         this.setColor(
                 0.92F,
                 0.97F,
@@ -114,6 +118,8 @@ public final class PercolatorBubbleParticle
                         this.yd + 0.00065D
                 );
 
+        this.alpha = 200.0F;
+        /*
         float progress =
                 (float) this.age
                         / (float) this.lifetime;
@@ -130,7 +136,7 @@ public final class PercolatorBubbleParticle
                             / 0.22F;
         } else {
             this.alpha = 0.88F;
-        }
+        }*/
 
         this.setSpriteFromAge(this.sprites);
     }
@@ -148,7 +154,7 @@ public final class PercolatorBubbleParticle
 
     @Override
     public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     public static final class Provider
