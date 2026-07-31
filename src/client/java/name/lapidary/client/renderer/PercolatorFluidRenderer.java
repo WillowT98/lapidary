@@ -44,9 +44,9 @@ public final class PercolatorFluidRenderer {
             175;
 
     private static final int WATER_SIDE_ALPHA =
-            34;
+            148;
     private static final int MANA_SIDE_ALPHA =
-            48;
+            148;
 
     private PercolatorFluidRenderer() {
     }
