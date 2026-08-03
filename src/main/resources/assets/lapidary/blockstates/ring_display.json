@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=south": {
+      "model": "lapidary:block/ring_display"
+    },
+    "facing=west": {
+      "model": "lapidary:block/ring_display",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lapidary:block/ring_display",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "lapidary:block/ring_display",
+      "y": 270
+    }
+  }
+}

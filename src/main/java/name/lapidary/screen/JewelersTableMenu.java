@@ -1,17 +1,23 @@
 package name.lapidary.screen;
 
 import name.lapidary.block.ModBlocks;
+import name.lapidary.display.DisplayKind;
+import name.lapidary.display.NearbyDisplayAccess;
 import name.lapidary.item.ModItems;
+import name.lapidary.tag.ModItemTags;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -24,12 +30,11 @@ public final class JewelersTableMenu
 
     private static final int PLAYER_INVENTORY_START = 3;
     private static final int PLAYER_INVENTORY_END = 30;
-
     private static final int HOTBAR_START = 30;
     private static final int HOTBAR_END = 39;
 
-    private final ContainerLevelAccess access;
-    private static final List<JewelrySet> JEWELRY_SETS =
+    private static final List<JewelrySet>
+            JEWELRY_SETS =
             List.of(
                     new JewelrySet(
                             ModItems.SEA_GLASS_EMERALD,
@@ -58,24 +63,28 @@ public final class JewelersTableMenu
                     )
             );
 
+    private final ContainerLevelAccess access;
+
     private final Container inputContainer =
             new SimpleContainer(2) {
                 @Override
                 public void setChanged() {
                     super.setChanged();
 
-                    JewelersTableMenu.this.slotsChanged(
-                            this
-                    );
+                    JewelersTableMenu.this
+                            .slotsChanged(this);
                 }
             };
 
     private final ResultContainer resultContainer =
             new ResultContainer();
 
-    /*
-     * Client-side constructor used by the registered MenuType.
-     */
+    private final DataSlot remoteGemItemId =
+            DataSlot.standalone();
+
+    private final DataSlot remoteJewelryItemId =
+            DataSlot.standalone();
+
     public JewelersTableMenu(
             int containerId,
             Inventory playerInventory
@@ -87,9 +96,6 @@ public final class JewelersTableMenu
         );
     }
 
-    /*
-     * Server-side constructor used by JewelersTableBlock.
-     */
     public JewelersTableMenu(
             int containerId,
             Inventory playerInventory,
@@ -102,10 +108,10 @@ public final class JewelersTableMenu
 
         this.access = access;
 
-        /*
-         * Cut-gem input.
-         */
-        this.addSlot(
+        remoteGemItemId.set(-1);
+        remoteJewelryItemId.set(-1);
+
+        addSlot(
                 new Slot(
                         inputContainer,
                         GEM_SLOT,
@@ -121,10 +127,7 @@ public final class JewelersTableMenu
                 }
         );
 
-        /*
-         * Empty-jewelry input.
-         */
-        this.addSlot(
+        addSlot(
                 new Slot(
                         inputContainer,
                         JEWELRY_SLOT,
@@ -140,10 +143,7 @@ public final class JewelersTableMenu
                 }
         );
 
-        /*
-         * Combined jewelry output.
-         */
-        this.addSlot(
+        addSlot(
                 new Slot(
                         resultContainer,
                         0,
@@ -158,23 +158,30 @@ public final class JewelersTableMenu
                     }
 
                     @Override
+                    public boolean mayPickup(
+                            Player player
+                    ) {
+                        return !getItem().isEmpty()
+                                && JewelersTableMenu.this
+                                .hasConsumableInputs(
+                                        player
+                                );
+                    }
+
+                    @Override
                     public void onTake(
                             Player player,
                             ItemStack stack
                     ) {
-                        JewelersTableMenu.this.inputContainer
-                                .removeItem(
-                                        GEM_SLOT,
-                                        1
-                                );
+                        if (JewelersTableMenu.this
+                                .consumeInputs()) {
 
-                        JewelersTableMenu.this.inputContainer
-                                .removeItem(
-                                        JEWELRY_SLOT,
-                                        1
-                                );
+                            JewelersTableMenu.this
+                                    .refreshRemoteInputs();
 
-                        JewelersTableMenu.this.setupResult();
+                            JewelersTableMenu.this
+                                    .setupResult();
+                        }
 
                         super.onTake(
                                 player,
@@ -188,34 +195,39 @@ public final class JewelersTableMenu
                 playerInventory
         );
 
-        /*
-         * Establish the initial empty output.
-         */
+        addDataSlot(remoteGemItemId);
+        addDataSlot(remoteJewelryItemId);
+
+        refreshRemoteInputs();
         setupResult();
     }
-
 
     private static boolean isAcceptedGem(
             ItemStack stack
     ) {
-        return findJewelrySet(stack) != null;
+        return findJewelrySet(stack)
+                != null;
     }
 
     private static boolean isAcceptedJewelry(
             ItemStack stack
     ) {
-        return stack.is(ModItems.NECKLACE_EMPTY)
-                || stack.is(ModItems.RING_EMPTY);
+        return stack.is(
+                ModItems.NECKLACE_EMPTY
+        ) || stack.is(
+                ModItems.RING_EMPTY
+        );
     }
 
-    /**
-     * Finds the set of finished jewelry associated with a cut gem.
-     */
     private static JewelrySet findJewelrySet(
             ItemStack gemStack
     ) {
-        for (JewelrySet jewelrySet : JEWELRY_SETS) {
-            if (gemStack.is(jewelrySet.cutGem())) {
+        for (JewelrySet jewelrySet :
+                JEWELRY_SETS) {
+
+            if (gemStack.is(
+                    jewelrySet.cutGem()
+            )) {
                 return jewelrySet;
             }
         }
@@ -223,61 +235,153 @@ public final class JewelersTableMenu
         return null;
     }
 
-    /**
-     * Determines the finished jewelry produced by the two current inputs.
-     */
     private static Item findResultItem(
             ItemStack gemStack,
             ItemStack jewelryStack
     ) {
         JewelrySet jewelrySet =
-                findJewelrySet(gemStack);
+                findJewelrySet(
+                        gemStack
+                );
 
         if (jewelrySet == null) {
             return null;
         }
 
-        if (jewelryStack.is(ModItems.NECKLACE_EMPTY)) {
+        if (jewelryStack.is(
+                ModItems.NECKLACE_EMPTY
+        )) {
             return jewelrySet.necklace();
         }
 
-        if (jewelryStack.is(ModItems.RING_EMPTY)) {
+        if (jewelryStack.is(
+                ModItems.RING_EMPTY
+        )) {
             return jewelrySet.ring();
         }
 
         return null;
     }
 
-    private void setupResult() {
-        ItemStack gemStack =
+    private ItemStack getEffectiveGem() {
+        ItemStack local =
                 inputContainer.getItem(
                         GEM_SLOT
                 );
 
-        ItemStack jewelryStack =
+        if (!local.isEmpty()) {
+            return local;
+        }
+
+        return stackFromRegistryId(
+                remoteGemItemId.get()
+        );
+    }
+
+    private ItemStack getEffectiveJewelry() {
+        ItemStack local =
                 inputContainer.getItem(
                         JEWELRY_SLOT
                 );
 
-        Item resultItem =
-                findResultItem(
-                        gemStack,
-                        jewelryStack
-                );
-
-        if (resultItem == null) {
-            resultContainer.setItem(
-                    0,
-                    ItemStack.EMPTY
-            );
-        } else {
-            resultContainer.setItem(
-                    0,
-                    new ItemStack(resultItem)
-            );
+        if (!local.isEmpty()) {
+            return local;
         }
 
-        this.broadcastChanges();
+        return stackFromRegistryId(
+                remoteJewelryItemId.get()
+        );
+    }
+
+    private static ItemStack stackFromRegistryId(
+            int itemId
+    ) {
+        if (itemId < 0) {
+            return ItemStack.EMPTY;
+        }
+
+        Item item =
+                BuiltInRegistries.ITEM
+                        .byId(itemId);
+
+        if (item == null
+                || item == Items.AIR) {
+
+            return ItemStack.EMPTY;
+        }
+
+        return new ItemStack(item);
+    }
+
+    public ItemStack getRemoteGemPreview() {
+        if (!inputContainer
+                .getItem(GEM_SLOT)
+                .isEmpty()) {
+
+            return ItemStack.EMPTY;
+        }
+
+        return getEffectiveGem()
+                .copyWithCount(1);
+    }
+
+    public ItemStack getRemoteJewelryPreview() {
+        if (!inputContainer
+                .getItem(JEWELRY_SLOT)
+                .isEmpty()) {
+
+            return ItemStack.EMPTY;
+        }
+
+        return getEffectiveJewelry()
+                .copyWithCount(1);
+    }
+
+    private boolean matchesRemoteGem(
+            ItemStack stack
+    ) {
+        ItemStack expected =
+                stackFromRegistryId(
+                        remoteGemItemId.get()
+                );
+
+        return !expected.isEmpty()
+                && ItemStack.isSameItemSameComponents(
+                stack,
+                expected
+        );
+    }
+
+    private boolean matchesRemoteJewelry(
+            ItemStack stack
+    ) {
+        ItemStack expected =
+                stackFromRegistryId(
+                        remoteJewelryItemId.get()
+                );
+
+        return !expected.isEmpty()
+                && ItemStack.isSameItemSameComponents(
+                stack,
+                expected
+        );
+    }
+
+    private void setupResult() {
+        Item resultItem =
+                findResultItem(
+                        getEffectiveGem(),
+                        getEffectiveJewelry()
+                );
+
+        resultContainer.setItem(
+                0,
+                resultItem == null
+                        ? ItemStack.EMPTY
+                        : new ItemStack(resultItem)
+        );
+
+        broadcastChanges();
     }
 
     @Override
@@ -287,22 +391,462 @@ public final class JewelersTableMenu
         super.slotsChanged(container);
 
         if (container == inputContainer) {
+            refreshRemoteInputs();
             setupResult();
         }
+    }
+
+    private void refreshRemoteInputs() {
+        if (!inputContainer
+                .getItem(GEM_SLOT)
+                .isEmpty()) {
+
+            remoteGemItemId.set(-1);
+        } else {
+            int current =
+                    remoteGemItemId.get();
+
+            int found =
+                    access.evaluate(
+                            (level, position) ->
+                                    NearbyDisplayAccess
+                                            .findSource(
+                                                    level,
+                                                    position,
+                                                    List.of(
+                                                            DisplayKind.CASE
+                                                    ),
+                                                    JewelersTableMenu
+                                                            ::isAcceptedGem
+                                            )
+                                            .map(
+                                                    source ->
+                                                            BuiltInRegistries
+                                                                    .ITEM
+                                                                    .getId(
+                                                                            source.currentStack()
+                                                                                    .getItem()
+                                                                    )
+                                            )
+                                            .orElse(-1),
+                            current
+                    );
+
+            remoteGemItemId.set(found);
+        }
+
+        if (!inputContainer
+                .getItem(JEWELRY_SLOT)
+                .isEmpty()) {
+
+            remoteJewelryItemId.set(-1);
+        } else {
+            int current =
+                    remoteJewelryItemId.get();
+
+            int found =
+                    access.evaluate(
+                            (level, position) ->
+                                    NearbyDisplayAccess
+                                            .findSource(
+                                                    level,
+                                                    position,
+                                                    List.of(
+                                                            DisplayKind.RING,
+                                                            DisplayKind.AMULET,
+                                                            DisplayKind.CASE
+                                                    ),
+                                                    JewelersTableMenu
+                                                            ::isAcceptedJewelry
+                                            )
+                                            .map(
+                                                    source ->
+                                                            BuiltInRegistries
+                                                                    .ITEM
+                                                                    .getId(
+                                                                            source.currentStack()
+                                                                                    .getItem()
+                                                                    )
+                                            )
+                                            .orElse(-1),
+                            current
+                    );
+
+            remoteJewelryItemId.set(found);
+        }
+    }
+
+    private NearbyDisplayAccess.Source
+    findRemoteGemSource() {
+        return access.evaluate(
+                (level, position) ->
+                        NearbyDisplayAccess
+                                .findSource(
+                                        level,
+                                        position,
+                                        List.of(
+                                                DisplayKind.CASE
+                                        ),
+                                        this::matchesRemoteGem
+                                )
+                                .orElse(null),
+                null
+        );
+    }
+
+    private NearbyDisplayAccess.Source
+    findRemoteJewelrySource() {
+        return access.evaluate(
+                (level, position) ->
+                        NearbyDisplayAccess
+                                .findSource(
+                                        level,
+                                        position,
+                                        List.of(
+                                                DisplayKind.RING,
+                                                DisplayKind.AMULET,
+                                                DisplayKind.CASE
+                                        ),
+                                        this::matchesRemoteJewelry
+                                )
+                                .orElse(null),
+                null
+        );
+    }
+
+    private boolean hasConsumableInputs(
+            Player player
+    ) {
+        boolean hasGem =
+                !inputContainer
+                        .getItem(GEM_SLOT)
+                        .isEmpty();
+
+        boolean hasJewelry =
+                !inputContainer
+                        .getItem(JEWELRY_SLOT)
+                        .isEmpty();
+
+        if (player.level().isClientSide) {
+            return (hasGem
+                    || remoteGemItemId.get() >= 0)
+                    && (hasJewelry
+                    || remoteJewelryItemId.get() >= 0);
+        }
+
+        NearbyDisplayAccess.Source gemSource =
+                hasGem
+                        ? null
+                        : findRemoteGemSource();
+
+        NearbyDisplayAccess.Source jewelrySource =
+                hasJewelry
+                        ? null
+                        : findRemoteJewelrySource();
+
+        return (hasGem
+                || (gemSource != null
+                && gemSource.isStillValid()))
+                && (hasJewelry
+                || (jewelrySource != null
+                && jewelrySource.isStillValid()));
+    }
+
+    private boolean consumeInputs() {
+        boolean localGem =
+                !inputContainer
+                        .getItem(GEM_SLOT)
+                        .isEmpty();
+
+        boolean localJewelry =
+                !inputContainer
+                        .getItem(JEWELRY_SLOT)
+                        .isEmpty();
+
+        NearbyDisplayAccess.Source gemSource =
+                localGem
+                        ? null
+                        : findRemoteGemSource();
+
+        NearbyDisplayAccess.Source jewelrySource =
+                localJewelry
+                        ? null
+                        : findRemoteJewelrySource();
+
+        if ((!localGem
+                && (gemSource == null
+                || !gemSource.isStillValid()))
+                || (!localJewelry
+                && (jewelrySource == null
+                || !jewelrySource.isStillValid()))) {
+
+            return false;
+        }
+
+        if (localGem) {
+            inputContainer
+                    .getItem(GEM_SLOT)
+                    .shrink(1);
+        } else if (!gemSource.consumeOne()) {
+            return false;
+        }
+
+        if (localJewelry) {
+            inputContainer
+                    .getItem(JEWELRY_SLOT)
+                    .shrink(1);
+        } else if (!jewelrySource.consumeOne()) {
+            if (localGem) {
+                inputContainer
+                        .getItem(GEM_SLOT)
+                        .grow(1);
+            } else {
+                gemSource.restoreOne();
+            }
+
+            return false;
+        }
+
+        if (localGem || localJewelry) {
+            inputContainer.setChanged();
+        }
+
+        return true;
+    }
+
+    private static List<DisplayKind>
+    outputDestinationPriority(
+            ItemStack result
+    ) {
+        if (result.is(ModItemTags.RINGS)) {
+            return List.of(
+                    DisplayKind.RING,
+                    DisplayKind.CASE
+            );
+        }
+
+        if (result.is(ModItemTags.AMULETS)) {
+            return List.of(
+                    DisplayKind.AMULET,
+                    DisplayKind.CASE
+            );
+        }
+
+        return List.of(
+                DisplayKind.CASE
+        );
+    }
+
+    /**
+     * Shift-clicking the finished jewelry sends it to the workshop.
+     * When the empty ring or necklace came from a specialized stand,
+     * that same visible slot is replaced first.
+     */
+    private boolean craftIntoNearbyDisplay(
+            ItemStack result
+    ) {
+        if (result.isEmpty()) {
+            return false;
+        }
+
+        boolean localGem =
+                !inputContainer
+                        .getItem(GEM_SLOT)
+                        .isEmpty();
+
+        boolean localJewelry =
+                !inputContainer
+                        .getItem(JEWELRY_SLOT)
+                        .isEmpty();
+
+        boolean crafted =
+                access.evaluate(
+                        (level, position) -> {
+                            NearbyDisplayAccess.Source gemSource =
+                                    localGem
+                                            ? null
+                                            : NearbyDisplayAccess
+                                            .findSource(
+                                                    level,
+                                                    position,
+                                                    List.of(
+                                                            DisplayKind.CASE
+                                                    ),
+                                                    this::matchesRemoteGem
+                                            )
+                                            .orElse(null);
+
+                            NearbyDisplayAccess.Source jewelrySource =
+                                    localJewelry
+                                            ? null
+                                            : NearbyDisplayAccess
+                                            .findSource(
+                                                    level,
+                                                    position,
+                                                    List.of(
+                                                            DisplayKind.RING,
+                                                            DisplayKind.AMULET,
+                                                            DisplayKind.CASE
+                                                    ),
+                                                    this::matchesRemoteJewelry
+                                            )
+                                            .orElse(null);
+
+                            if ((!localGem
+                                    && (gemSource == null
+                                    || !gemSource.isStillValid()))
+                                    || (!localJewelry
+                                    && (jewelrySource == null
+                                    || !jewelrySource.isStillValid()))) {
+
+                                return false;
+                            }
+
+                            boolean replaceSourceSlot =
+                                    jewelrySource != null
+                                            && ((result.is(
+                                            ModItemTags.RINGS
+                                    ) && jewelrySource
+                                            .display()
+                                            .getDisplayKind()
+                                            == DisplayKind.RING)
+                                            || (result.is(
+                                            ModItemTags.AMULETS
+                                    ) && jewelrySource
+                                            .display()
+                                            .getDisplayKind()
+                                            == DisplayKind.AMULET))
+                                            && jewelrySource
+                                            .display()
+                                            .canPlaceItem(
+                                                    jewelrySource.slot(),
+                                                    result
+                                            );
+
+                            NearbyDisplayAccess.Destination
+                                    destination =
+                                    replaceSourceSlot
+                                            ? null
+                                            : NearbyDisplayAccess
+                                            .findDestination(
+                                                    level,
+                                                    position,
+                                                    result,
+                                                    outputDestinationPriority(
+                                                            result
+                                                    )
+                                            )
+                                            .orElse(null);
+
+                            if (!replaceSourceSlot
+                                    && destination == null) {
+
+                                return false;
+                            }
+
+                            if (localGem) {
+                                inputContainer
+                                        .getItem(GEM_SLOT)
+                                        .shrink(1);
+                            } else if (!gemSource.consumeOne()) {
+                                return false;
+                            }
+
+                            if (localJewelry) {
+                                inputContainer
+                                        .getItem(JEWELRY_SLOT)
+                                        .shrink(1);
+                            } else if (!jewelrySource.consumeOne()) {
+                                if (localGem) {
+                                    inputContainer
+                                            .getItem(GEM_SLOT)
+                                            .grow(1);
+                                } else {
+                                    gemSource.restoreOne();
+                                }
+
+                                return false;
+                            }
+
+                            boolean inserted;
+
+                            if (replaceSourceSlot) {
+                                jewelrySource
+                                        .display()
+                                        .setItem(
+                                                jewelrySource.slot(),
+                                                result.copy()
+                                        );
+
+                                inserted =
+                                        ItemStack
+                                                .isSameItemSameComponents(
+                                                        jewelrySource
+                                                                .display()
+                                                                .getItem(
+                                                                        jewelrySource.slot()
+                                                                ),
+                                                        result
+                                                );
+                            } else {
+                                inserted =
+                                        destination.insert(result);
+                            }
+
+                            if (!inserted) {
+                                if (localGem) {
+                                    inputContainer
+                                            .getItem(GEM_SLOT)
+                                            .grow(1);
+                                } else {
+                                    gemSource.restoreOne();
+                                }
+
+                                if (localJewelry) {
+                                    inputContainer
+                                            .getItem(JEWELRY_SLOT)
+                                            .grow(1);
+                                } else {
+                                    jewelrySource.restoreOne();
+                                }
+
+                                return false;
+                            }
+
+                            return true;
+                        },
+                        false
+                );
+
+        if (crafted) {
+            if (localGem || localJewelry) {
+                inputContainer.setChanged();
+            }
+
+            resultContainer.setItem(
+                    0,
+                    ItemStack.EMPTY
+            );
+
+            refreshRemoteInputs();
+            setupResult();
+        }
+
+        return crafted;
     }
 
     private void addPlayerInventory(
             Inventory playerInventory
     ) {
-        /*
-         * Main inventory: three rows of nine.
-         */
-        for (int row = 0; row < 3; row++) {
+        for (int row = 0;
+             row < 3;
+             row++) {
+
             for (int column = 0;
                  column < 9;
                  column++) {
 
-                this.addSlot(
+                addSlot(
                         new Slot(
                                 playerInventory,
                                 column
@@ -315,14 +859,11 @@ public final class JewelersTableMenu
             }
         }
 
-        /*
-         * Hotbar.
-         */
         for (int column = 0;
              column < 9;
              column++) {
 
-            this.addSlot(
+            addSlot(
                     new Slot(
                             playerInventory,
                             column,
@@ -350,12 +891,9 @@ public final class JewelersTableMenu
     ) {
         super.removed(player);
 
-        /*
-         * Return unused ingredients when the interface closes.
-         */
         access.execute(
                 (level, position) ->
-                        this.clearContainer(
+                        clearContainer(
                                 player,
                                 inputContainer
                         )
@@ -368,7 +906,7 @@ public final class JewelersTableMenu
             int slotIndex
     ) {
         Slot slot =
-                this.slots.get(slotIndex);
+                slots.get(slotIndex);
 
         if (!slot.hasItem()) {
             return ItemStack.EMPTY;
@@ -381,10 +919,13 @@ public final class JewelersTableMenu
                 slotStack.copy();
 
         if (slotIndex == RESULT_SLOT) {
-            /*
-             * Result → player inventory.
-             */
-            if (!this.moveItemStackTo(
+            if (craftIntoNearbyDisplay(
+                    originalCopy
+            )) {
+                return originalCopy;
+            }
+
+            if (!moveItemStackTo(
                     slotStack,
                     PLAYER_INVENTORY_START,
                     HOTBAR_END,
@@ -400,10 +941,7 @@ public final class JewelersTableMenu
         } else if (slotIndex == GEM_SLOT
                 || slotIndex == JEWELRY_SLOT) {
 
-            /*
-             * Input → player inventory.
-             */
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     PLAYER_INVENTORY_START,
                     HOTBAR_END,
@@ -412,10 +950,7 @@ public final class JewelersTableMenu
                 return ItemStack.EMPTY;
             }
         } else if (isAcceptedGem(slotStack)) {
-            /*
-             * Player inventory → gem slot.
-             */
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     GEM_SLOT,
                     GEM_SLOT + 1,
@@ -424,10 +959,7 @@ public final class JewelersTableMenu
                 return ItemStack.EMPTY;
             }
         } else if (isAcceptedJewelry(slotStack)) {
-            /*
-             * Player inventory → jewelry slot.
-             */
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     JEWELRY_SLOT,
                     JEWELRY_SLOT + 1,
@@ -435,13 +967,12 @@ public final class JewelersTableMenu
             )) {
                 return ItemStack.EMPTY;
             }
-        } else if (slotIndex >= PLAYER_INVENTORY_START
-                && slotIndex < PLAYER_INVENTORY_END) {
+        } else if (slotIndex
+                >= PLAYER_INVENTORY_START
+                && slotIndex
+                < PLAYER_INVENTORY_END) {
 
-            /*
-             * Main inventory → hotbar.
-             */
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     HOTBAR_START,
                     HOTBAR_END,
@@ -449,13 +980,12 @@ public final class JewelersTableMenu
             )) {
                 return ItemStack.EMPTY;
             }
-        } else if (slotIndex >= HOTBAR_START
-                && slotIndex < HOTBAR_END) {
+        } else if (slotIndex
+                >= HOTBAR_START
+                && slotIndex
+                < HOTBAR_END) {
 
-            /*
-             * Hotbar → main inventory.
-             */
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     PLAYER_INVENTORY_START,
                     PLAYER_INVENTORY_END,
@@ -466,9 +996,7 @@ public final class JewelersTableMenu
         }
 
         if (slotStack.isEmpty()) {
-            slot.set(
-                    ItemStack.EMPTY
-            );
+            slot.set(ItemStack.EMPTY);
         } else {
             slot.setChanged();
         }
@@ -499,6 +1027,7 @@ public final class JewelersTableMenu
                 slot
         );
     }
+
     private record JewelrySet(
             Item cutGem,
             Item necklace,

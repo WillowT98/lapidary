@@ -1,0 +1,74 @@
+{
+  "textures": {
+    "metal": "minecraft:block/gold_block",
+    "base": "minecraft:block/smooth_stone",
+    "particle": "minecraft:block/gold_block"
+  },
+  "elements": [
+    {
+      "name": "base",
+      "from": [2, 0, 2],
+      "to": [14, 2, 14],
+      "faces": {
+        "north": {"texture": "#base"},
+        "east": {"texture": "#base"},
+        "south": {"texture": "#base"},
+        "west": {"texture": "#base"},
+        "up": {"texture": "#base"},
+        "down": {"texture": "#base"}
+      }
+    },
+    {
+      "name": "stem",
+      "from": [7, 2, 7],
+      "to": [9, 13, 9],
+      "faces": {
+        "north": {"texture": "#metal"},
+        "east": {"texture": "#metal"},
+        "south": {"texture": "#metal"},
+        "west": {"texture": "#metal"},
+        "up": {"texture": "#metal"},
+        "down": {"texture": "#metal"}
+      }
+    },
+    {
+      "name": "rail",
+      "from": [1, 12, 7],
+      "to": [15, 14, 9],
+      "faces": {
+        "north": {"texture": "#metal"},
+        "east": {"texture": "#metal"},
+        "south": {"texture": "#metal"},
+        "west": {"texture": "#metal"},
+        "up": {"texture": "#metal"},
+        "down": {"texture": "#metal"}
+      }
+    },
+    {
+      "name": "left_hook",
+      "from": [0, 11, 7],
+      "to": [2, 13, 9],
+      "faces": {
+        "north": {"texture": "#metal"},
+        "east": {"texture": "#metal"},
+        "south": {"texture": "#metal"},
+        "west": {"texture": "#metal"},
+        "up": {"texture": "#metal"},
+        "down": {"texture": "#metal"}
+      }
+    },
+    {
+      "name": "right_hook",
+      "from": [14, 11, 7],
+      "to": [16, 13, 9],
+      "faces": {
+        "north": {"texture": "#metal"},
+        "east": {"texture": "#metal"},
+        "south": {"texture": "#metal"},
+        "west": {"texture": "#metal"},
+        "up": {"texture": "#metal"},
+        "down": {"texture": "#metal"}
+      }
+    }
+  ]
+}

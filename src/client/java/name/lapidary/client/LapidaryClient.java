@@ -10,10 +10,7 @@ import name.lapidary.client.input.OriginKeybinds;
 import name.lapidary.client.network.ClientNetworking;
 import name.lapidary.client.particle.PercolatorBubbleParticle;
 import name.lapidary.client.renderer.*;
-import name.lapidary.client.screen.GemCutterScreen;
-import name.lapidary.client.screen.JewelersTableScreen;
-import name.lapidary.client.screen.MageBackpackScreen;
-import name.lapidary.client.screen.StainedGlassFabricatorScreen;
+import name.lapidary.client.screen.*;
 import name.lapidary.entity.ModEntities;
 import name.lapidary.fluid.ModFluids;
 import name.lapidary.item.ModItems;
@@ -140,6 +137,21 @@ public class LapidaryClient
                 JewelersTableScreen::new
         );
 
+        MenuScreens.register(
+                ModMenus.RING_DISPLAY,
+                RingDisplayScreen::new
+        );
+
+        MenuScreens.register(
+                ModMenus.AMULET_DISPLAY,
+                AmuletDisplayScreen::new
+        );
+
+        MenuScreens.register(
+                ModMenus.DISPLAY_CASE,
+                DisplayCaseScreen::new
+        );
+
         BlockRenderLayerMap.INSTANCE.putBlock(
                 ModBlocks.GEM_CUTTER,
                 RenderType.cutout()
@@ -150,6 +162,15 @@ public class LapidaryClient
                 RenderType.translucent()
         );
 
+        /*
+         * The placeholder case model has cutout glass and an open front.
+         * A future detailed model can switch to translucent if needed.
+         */
+        BlockRenderLayerMap.INSTANCE.putBlock(
+                ModBlocks.DISPLAY_CASE,
+                RenderType.cutout()
+        );
+
         BlockEntityRendererRegistry.register(
                 ModBlockEntities.CANISTER,
                 CanisterBlockEntityRenderer::new
@@ -158,6 +179,21 @@ public class LapidaryClient
         BlockEntityRendererRegistry.register(
                 ModBlockEntities.MANA_PERCOLATOR,
                 ManaPercolatorBlockEntityRenderer::new
+        );
+
+        BlockEntityRendererRegistry.register(
+                ModBlockEntities.RING_DISPLAY,
+                RingDisplayBlockEntityRenderer::new
+        );
+
+        BlockEntityRendererRegistry.register(
+                ModBlockEntities.AMULET_DISPLAY,
+                AmuletDisplayBlockEntityRenderer::new
+        );
+
+        BlockEntityRendererRegistry.register(
+                ModBlockEntities.DISPLAY_CASE,
+                DisplayCaseBlockEntityRenderer::new
         );
 
         BlockRenderLayerMap.INSTANCE.putBlock(

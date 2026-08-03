@@ -6,17 +6,22 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 
 public final class JewelersTableScreen
-        extends AbstractContainerScreen<JewelersTableMenu> {
+        extends AbstractContainerScreen<
+        JewelersTableMenu
+        > {
 
-    /*
-     * Temporary background until your custom interface texture arrives.
-     */
     private static final ResourceLocation BACKGROUND =
             ResourceLocation.withDefaultNamespace(
                     "textures/gui/container/anvil.png"
             );
+
+    private static final int GEM_X = 27;
+    private static final int GEM_Y = 47;
+    private static final int JEWELRY_X = 76;
+    private static final int JEWELRY_Y = 47;
 
     public JewelersTableScreen(
             JewelersTableMenu menu,
@@ -29,8 +34,8 @@ public final class JewelersTableScreen
                 title
         );
 
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        imageWidth = 176;
+        imageHeight = 166;
     }
 
     @Override
@@ -40,7 +45,7 @@ public final class JewelersTableScreen
             int mouseY,
             float partialTick
     ) {
-        this.renderBackground(
+        renderBackground(
                 graphics,
                 mouseX,
                 mouseY,
@@ -54,7 +59,7 @@ public final class JewelersTableScreen
                 partialTick
         );
 
-        this.renderTooltip(
+        renderTooltip(
                 graphics,
                 mouseX,
                 mouseY
@@ -70,12 +75,126 @@ public final class JewelersTableScreen
     ) {
         graphics.blit(
                 BACKGROUND,
-                this.leftPos,
-                this.topPos,
+                leftPos,
+                topPos,
                 0,
                 0,
-                this.imageWidth,
-                this.imageHeight
+                imageWidth,
+                imageHeight
         );
+
+        renderRemotePreview(
+                graphics,
+                menu.getRemoteGemPreview(),
+                GEM_X,
+                GEM_Y
+        );
+
+        renderRemotePreview(
+                graphics,
+                menu.getRemoteJewelryPreview(),
+                JEWELRY_X,
+                JEWELRY_Y
+        );
+    }
+
+    private void renderRemotePreview(
+            GuiGraphics graphics,
+            ItemStack stack,
+            int relativeX,
+            int relativeY
+    ) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        int x =
+                leftPos + relativeX;
+
+        int y =
+                topPos + relativeY;
+
+        graphics.fill(
+                x - 1,
+                y - 1,
+                x + 17,
+                y + 17,
+                0x8046E5D0
+        );
+
+        graphics.renderItem(
+                stack,
+                x,
+                y
+        );
+    }
+
+    @Override
+    protected void renderTooltip(
+            GuiGraphics graphics,
+            int mouseX,
+            int mouseY
+    ) {
+        super.renderTooltip(
+                graphics,
+                mouseX,
+                mouseY
+        );
+
+        ItemStack remoteGem =
+                menu.getRemoteGemPreview();
+
+        if (isInside(
+                mouseX,
+                mouseY,
+                GEM_X,
+                GEM_Y
+        ) && !remoteGem.isEmpty()) {
+
+            graphics.renderTooltip(
+                    font,
+                    remoteGem,
+                    mouseX,
+                    mouseY
+            );
+
+            return;
+        }
+
+        ItemStack remoteJewelry =
+                menu.getRemoteJewelryPreview();
+
+        if (isInside(
+                mouseX,
+                mouseY,
+                JEWELRY_X,
+                JEWELRY_Y
+        ) && !remoteJewelry.isEmpty()) {
+
+            graphics.renderTooltip(
+                    font,
+                    remoteJewelry,
+                    mouseX,
+                    mouseY
+            );
+        }
+    }
+
+    private boolean isInside(
+            int mouseX,
+            int mouseY,
+            int relativeX,
+            int relativeY
+    ) {
+        int x =
+                leftPos + relativeX;
+
+        int y =
+                topPos + relativeY;
+
+        return mouseX >= x
+                && mouseX < x + 16
+                && mouseY >= y
+                && mouseY < y + 16;
     }
 }

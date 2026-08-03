@@ -1,7 +1,11 @@
 package name.lapidary.screen;
 
 import name.lapidary.block.ModBlocks;
+import name.lapidary.display.DisplayKind;
+import name.lapidary.display.NearbyDisplayAccess;
 import name.lapidary.item.ModItems;
+import name.lapidary.tag.ModItemTags;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -13,6 +17,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -31,10 +36,6 @@ public final class GemCutterMenu
 
     private final ContainerLevelAccess access;
 
-    /*
-     * This temporary inventory behaves like the vanilla stonecutter:
-     * the input exists only while the menu is open.
-     */
     private final Container inputContainer =
             new SimpleContainer(1) {
                 @Override
@@ -50,15 +51,17 @@ public final class GemCutterMenu
     private final ResultContainer resultContainer =
             new ResultContainer();
 
-    /*
-     * -1 means no cut is currently selected.
-     */
     private final DataSlot selectedCut =
             DataSlot.standalone();
 
     /*
-     * Client-side constructor used by MenuType.
+     * Registry ID of the first compatible gem in a nearby display case.
+     * This lets the client draw the ordinary cut choices even though the
+     * source ItemStack remains physically in the display case.
      */
+    private final DataSlot remoteInputItemId =
+            DataSlot.standalone();
+
     public GemCutterMenu(
             int containerId,
             Inventory playerInventory
@@ -70,9 +73,6 @@ public final class GemCutterMenu
         );
     }
 
-    /*
-     * Server-side constructor used by GemCutterBlock.
-     */
     public GemCutterMenu(
             int containerId,
             Inventory playerInventory,
@@ -84,12 +84,11 @@ public final class GemCutterMenu
         );
 
         this.access = access;
-        this.selectedCut.set(-1);
 
-        /*
-         * Gem input slot.
-         */
-        this.addSlot(
+        selectedCut.set(-1);
+        remoteInputItemId.set(-1);
+
+        addSlot(
                 new Slot(
                         inputContainer,
                         0,
@@ -105,10 +104,7 @@ public final class GemCutterMenu
                 }
         );
 
-        /*
-         * Finished-cut output slot.
-         */
-        this.addSlot(
+        addSlot(
                 new Slot(
                         resultContainer,
                         0,
@@ -123,35 +119,37 @@ public final class GemCutterMenu
                     }
 
                     @Override
+                    public boolean mayPickup(
+                            Player player
+                    ) {
+                        return !getItem().isEmpty()
+                                && GemCutterMenu.this
+                                .hasConsumableInput(
+                                        player
+                                );
+                    }
+
+                    @Override
                     public void onTake(
                             Player player,
                             ItemStack stack
                     ) {
-                        /*
-                         * Consume one gem for each result taken.
-                         */
-                        GemCutterMenu.this.inputContainer
-                                .removeItem(
-                                        0,
-                                        1
-                                );
+                        if (GemCutterMenu.this
+                                .consumeOneInput()) {
 
-                        GemCutterMenu.this.selectedCut
-                                .set(-1);
+                            GemCutterMenu.this
+                                    .selectedCut
+                                    .set(-1);
 
-                        GemCutterMenu.this.setupResult();
+                            GemCutterMenu.this
+                                    .refreshRemoteInput();
 
-                        GemCutterMenu.this.access.execute(
-                                (level, position) ->
-                                        level.playSound(
-                                                null,
-                                                position,
-                                                SoundEvents.UI_STONECUTTER_SELECT_RECIPE,
-                                                SoundSource.BLOCKS,
-                                                1.0F,
-                                                1.0F
-                                        )
-                        );
+                            GemCutterMenu.this
+                                    .setupResult();
+
+                            GemCutterMenu.this
+                                    .playCraftSound();
+                        }
 
                         super.onTake(
                                 player,
@@ -165,23 +163,24 @@ public final class GemCutterMenu
                 playerInventory
         );
 
-        this.addDataSlot(
-                selectedCut
-        );
+        addDataSlot(selectedCut);
+        addDataSlot(remoteInputItemId);
+
+        refreshRemoteInput();
     }
 
     private void addPlayerInventory(
             Inventory playerInventory
     ) {
-        /*
-         * Main player inventory: three rows of nine.
-         */
-        for (int row = 0; row < 3; row++) {
+        for (int row = 0;
+             row < 3;
+             row++) {
+
             for (int column = 0;
                  column < 9;
                  column++) {
 
-                this.addSlot(
+                addSlot(
                         new Slot(
                                 playerInventory,
                                 column
@@ -194,14 +193,11 @@ public final class GemCutterMenu
             }
         }
 
-        /*
-         * Hotbar.
-         */
         for (int column = 0;
              column < 9;
              column++) {
 
-            this.addSlot(
+            addSlot(
                     new Slot(
                             playerInventory,
                             column,
@@ -222,14 +218,71 @@ public final class GemCutterMenu
                 || stack.is(ModItems.PURE_LAPIS);
     }
 
-    /*
-     * This is deliberately hard-coded for the first milestone.
-     *
-     * Later, this method can read actual gem-cutting recipes.
-     */
+    private ItemStack getEffectiveInput() {
+        ItemStack local =
+                inputContainer.getItem(
+                        INPUT_SLOT
+                );
+
+        if (!local.isEmpty()) {
+            return local;
+        }
+
+        return stackFromRegistryId(
+                remoteInputItemId.get()
+        );
+    }
+
+    public ItemStack getRemoteInputPreview() {
+        if (!inputContainer
+                .getItem(INPUT_SLOT)
+                .isEmpty()) {
+
+            return ItemStack.EMPTY;
+        }
+
+        return getEffectiveInput()
+                .copyWithCount(1);
+    }
+
+    private boolean matchesRemoteInput(
+            ItemStack stack
+    ) {
+        ItemStack expected =
+                stackFromRegistryId(
+                        remoteInputItemId.get()
+                );
+
+        return !expected.isEmpty()
+                && ItemStack.isSameItemSameComponents(
+                stack,
+                expected
+        );
+    }
+
+    private static ItemStack stackFromRegistryId(
+            int itemId
+    ) {
+        if (itemId < 0) {
+            return ItemStack.EMPTY;
+        }
+
+        Item item =
+                BuiltInRegistries.ITEM
+                        .byId(itemId);
+
+        if (item == null
+                || item == Items.AIR) {
+
+            return ItemStack.EMPTY;
+        }
+
+        return new ItemStack(item);
+    }
+
     public List<ItemStack> getAvailableCuts() {
         ItemStack input =
-                inputContainer.getItem(0);
+                getEffectiveInput();
 
         if (input.is(ModItems.SEA_GLASS)) {
             return List.of(
@@ -298,15 +351,10 @@ public final class GemCutterMenu
     }
 
     public boolean hasInputItem() {
-        return !inputContainer
-                .getItem(0)
+        return !getEffectiveInput()
                 .isEmpty();
     }
 
-    /*
-     * Called when the player clicks one of the graphical cut choices.
-     * Minecraft automatically sends this button ID to the server.
-     */
     @Override
     public boolean clickMenuButton(
             Player player,
@@ -336,24 +384,273 @@ public final class GemCutterMenu
                     0,
                     ItemStack.EMPTY
             );
+
+            refreshRemoteInput();
         }
 
-        this.broadcastChanges();
+        broadcastChanges();
     }
 
     private void setupResult() {
-        int selectedIndex =
-                selectedCut.get();
-
         ItemStack result =
-                getCutResult(selectedIndex);
+                getCutResult(
+                        selectedCut.get()
+                );
 
         resultContainer.setItem(
                 0,
                 result.copy()
         );
 
-        this.broadcastChanges();
+        broadcastChanges();
+    }
+
+    private void refreshRemoteInput() {
+        if (!inputContainer
+                .getItem(INPUT_SLOT)
+                .isEmpty()) {
+
+            remoteInputItemId.set(-1);
+            return;
+        }
+
+        int current =
+                remoteInputItemId.get();
+
+        int found =
+                access.evaluate(
+                        (level, position) ->
+                                NearbyDisplayAccess
+                                        .findSource(
+                                                level,
+                                                position,
+                                                List.of(
+                                                        DisplayKind.CASE
+                                                ),
+                                                GemCutterMenu
+                                                        ::isValidGem
+                                        )
+                                        .map(
+                                                source ->
+                                                        BuiltInRegistries
+                                                                .ITEM
+                                                                .getId(
+                                                                        source.currentStack()
+                                                                                .getItem()
+                                                                )
+                                        )
+                                        .orElse(-1),
+                        current
+                );
+
+        remoteInputItemId.set(found);
+    }
+
+    private NearbyDisplayAccess.Source
+    findRemoteInputSource() {
+        return access.evaluate(
+                (level, position) ->
+                        NearbyDisplayAccess
+                                .findSource(
+                                        level,
+                                        position,
+                                        List.of(
+                                                DisplayKind.CASE
+                                        ),
+                                        this::matchesRemoteInput
+                                )
+                                .orElse(null),
+                null
+        );
+    }
+
+    private boolean hasConsumableInput(
+            Player player
+    ) {
+        ItemStack local =
+                inputContainer.getItem(
+                        INPUT_SLOT
+                );
+
+        if (!local.isEmpty()
+                && isValidGem(local)) {
+
+            return true;
+        }
+
+        if (player.level().isClientSide) {
+            return remoteInputItemId.get() >= 0;
+        }
+
+        NearbyDisplayAccess.Source source =
+                findRemoteInputSource();
+
+        return source != null
+                && source.isStillValid();
+    }
+
+    private boolean consumeOneInput() {
+        ItemStack local =
+                inputContainer.getItem(
+                        INPUT_SLOT
+                );
+
+        if (!local.isEmpty()
+                && isValidGem(local)) {
+
+            inputContainer.removeItem(
+                    INPUT_SLOT,
+                    1
+            );
+
+            return true;
+        }
+
+        NearbyDisplayAccess.Source source =
+                findRemoteInputSource();
+
+        return source != null
+                && source.consumeOne();
+    }
+
+    private List<DisplayKind>
+    outputDestinationPriority(
+            ItemStack result
+    ) {
+        if (result.is(ModItemTags.RINGS)) {
+            return List.of(
+                    DisplayKind.RING,
+                    DisplayKind.CASE
+            );
+        }
+
+        if (result.is(ModItemTags.AMULETS)) {
+            return List.of(
+                    DisplayKind.AMULET,
+                    DisplayKind.CASE
+            );
+        }
+
+        return List.of(
+                DisplayKind.CASE
+        );
+    }
+
+    /**
+     * Shift-clicking the output uses the nearby workshop network first.
+     * Ordinary clicking still takes the result into the player's cursor.
+     */
+    private boolean craftIntoNearbyDisplay(
+            ItemStack result
+    ) {
+        if (result.isEmpty()) {
+            return false;
+        }
+
+        boolean localSource =
+                !inputContainer
+                        .getItem(INPUT_SLOT)
+                        .isEmpty();
+
+        boolean crafted =
+                access.evaluate(
+                        (level, position) -> {
+                            NearbyDisplayAccess.Source source =
+                                    localSource
+                                            ? null
+                                            : NearbyDisplayAccess
+                                            .findSource(
+                                                    level,
+                                                    position,
+                                                    List.of(
+                                                            DisplayKind.CASE
+                                                    ),
+                                                    this::matchesRemoteInput
+                                            )
+                                            .orElse(null);
+
+                            if (!localSource
+                                    && (source == null
+                                    || !source.isStillValid())) {
+
+                                return false;
+                            }
+
+                            NearbyDisplayAccess.Destination
+                                    destination =
+                                    NearbyDisplayAccess
+                                            .findDestination(
+                                                    level,
+                                                    position,
+                                                    result,
+                                                    outputDestinationPriority(
+                                                            result
+                                                    )
+                                            )
+                                            .orElse(null);
+
+                            if (destination == null) {
+                                return false;
+                            }
+
+                            if (localSource) {
+                                inputContainer
+                                        .getItem(INPUT_SLOT)
+                                        .shrink(1);
+                            } else if (!source.consumeOne()) {
+                                return false;
+                            }
+
+                            if (!destination.insert(result)) {
+                                if (localSource) {
+                                    inputContainer
+                                            .getItem(INPUT_SLOT)
+                                            .grow(1);
+                                } else {
+                                    source.restoreOne();
+                                }
+
+                                return false;
+                            }
+
+                            return true;
+                        },
+                        false
+                );
+
+        if (crafted) {
+            if (localSource) {
+                inputContainer.setChanged();
+            }
+
+            selectedCut.set(-1);
+
+            resultContainer.setItem(
+                    0,
+                    ItemStack.EMPTY
+            );
+
+            refreshRemoteInput();
+            broadcastChanges();
+            playCraftSound();
+        }
+
+        return crafted;
+    }
+
+    private void playCraftSound() {
+        access.execute(
+                (level, position) ->
+                        level.playSound(
+                                null,
+                                position,
+                                SoundEvents
+                                        .UI_STONECUTTER_SELECT_RECIPE,
+                                SoundSource.BLOCKS,
+                                1.0F,
+                                1.0F
+                        )
+        );
     }
 
     @Override
@@ -367,9 +664,6 @@ public final class GemCutterMenu
         );
     }
 
-    /*
-     * Return the uncut gem when the player closes the interface.
-     */
     @Override
     public void removed(
             Player player
@@ -378,7 +672,7 @@ public final class GemCutterMenu
 
         access.execute(
                 (level, position) ->
-                        this.clearContainer(
+                        clearContainer(
                                 player,
                                 inputContainer
                         )
@@ -390,11 +684,8 @@ public final class GemCutterMenu
             Player player,
             int slotIndex
     ) {
-        ItemStack originalCopy =
-                ItemStack.EMPTY;
-
         Slot slot =
-                this.slots.get(slotIndex);
+                slots.get(slotIndex);
 
         if (!slot.hasItem()) {
             return ItemStack.EMPTY;
@@ -403,14 +694,17 @@ public final class GemCutterMenu
         ItemStack slotStack =
                 slot.getItem();
 
-        originalCopy =
+        ItemStack originalCopy =
                 slotStack.copy();
 
         if (slotIndex == RESULT_SLOT) {
-            /*
-             * Shift-clicking the result moves it into the inventory.
-             */
-            if (!this.moveItemStackTo(
+            if (craftIntoNearbyDisplay(
+                    originalCopy
+            )) {
+                return originalCopy;
+            }
+
+            if (!moveItemStackTo(
                     slotStack,
                     PLAYER_INVENTORY_START,
                     HOTBAR_END,
@@ -424,10 +718,7 @@ public final class GemCutterMenu
                     originalCopy
             );
         } else if (slotIndex == INPUT_SLOT) {
-            /*
-             * Shift-clicking the input returns it to the player.
-             */
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     PLAYER_INVENTORY_START,
                     HOTBAR_END,
@@ -436,10 +727,7 @@ public final class GemCutterMenu
                 return ItemStack.EMPTY;
             }
         } else if (isValidGem(slotStack)) {
-            /*
-             * Shift-clicking gem inserts it into the cutter.
-             */
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     INPUT_SLOT,
                     INPUT_SLOT + 1,
@@ -452,7 +740,7 @@ public final class GemCutterMenu
                 && slotIndex
                 < PLAYER_INVENTORY_END) {
 
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     HOTBAR_START,
                     HOTBAR_END,
@@ -465,7 +753,7 @@ public final class GemCutterMenu
                 && slotIndex
                 < HOTBAR_END) {
 
-            if (!this.moveItemStackTo(
+            if (!moveItemStackTo(
                     slotStack,
                     PLAYER_INVENTORY_START,
                     PLAYER_INVENTORY_END,
@@ -476,9 +764,7 @@ public final class GemCutterMenu
         }
 
         if (slotStack.isEmpty()) {
-            slot.set(
-                    ItemStack.EMPTY
-            );
+            slot.set(ItemStack.EMPTY);
         } else {
             slot.setChanged();
         }

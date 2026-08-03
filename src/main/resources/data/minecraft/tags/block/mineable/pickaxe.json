@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "lapidary:mana_percolator"
+    "lapidary:bismuth_block",
+    "lapidary:amulet_display",
+    "lapidary:display_case"
   ]
 }

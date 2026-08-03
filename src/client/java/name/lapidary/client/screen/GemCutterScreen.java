@@ -13,13 +13,6 @@ import net.minecraft.world.item.ItemStack;
 public final class GemCutterScreen
         extends AbstractContainerScreen<GemCutterMenu> {
 
-    /*
-     * Temporary background.
-     *
-     * Replace this with:
-     * lapidary:textures/gui/container/gem_cutter.png
-     * when the custom UI texture is ready.
-     */
     private static final ResourceLocation BACKGROUND =
             ResourceLocation.withDefaultNamespace(
                     "textures/gui/container/stonecutter.png"
@@ -27,12 +20,13 @@ public final class GemCutterScreen
 
     private static final int CUT_COLUMNS = 4;
     private static final int CUT_ROWS = 3;
-
     private static final int CUT_AREA_X = 52;
     private static final int CUT_AREA_Y = 14;
-
     private static final int CUT_WIDTH = 16;
     private static final int CUT_HEIGHT = 18;
+
+    private static final int INPUT_X = 20;
+    private static final int INPUT_Y = 33;
 
     public GemCutterScreen(
             GemCutterMenu menu,
@@ -45,8 +39,8 @@ public final class GemCutterScreen
                 title
         );
 
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        imageWidth = 176;
+        imageHeight = 166;
     }
 
     @Override
@@ -56,7 +50,7 @@ public final class GemCutterScreen
             int mouseY,
             float partialTick
     ) {
-        this.renderBackground(
+        renderBackground(
                 graphics,
                 mouseX,
                 mouseY,
@@ -70,7 +64,7 @@ public final class GemCutterScreen
                 partialTick
         );
 
-        this.renderTooltip(
+        renderTooltip(
                 graphics,
                 mouseX,
                 mouseY
@@ -86,18 +80,53 @@ public final class GemCutterScreen
     ) {
         graphics.blit(
                 BACKGROUND,
-                this.leftPos,
-                this.topPos,
+                leftPos,
+                topPos,
                 0,
                 0,
-                this.imageWidth,
-                this.imageHeight
+                imageWidth,
+                imageHeight
+        );
+
+        renderRemoteInput(
+                graphics
         );
 
         renderCutChoices(
                 graphics,
                 mouseX,
                 mouseY
+        );
+    }
+
+    private void renderRemoteInput(
+            GuiGraphics graphics
+    ) {
+        ItemStack remote =
+                menu.getRemoteInputPreview();
+
+        if (remote.isEmpty()) {
+            return;
+        }
+
+        int x =
+                leftPos + INPUT_X;
+
+        int y =
+                topPos + INPUT_Y;
+
+        graphics.fill(
+                x - 1,
+                y - 1,
+                x + 17,
+                y + 17,
+                0x8046E5D0
+        );
+
+        graphics.renderItem(
+                remote,
+                x,
+                y
         );
     }
 
@@ -123,12 +152,12 @@ public final class GemCutterScreen
                     index / CUT_COLUMNS;
 
             int x =
-                    this.leftPos
+                    leftPos
                             + CUT_AREA_X
                             + column * CUT_WIDTH;
 
             int y =
-                    this.topPos
+                    topPos
                             + CUT_AREA_Y
                             + row * CUT_HEIGHT;
 
@@ -142,10 +171,6 @@ public final class GemCutterScreen
                     menu.getSelectedCut()
                             == index;
 
-            /*
-             * Temporary selection backgrounds.
-             * Your eventual GUI texture can replace these rectangles.
-             */
             if (selected) {
                 graphics.fill(
                         x,
@@ -198,12 +223,12 @@ public final class GemCutterScreen
                     index / CUT_COLUMNS;
 
             int x =
-                    this.leftPos
+                    leftPos
                             + CUT_AREA_X
                             + column * CUT_WIDTH;
 
             int y =
-                    this.topPos
+                    topPos
                             + CUT_AREA_Y
                             + row * CUT_HEIGHT;
 
@@ -217,20 +242,16 @@ public final class GemCutterScreen
                 continue;
             }
 
-            if (this.minecraft != null
-                    && this.minecraft.gameMode != null) {
+            if (minecraft != null
+                    && minecraft.gameMode != null) {
 
-                /*
-                 * This sends the cut index to
-                 * GemCutterMenu.clickMenuButton on the server.
-                 */
-                this.minecraft.gameMode
+                minecraft.gameMode
                         .handleInventoryButtonClick(
-                                this.menu.containerId,
+                                menu.containerId,
                                 index
                         );
 
-                this.minecraft.getSoundManager()
+                minecraft.getSoundManager()
                         .play(
                                 SimpleSoundInstance.forUI(
                                         SoundEvents
@@ -262,6 +283,31 @@ public final class GemCutterScreen
                 mouseY
         );
 
+        ItemStack remote =
+                menu.getRemoteInputPreview();
+
+        int inputX =
+                leftPos + INPUT_X;
+
+        int inputY =
+                topPos + INPUT_Y;
+
+        if (!remote.isEmpty()
+                && mouseX >= inputX
+                && mouseX < inputX + 16
+                && mouseY >= inputY
+                && mouseY < inputY + 16) {
+
+            graphics.renderTooltip(
+                    font,
+                    remote,
+                    mouseX,
+                    mouseY
+            );
+
+            return;
+        }
+
         int cutCount =
                 Math.min(
                         menu.getAvailableCutCount(),
@@ -279,12 +325,12 @@ public final class GemCutterScreen
                     index / CUT_COLUMNS;
 
             int x =
-                    this.leftPos
+                    leftPos
                             + CUT_AREA_X
                             + column * CUT_WIDTH;
 
             int y =
-                    this.topPos
+                    topPos
                             + CUT_AREA_Y
                             + row * CUT_HEIGHT;
 
@@ -296,7 +342,7 @@ public final class GemCutterScreen
 
             if (hovered) {
                 graphics.renderTooltip(
-                        this.font,
+                        font,
                         menu.getCutResult(index),
                         mouseX,
                         mouseY

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=south": {
+      "model": "lapidary:block/display_case"
+    },
+    "facing=west": {
+      "model": "lapidary:block/display_case",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lapidary:block/display_case",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "lapidary:block/display_case",
+      "y": 270
+    }
+  }
+}

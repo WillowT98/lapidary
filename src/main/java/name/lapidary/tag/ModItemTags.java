@@ -9,10 +9,13 @@ import net.minecraft.world.item.Item;
 public final class ModItemTags {
 
     public static final TagKey<Item> GEMS =
-            create(
-                    "gems"
-            );
+            create("gems");
 
+    public static final TagKey<Item> RINGS =
+            create("rings");
+
+    public static final TagKey<Item> AMULETS =
+            create("amulets");
 
     public static final TagKey<Item> SHOWS_INSIGHT_BAR =
             create(

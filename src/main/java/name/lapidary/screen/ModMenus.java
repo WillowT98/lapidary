@@ -4,7 +4,6 @@ import name.lapidary.Lapidary;
 import name.lapidary.inventory.MageBackpackMenu;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 
@@ -14,8 +13,7 @@ public final class ModMenus {
             JEWELERS_TABLE =
             Registry.register(
                     BuiltInRegistries.MENU,
-                    ResourceLocation.fromNamespaceAndPath(
-                            Lapidary.MOD_ID,
+                    Lapidary.id(
                             "jewelers_table"
                     ),
                     new MenuType<>(
@@ -28,8 +26,7 @@ public final class ModMenus {
             GEM_CUTTER =
             Registry.register(
                     BuiltInRegistries.MENU,
-                    ResourceLocation.fromNamespaceAndPath(
-                            Lapidary.MOD_ID,
+                    Lapidary.id(
                             "gem_cutter"
                     ),
                     new MenuType<>(
@@ -38,12 +35,50 @@ public final class ModMenus {
                     )
             );
 
+    public static final MenuType<RingDisplayMenu>
+            RING_DISPLAY =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    Lapidary.id(
+                            "ring_display"
+                    ),
+                    new MenuType<>(
+                            RingDisplayMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
+
+    public static final MenuType<AmuletDisplayMenu>
+            AMULET_DISPLAY =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    Lapidary.id(
+                            "amulet_display"
+                    ),
+                    new MenuType<>(
+                            AmuletDisplayMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
+
+    public static final MenuType<DisplayCaseMenu>
+            DISPLAY_CASE =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    Lapidary.id(
+                            "display_case"
+                    ),
+                    new MenuType<>(
+                            DisplayCaseMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
+
     public static final MenuType<MageBackpackMenu>
             MAGE_BACKPACK =
             Registry.register(
                     BuiltInRegistries.MENU,
-                    ResourceLocation.fromNamespaceAndPath(
-                            Lapidary.MOD_ID,
+                    Lapidary.id(
                             "mage_backpack"
                     ),
                     new MenuType<>(
@@ -51,6 +86,7 @@ public final class ModMenus {
                             FeatureFlags.DEFAULT_FLAGS
                     )
             );
+
     public static final MenuType<StainedGlassFabricatorMenu>
             STAINED_GLASS_FABRICATOR =
             Registry.register(
@@ -63,7 +99,6 @@ public final class ModMenus {
                             FeatureFlags.DEFAULT_FLAGS
                     )
             );
-
 
     private ModMenus() {
     }

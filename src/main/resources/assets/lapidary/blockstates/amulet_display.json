@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=south": {
+      "model": "lapidary:block/amulet_display"
+    },
+    "facing=west": {
+      "model": "lapidary:block/amulet_display",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lapidary:block/amulet_display",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "lapidary:block/amulet_display",
+      "y": 270
+    }
+  }
+}
