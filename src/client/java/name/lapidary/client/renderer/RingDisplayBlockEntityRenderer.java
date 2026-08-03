@@ -36,16 +36,16 @@ public final class RingDisplayBlockEntityRenderer
             3.0D / 16.0D;
 
     private static final double FIRST_COLUMN_X =
-            0.29D;
+            0.215D;
 
     private static final double COLUMN_SPACING =
-            0.14D;
+            0.19D;
 
     private static final double FIRST_ROW_Y =
-            0.79D;
+            0.91D;
 
     private static final double ROW_SPACING =
-            0.17D;
+            0.21D;
 
     /*
      * The board's visible face is on its south/front side. Move the
@@ -55,6 +55,9 @@ public final class RingDisplayBlockEntityRenderer
      */
     private static final double RING_PLANE_Z =
             8.03D / 16.0D;
+
+    private static final double RING_BOARD_DOWN_OFFSET =
+            3.0D / 16.0D;
 
     public RingDisplayBlockEntityRenderer(
             BlockEntityRendererProvider.Context context
@@ -104,6 +107,17 @@ public final class RingDisplayBlockEntityRenderer
                 -BOARD_ORIGIN_X,
                 -BOARD_ORIGIN_Y,
                 -BOARD_ORIGIN_Z
+        );
+
+        /*
+         * Move the ring grid downward along the board rather than straight
+         * downward in world space. This preserves its current offset from
+         * the board's visible face.
+         */
+        poseStack.translate(
+                0.0D,
+                -RING_BOARD_DOWN_OFFSET,
+                0.0D
         );
 
         for (int slot = 0;
